@@ -282,11 +282,11 @@ public class EvaluateAgentConsole {
 	public static String[] getTestArgs() {
 		return new String[] {
 				  "-s", "20" // "seed"
-				, "-o", "-pp false -tp 0.5 -gc 0 -lc 1 -v false -2x false -p false -tt 40 -r true"   // prototype-options";
-				, "-c", "5"  // run-count
-				, "-r", "5"  // one-run-repetitions
-				, "-p", "game.controllers.pacman.examples.NearestPillPacMan" // agent-fqcn ... requires MarioAI4J-Agents on classpath!
-				, "-i", "NearestPill"   // agent-id
+				, "-o", "-pp true -tp 1.0 -gc 4 -lc 20 -v false -2x true -p false -tt 40 -r true"   // prototype-options";
+				, "-c", "30"  // run-count
+				, "-r", "1"  // one-run-repetitions
+				, "-p", "game.controllers.pacman.examples.MyPacMan" // agent-fqcn ... requires MarioAI4J-Agents on classpath!
+				, "-i", "MyPacMan"   // agent-id
 				, "-d", "./results" // result-dir"	
 		};
 	}
@@ -295,7 +295,7 @@ public class EvaluateAgentConsole {
 		// -----------
 		// FOR TESTING
 		// -----------
-		//args = getTestArgs();		
+		args = getTestArgs();		
 		
 		// --------------
 		// IMPLEMENTATION
