@@ -109,7 +109,8 @@ public interface Game
 	
 	public int[] getPossiblePacManDirs(boolean includeReverse);		//returns the set of possible directions for Ms Pac-Man, with or without the direction opposite to the last direction taken
 	public int[] getPossibleGhostDirs(int whichGhost);				//returns the set of possible directions for the ghost specified (excludes the opposite of the previous direction)
-
+	public int[] getPossibleDirs(int curLoc,int curDir,boolean includeReverse);  // returns the possible directions from the given location
+	
 	public int[] getPath(int from,int to);										//returns the path from one node to another (e.g., [1,2,5,7,9] for 1 to 9)
 	public int[] getGhostPath(int whichGhost,int to);							//returns the path from one node to another, taking into account that reversals are not possible
 	public int getTarget(int from,int[] targets,boolean nearest,DM measure);	//selects a target from 'targets' given current position ('from'), a distance measure and whether it should be the point closest or farthest

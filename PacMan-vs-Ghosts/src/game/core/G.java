@@ -770,7 +770,7 @@ public class G implements Game
 	}
 	
 	//Computes the directions to be taken given the current location
-	private int[] getPossibleDirs(int curLoc,int curDir,boolean includeReverse)
+	public int[] getPossibleDirs(int curLoc,int curDir,boolean includeReverse)
 	{
 		int numNeighbours=mazes[curMaze].graph[curLoc].numNeighbours;
 
