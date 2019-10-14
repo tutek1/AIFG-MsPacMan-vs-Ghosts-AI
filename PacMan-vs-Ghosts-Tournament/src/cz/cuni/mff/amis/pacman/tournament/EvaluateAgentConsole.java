@@ -1,7 +1,6 @@
 package cz.cuni.mff.amis.pacman.tournament;
 
 import game.SimulatorConfig;
-import game.controllers.ghosts.game.GameGhosts;
 import game.controllers.pacman.IPacManController;
 
 import java.io.File;
@@ -186,7 +185,9 @@ public class EvaluateAgentConsole {
 		
 		if (!config.success()) {
 			String error = "Invalid arguments specified.";
-			Iterator errorIter = config.getErrorMessageIterator();
+
+			@SuppressWarnings("unchecked")
+			Iterator<String> errorIter = config.getErrorMessageIterator();
 			if (!errorIter.hasNext()) {
 				error += "\n-- No details given.";
 			} else {
@@ -246,7 +247,7 @@ public class EvaluateAgentConsole {
 			fail("Failed to find agent class: " + agentFQCN);
 		}
 		System.out.println("---- agent class found");
-		Constructor agentCtor = null;
+		Constructor<?> agentCtor = null;
 		try {
 			agentCtor = agentClass.getConstructor();
 		} catch (Exception e) {

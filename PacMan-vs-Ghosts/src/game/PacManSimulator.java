@@ -16,7 +16,6 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**

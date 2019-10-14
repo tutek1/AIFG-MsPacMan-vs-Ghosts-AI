@@ -112,13 +112,11 @@ public class Scale2x {
 			int sp2 = (y + 2) * line;
 
 			// Fill the initial A-I values
-			int A = sourcePixels[sp0];
 			int B = sourcePixels[++sp0];
 			int C = sourcePixels[++sp0];
 			int D = sourcePixels[sp1];
 			int E = sourcePixels[++sp1];
 			int F = sourcePixels[++sp1];
-			int G = sourcePixels[sp2];
 			int H = sourcePixels[++sp2];
 			int I = sourcePixels[++sp2];
 
@@ -136,11 +134,9 @@ public class Scale2x {
 				}
 
 				// Scroll A-I left
-				A = B;
 				B = C;
 				D = E;
 				E = F;
-				G = H;
 				H = I;
 
 				// Resample rightmost edge

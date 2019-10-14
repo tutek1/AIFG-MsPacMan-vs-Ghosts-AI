@@ -2,9 +2,6 @@ package game.controllers.ghosts.game;
 
 import game.core.Game;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public interface GameGhostAI {
 	
 	public final int BLINKY = 0;

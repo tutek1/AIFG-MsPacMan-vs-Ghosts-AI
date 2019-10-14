@@ -1,7 +1,6 @@
 package game.controllers.ghosts.examples;
 
 import game.controllers.ghosts.GhostsControllerBase;
-import game.controllers.ghosts.IGhostsController;
 import game.core.G;
 import game.core.Game;
 

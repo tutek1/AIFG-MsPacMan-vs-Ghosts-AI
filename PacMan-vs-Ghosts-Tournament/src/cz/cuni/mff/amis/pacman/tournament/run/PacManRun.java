@@ -47,9 +47,7 @@ public class PacManRun {
 				simulatorConfig.replayFile = new File(origReplayFile.getParentFile(), newFile);
 			}
 			
-			PacManSimulator simulator = new PacManSimulator();
-			
-			Game info = simulator.play(simulatorConfig);
+			Game info = PacManSimulator.play(simulatorConfig);
 			result.addResult(info);
 			
 			System.out.println("GAME FINISHED - Score: " + info.getScore() + ", Time: " + info.getTotalTime() + ", " + (info.getLivesRemaining() > 0 ? "WIN" : "LOSE"));
@@ -63,8 +61,8 @@ public class PacManRun {
 	
 	private IPacManController constructAgent(String pacManFQCN) {
 		try {
-			Class agentClass = Class.forName(pacManFQCN);
-			Constructor agentCtor = agentCtor = agentClass.getConstructor();
+			Class<?> agentClass = Class.forName(pacManFQCN);
+			Constructor<?> agentCtor = agentClass.getConstructor();
 			return (IPacManController) agentCtor.newInstance();
 		} catch (Exception e) {
 			e.printStackTrace();

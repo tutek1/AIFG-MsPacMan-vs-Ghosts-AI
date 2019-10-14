@@ -90,10 +90,7 @@ public class Replay
         data[2]=new ArrayList<Integer>();
         data[3]=new ArrayList<int[]>();
 
-        try
-        {
-            BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            
+        try (BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             gameConfig.fromString(br.readLine());
             
             String ghostCount = br.readLine();

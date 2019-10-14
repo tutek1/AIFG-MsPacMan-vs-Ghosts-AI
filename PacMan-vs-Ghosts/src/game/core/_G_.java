@@ -14,13 +14,8 @@
 package game.core;
 
 import game.PacManSimulator.GameConfig;
-import game.controllers.Direction;
 
-import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class _G_ extends G
 {

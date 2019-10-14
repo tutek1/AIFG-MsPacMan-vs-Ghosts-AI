@@ -22,18 +22,12 @@ import tools.Scale2x;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-//import java.io.BufferedReader;
-//import java.io.File;
-import java.io.File;
 import java.io.IOException;
-//import java.io.InputStreamReader;
-//import java.net.URL;
 import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 public final class GameView extends JComponent 
 {
-	private static String pathImages="images";
 	private static String[] mazes={"maze-a.png","maze-b.png","maze-c.png","maze-d.png"};
 
 	private int MAG=2;
@@ -54,7 +48,7 @@ public final class GameView extends JComponent
     
     public GameView(_G_ game)
     {
-    	this.lastInstance = this;
+    	lastInstance = this;
     	
         this.game=game;
         images=loadImages();

@@ -1,12 +1,10 @@
 package cz.cuni.mff.amis.pacman.tournament;
 
 import game.SimulatorConfig;
-import game.controllers.pacman.IPacManController;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
 
 import cz.cuni.mff.amis.pacman.tournament.run.PacManResults;
 import cz.cuni.mff.amis.pacman.tournament.run.PacManRun;

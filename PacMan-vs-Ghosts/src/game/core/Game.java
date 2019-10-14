@@ -16,8 +16,6 @@ package game.core;
 import game.controllers.ghosts.GhostsActions;
 import game.controllers.pacman.PacManAction;
 
-import java.util.Random;
-
 /*
  * This interface defines the contract between the game engine and the controllers. It provides all
  * the methods a controller may use to (a) query the game state, (b) compute game-related attributes

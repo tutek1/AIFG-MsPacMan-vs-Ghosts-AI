@@ -246,7 +246,7 @@ public class G implements Game
 		curPacManLoc = pacManLocation;
 		
 		eatPill();						  //eat a pill
-		boolean reverse=eatPowerPill();	  //eat a power pill
+		eatPowerPill();	  //eat a power pill
 		
 		if (ghosts != null) {
 			//updateGhosts(ghosts, reverse);    //move ghosts
@@ -324,10 +324,6 @@ public class G implements Game
 		int[] directions = new int[4];
 		for (int i = 0; i < ghosts.ghostCount; ++i) {
 			directions[i] = ghosts.actions[i].get().index;
-		}
-		
-		if (directions==null) {
-			directions=Arrays.copyOf(lastGhostDirs,lastGhostDirs.length);
 		}
 		
 		for(int i=0;i<ghosts.ghostCount;i++)
@@ -1015,7 +1011,6 @@ public class G implements Game
 	 */
 	protected final class Maze
 	{
-		private String pathMazes= "resources/data";
 		private String[] nodeNames={"a","b","c","d"};
 		private String[] distNames={"da","db","dc","dd"};
 		
