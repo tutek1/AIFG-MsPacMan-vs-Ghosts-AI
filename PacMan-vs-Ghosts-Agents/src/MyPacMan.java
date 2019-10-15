@@ -1,5 +1,3 @@
-package game.controllers.pacman.examples;
-
 import game.PacManSimulator;
 import game.controllers.ghosts.game.GameGhosts;
 import game.controllers.pacman.PacManHijackController;
