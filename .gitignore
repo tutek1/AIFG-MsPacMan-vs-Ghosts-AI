@@ -1,12 +1,6 @@
-/.metadata
-/PacMan-vs-Ghosts/.settings
-/PacMan-vs-Ghosts/bin
-/PacMan-vs-Ghosts-Agents/bin
-/PacMan-vs-Ghosts/replay.log
-/PacMan-vs-Ghosts-Exercises/.settings
+.metadata
+.settings
+.vscode
 bin
-/PacMan-vs-Ghosts-Solutions
-/PacMan-vs-Ghosts-Tournament/results
-/ExercisesOld
-/ExercisesSolutions
-/.recommenders
+replay.log
+results
