@@ -829,7 +829,7 @@ public class G implements Game
 				{
 					case PATH: dist=getPathDistance(from[i],to); break;
 					case EUCLID: dist=getEuclideanDistance(from[i],to); break;
-					case MANHATTEN: dist=getManhattenDistance(from[i],to); break;
+					case MANHATTAN: dist=getManhattanDistance(from[i],to); break;
 				}
 					
 				if(closer && dist<min)
@@ -867,8 +867,8 @@ public class G implements Game
 	}
 	
 	
-	//Returns the MANHATTEN distance between two nodes in the current maze.
-	public int getManhattenDistance(int from,int to)
+	//Returns the MANHATTAN distance between two nodes in the current maze.
+	public int getManhattanDistance(int from,int to)
 	{
 		return (int)(Math.abs(mazes[curMaze].graph[from].x-mazes[curMaze].graph[to].x)+Math.abs(mazes[curMaze].graph[from].y-mazes[curMaze].graph[to].y));
 	}
@@ -941,7 +941,7 @@ public class G implements Game
 			{
 				case PATH: dist=getPathDistance(targets[i],from); break;
 				case EUCLID: dist=getEuclideanDistance(targets[i],from); break;
-				case MANHATTEN: dist=getManhattenDistance(targets[i],from); break;
+				case MANHATTAN: dist=getManhattanDistance(targets[i],from); break;
 			}
 					
 			if(nearest && dist<min)
@@ -1006,7 +1006,7 @@ public class G implements Game
 	/*
 	 * Stores the actual mazes, each of which is simply a connected graph. The differences between the mazes are the connectivity
 	 * and the x,y coordinates (used for drawing or to compute the Euclidean distance. There are 3 built-in distance functions in
-	 * total: Euclidean, Manhatten and Dijkstra's shortest path distance. The latter is pre-computed and loaded, the others are
+	 * total: Euclidean, Manhattan and Dijkstra's shortest path distance. The latter is pre-computed and loaded, the others are
 	 * computed on the fly whenever getNextDir(-) is called.
 	 */
 	protected final class Maze
