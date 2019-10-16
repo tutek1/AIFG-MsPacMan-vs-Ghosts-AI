@@ -116,7 +116,6 @@ public class GameGhosts implements IGhostsController
 		if(stateChangeTimer<0 && numberOfScatterOccured<NUM_SCATTERS_PER_LEVEL){
 			int nextStateTimeinSec = 0;
 			if(currentGlobalState == SCATTER){
-				System.out.println("Global State is Chase");
 				currentGlobalState = CHASE;
 				numberOfScatterOccured ++;
 				if(game.getCurLevel() == 1){
@@ -143,8 +142,6 @@ public class GameGhosts implements IGhostsController
 			}
 			else{
 				currentGlobalState = SCATTER;
-				System.out.println("Global State is Scatter");
-				
 				if(game.getCurLevel() == 1){
 					if(numberOfScatterOccured<2){
 						nextStateTimeinSec = 7;
