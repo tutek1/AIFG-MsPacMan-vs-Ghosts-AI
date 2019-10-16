@@ -35,7 +35,8 @@ public class PacManRun {
 		
 		for (int i = 0; i < config.repetitions; ++i) {
 			
-			System.out.println("ITERATION " + (i+1) + " / " + config.repetitions);
+			if (config.repetitions > 1)
+				System.out.println("ITERATION " + (i+1) + " / " + config.repetitions);
 			
 			IPacManController pacMan = constructAgent(pacManFQCN);	
 			simulatorConfig.pacManController = pacMan;

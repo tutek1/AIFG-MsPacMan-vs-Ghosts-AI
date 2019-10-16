@@ -1,7 +1,5 @@
 package cz.cuni.mff.amis.pacman.tournament;
 
-import game.SimulatorConfig;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
@@ -11,6 +9,7 @@ import cz.cuni.mff.amis.pacman.tournament.run.PacManRun;
 import cz.cuni.mff.amis.pacman.tournament.run.PacManRunResult;
 import cz.cuni.mff.amis.pacman.tournament.run.PacManRunsGenerator;
 import cz.cuni.mff.amis.pacman.tournament.utils.Sanitize;
+import game.SimulatorConfig;
 
 public class EvaluateAgent {
 	
@@ -54,9 +53,10 @@ public class EvaluateAgent {
 		}
 						
 		for (int i = 0; i < runs.length; ++i) {
-			long start = System.currentTimeMillis();
-			
-			log(agentId, "RUN " + (i+1) + " / " + runs.length + " (" + oneRunRepetitions + " repetitions)");
+			String s = "RUN " + (i+1) + " / " + runs.length;
+			if (oneRunRepetitions > 1)
+				s = s + " (" + oneRunRepetitions + " repetitions)";
+			log(agentId, s);
 			
 			if (runs[i].getConfig().config.replay) {
 				if (replayDir != null) {
@@ -73,11 +73,10 @@ public class EvaluateAgent {
 			
 			PacManRunResult result = runs[i].run(agentFQCN);
 			
-			log(agentId, "LEVEL " + (i+1) + " / " + runs.length + " SIMULATIONS FINISHED: " + result.toString());
+			if (oneRunRepetitions > 1)
+			  log(agentId, "LEVEL " + (i+1) + " / " + runs.length + " SIMULATIONS FINISHED: " + result.toString());
 			
 			results.addRunResults(result);
-			
-			log(agentId, "TIME: " + (System.currentTimeMillis() - start) + "ms");
 		}
 		
 		log(agentId, "EVALUATION FINISHED!");
