@@ -51,11 +51,22 @@ Here are some of the most important methods:
 - int getEdibleTime(int whichGhost) - the number of remaining ticks during which the given ghost will be edible.
 - int getPillIndex(int nodeIndex) – return the index of the pill that is/was at the given position, or -1 if this is not a position that ever holds a pill in this maze. Note that this method returns the same value whether or not the pill has already been eaten. You must call checkPill to find out whether the pill still exists. (Do not pass -1 to checkPill; that will result in an out of bounds error.)
 - boolean checkPill(int pillIndex) – return true if the given pill still exists, i.e. has not been eaten.
-- int getPathDistance(int from, int to)<br>
-  double getEuclideanDistance(int from, int to)<br>
+- double getEuclideanDistance(int from, int to)<br>
   int getManhattanDistance(int from, int to)
 
-	Return various kinds of distances between two nodes in the maze. getPathDistance returns the shortest-path distance walking through the maze without going through walls. It uses a precomputed table so it is very fast (it doesn't need to perform a depth-first search of its own!) Note that if g is the position of a ghost in its lair, and p is any position in the maze, then getPathDistance(g, p) will return -1, meaning that there is no path from the ghost's position to the maze position since the lair is surrounded by walls.
+	Return the Euclidean or Manhattan distance between two maze nodes.
+- int getPathDistance(int from, int to)<br>
+
+	Return the shortest-path distance walking through the maze without going through walls. This method uses a precomputed table so it is very fast (it doesn't need to perform a depth-first search of its own!)
+	
+	Note that if g is the position of a ghost in its lair, and p is any position in the maze, then getPathDistance(g, p) will return -1, meaning that there is no path from the ghost's position to the maze position since the lair is surrounded by walls.
+
+- public int getGhostPathDistance(int whichGhost,int to)
+
+  Return the shortest distance that the given ghost may travel through the maze to reach the given position, taking into consideration that ghosts may not reverse direction.
+
+	Warning: this method is about 50-150x slower than getPathDistance!  (In my experiments it typically runs in tens of microseconds, whereas getPathDistance takes under 1 microsecond.)  That's because it (unfortunately) does not use a precomputed table, so it must trace a path through the maze.
+
 
 ## Other notes
 
