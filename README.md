@@ -69,9 +69,9 @@ Here are some of the most important Game methods:
 
 The [GameView](https://ksvi.mff.cuni.cz/~dingle/2019/ai/ms_pacman/html/game/core/Game.html) class has various static methods that draw text or graphics overlaid on the game view.  These are handy for debugging.  Perhaps the most useful is
 
-- `public static void addPoints(Game game,Color color,int... nodeIndices)`
+- `public static void addPoints(Game game, Color color, int... nodeIndices)`
 
-  Draw a set of points at the given maze nodes, in the given color.  This is a nice way to draw a path through the maze.  You must call this method anew on every tick if you want the path you draw to remain visible.
+  Draw a set of points at the given maze nodes, in the given color.  This is a nice way to draw a path through the maze.  (You must call this method anew on every tick if you want the path you draw to remain visible.)
 
 See the sample agent NearestPillPacManVS.java for an example of using these drawing methods.
 
