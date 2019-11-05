@@ -332,7 +332,7 @@ public class PacManSimulator {
 	        notify();
 	    }
 
-	    public synchronized void run() 
+	    public void run() 
 	    {
 	    	 try {
 	        	while(alive) 
