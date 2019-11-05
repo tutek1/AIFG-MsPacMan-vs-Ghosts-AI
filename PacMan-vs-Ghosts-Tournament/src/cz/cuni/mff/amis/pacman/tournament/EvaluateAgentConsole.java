@@ -316,7 +316,7 @@ public class EvaluateAgentConsole {
 		// -----------
 		// FOR TESTING
 		// -----------
-		args = getTestArgs();		
+		// args = getTestArgs();		
 		
 	    evaluate(args);
 	    
