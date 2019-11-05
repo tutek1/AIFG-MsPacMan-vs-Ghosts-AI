@@ -21,9 +21,6 @@ import java.util.Random;
  * 
  * Can be used for both head/less games.
  * 
- * TODO: for some strange reasons, this is not working correctly ... problems usually starts when PacMan eats power-pill...
- *       It seems that replays are not correctly replayed ...
- * 
  * @author Jimmy
  */
 public class PacManReplayer {

@@ -312,7 +312,7 @@ public class G implements Game
 			else
 			{
 				int[] options=getPossiblePacManDirs(true);
-				direction=options[G.rnd.nextInt(options.length)];
+				direction=options[0];
 			}
 
 		return direction;		
@@ -360,7 +360,7 @@ public class G implements Game
 			else
 			{
 				int[] options=getPossibleGhostDirs(whichGhost);
-				direction=options[G.rnd.nextInt(options.length)];
+				direction=options[0];
 			}
 		}
 
