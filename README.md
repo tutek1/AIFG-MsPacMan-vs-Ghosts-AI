@@ -75,12 +75,15 @@ The [GameView](https://ksvi.mff.cuni.cz/~dingle/2019/ai/ms_pacman/html/game/core
 
 See the sample agent NearestPillPacManVS.java for an example of using these drawing methods.
 
+## Evaluating your agent
+
+The Evaluate class (in PacMan-vs-Ghosts-Agents) will evaluate your MyPacMan agent by running it on a series of random games.  As it does so, it will generate a couple of CSV files showing the scores achieved in each game and other statistics.  It will also print output to the console showing some of this data, including the average score your agent achieves.
+
+The evaluation will also generate a series of replay files.  Each of these files logs all the activity in a single game.  To replay any game, run the PacManReplayer class (in PacMan-vs-Ghosts/src/game).  Change the filename in the main() method to the name of the replay file you wish to run.
 
 ## Other notes
 
 The PacMan-vs-Ghosts-Agents subproject contains a set of sample agents (some that control Ms. Pac-Man, and also some that control ghosts).
-
-The PacMan-vs-Ghosts-Tournament subproject is a console application that can evaluate agents, outputting results to CSV files.
 
 When running an agent, press the 'H' key to "hijack" control and manually navigate Ms. Pac-Man.
 

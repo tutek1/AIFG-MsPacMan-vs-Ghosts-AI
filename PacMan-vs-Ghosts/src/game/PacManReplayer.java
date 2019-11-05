@@ -163,7 +163,15 @@ public class PacManReplayer {
 		
 		ReplayerConfig config = new ReplayerConfig();
 		
-		config.replayFile = new File("../PacMan-vs-Ghosts-Agents/replay.log");
+                String filename = "results/MyPacMan-Run-0-Iter-0.replay";
+
+		File replay = new File(filename);
+		if (!replay.exists()) {
+			System.out.printf("file not found: %s\n", replay.getAbsolutePath());
+			return;
+		}
+
+		config.replayFile = replay;
 		
 		replayer.run(config);		
 	}
