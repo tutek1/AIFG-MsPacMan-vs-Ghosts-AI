@@ -281,21 +281,6 @@ public class EvaluateAgentConsole {
 		return evaluate.evaluateAgent(agentId, agentFQCN);		
 	}
 		
-	// ==============
-	// TEST ARGUMENTS
-	// ==============
-	public static String[] getTestArgs() {
-		return new String[] {
-				  "-s", "20" // "seed"
-				, "-o", "-pp true -tp 1.0 -gc 4 -lc 20 -v false -2x true -p false -tt 40 -r true"   // prototype-options";
-				, "-c", "50"  // run-count
-				, "-r", "1"  // one-run-repetitions
-				, "-p", "MyPacMan" // agent-fqcn ... requires MarioAI4J-Agents on classpath!
-				, "-i", "MyPacMan"   // agent-id
-				, "-d", "./results" // result-dir"	
-		};
-	}
-	
   public static PacManResults evaluate(String[] args) throws JSAPException {
 		// --------------
 		// IMPLEMENTATION
@@ -312,16 +297,13 @@ public class EvaluateAgentConsole {
 	    return evaluateAgent();
 	}
 
-	public static void main(String[] args) throws JSAPException {
-		// -----------
-		// FOR TESTING
-		// -----------
-		// args = getTestArgs();		
-		
+	public static void main(String[] args) {
+		try {
 	    evaluate(args);
-	    
 			System.out.println("---// FINISHED //---");
-	    System.exit(0);
+		} catch (JSAPException e) {
+			System.err.println(e);
+		}
 	}
 
 }
