@@ -21,7 +21,6 @@ public class PacManRun {
 	}
 	
 	/**
-	 * TODO: param should be PacMan provider/factory really... 
 	 * @param pacManFQCN
 	 * @return
 	 */

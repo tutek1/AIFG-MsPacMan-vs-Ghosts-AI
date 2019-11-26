@@ -169,7 +169,6 @@ public class Maze {
 			if (neighbours[0] != null && neighbours[1] == null && neighbours[2] != null && neighbours[3] == null) return nodeType = NodeType.CORRIDOR_UP_DOWN;
 			if (neighbours[0] == null && neighbours[1] != null && neighbours[2] == null && neighbours[3] != null) return nodeType = NodeType.CORRIDOR_LEFT_RIGHT;
 			if (neighbours[0] == null && neighbours[1] == null && neighbours[2] == null && neighbours[3] == null) return nodeType = NodeType.SOLITER;
-			// TODO: rise an exception?
 			return null;
 		}
 		
