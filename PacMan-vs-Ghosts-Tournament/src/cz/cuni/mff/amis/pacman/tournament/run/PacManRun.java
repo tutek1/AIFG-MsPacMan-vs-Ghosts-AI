@@ -6,7 +6,6 @@ import game.controllers.pacman.IPacManController;
 import game.core.Game;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
 
 import cz.cuni.mff.amis.pacman.tournament.PacManConfig;
 
@@ -24,7 +23,7 @@ public class PacManRun {
 	 * @param pacManFQCN
 	 * @return
 	 */
-	public synchronized PacManRunResult run(String pacManFQCN) {		
+	public synchronized PacManRunResult run(IPacManController pacMan) {		
 		SimulatorConfig simulatorConfig = config.config;
 		if (simulatorConfig.replay) {
 			origReplayFile = simulatorConfig.replayFile;
@@ -37,7 +36,6 @@ public class PacManRun {
 			if (config.repetitions > 1)
 				System.out.println("ITERATION " + (i+1) + " / " + config.repetitions);
 			
-			IPacManController pacMan = constructAgent(pacManFQCN);	
 			simulatorConfig.pacManController = pacMan;
 			
 			if (simulatorConfig.replay) {
@@ -58,16 +56,4 @@ public class PacManRun {
 	public PacManConfig getConfig() {
 		return config;
 	}
-	
-	private IPacManController constructAgent(String pacManFQCN) {
-		try {
-			Class<?> agentClass = Class.forName(pacManFQCN);
-			Constructor<?> agentCtor = agentClass.getConstructor();
-			return (IPacManController) agentCtor.newInstance();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException("Failed to instantiate PacMan agent: " + pacManFQCN, e);
-		}
-	}
-	
 }

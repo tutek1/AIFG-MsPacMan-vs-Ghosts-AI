@@ -52,10 +52,4 @@ public class PacManRunsGenerator {
 		}
 		return runs;
 	}
-	
-	public static PacManRuns generateRuns(int randomSeed, SimulatorConfig prototypeOptions, int runCount, int oneRunRepetitions) {
-		PacManConfig[] configs = generateConfigs(randomSeed, prototypeOptions, runCount, oneRunRepetitions);
-		return new PacManRuns(configs);
-	}
-
 }

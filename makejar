@@ -1,8 +1,8 @@
 #!/bin/bash
 
-jar cf mspac_tmp.jar -C PacMan-vs-Ghosts/bin . \
-                     -C PacMan-vs-Ghosts-Agents/bin . \
-                     -C PacMan-vs-Ghosts-Tournament/bin .
+jar cf mspac_tmp.jar -C PacMan-vs-Ghosts/target/classes . \
+                     -C PacMan-vs-Ghosts-Agents/target/classes . \
+                     -C PacMan-vs-Ghosts-Tournament/target/classes .
 
 zip -d mspac_tmp.jar MyPacMan.class
 

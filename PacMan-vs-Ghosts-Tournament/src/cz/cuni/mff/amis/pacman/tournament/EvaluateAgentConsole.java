@@ -107,7 +107,8 @@ public class EvaluateAgentConsole {
 		    	
     	FlaggedOption opt1 = new FlaggedOption(ARG_AGENT_FQCN_LONG)
         	.setStringParser(JSAP.STRING_PARSER)
-        	.setRequired(true) 
+            .setRequired(false)
+            .setDefault("MyPacMan") 
         	.setShortFlag(ARG_AGENT_FQCN_SHORT)
         	.setLongFlag(ARG_AGENT_FQCN_LONG);    
         opt1.setHelp("Agent fully-qualified class name to evaluate. Must be present on classpath.");
@@ -240,37 +241,39 @@ public class EvaluateAgentConsole {
 			}
 			System.out.println("---- result directory exists, ok");
 		}
-		
-		System.out.println("-- resolving agent FQCN: " + agentFQCN);
-		try {
-			agentClass = Class.forName(agentFQCN);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		if (agentClass == null) {
-			fail("Failed to find agent class: " + agentFQCN);
-		}
-		System.out.println("---- agent class found");
-		Constructor<?> agentCtor = null;
-		try {
-			agentCtor = agentClass.getConstructor();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		if (agentCtor == null) {
-			fail("Failed to locate parameterless constructor for agent class: " + agentClass.getName());
-		}
-		System.out.println("---- agent parameterless constructor found");
-		try {
-			agent = (IPacManController) agentCtor.newInstance();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		if (agent == null) {
-			fail("Failed to construct the agent instance.");
-		}
-		
-		System.out.println("---- agent instantiated");
+        
+        if (agent == null) {
+            System.out.println("-- resolving agent FQCN: " + agentFQCN);
+            try {
+                agentClass = Class.forName(agentFQCN);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            if (agentClass == null) {
+                fail("Failed to find agent class: " + agentFQCN);
+            }
+            System.out.println("---- agent class found");
+            Constructor<?> agentCtor = null;
+            try {
+                agentCtor = agentClass.getConstructor();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (agentCtor == null) {
+                fail("Failed to locate parameterless constructor for agent class: " + agentClass.getName());
+            }
+            System.out.println("---- agent parameterless constructor found");
+            try {
+                agent = (IPacManController) agentCtor.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (agent == null) {
+                fail("Failed to construct the agent instance.");
+            }
+            
+            System.out.println("---- agent instantiated");
+        }
 		
 	    System.out.println("Sanity checks OK!");
 	}
@@ -278,32 +281,30 @@ public class EvaluateAgentConsole {
 	private static PacManResults evaluateAgent() {
 		SimulatorConfig config = SimulatorConfig.fromOptions(simulatorOptions);
 		EvaluateAgent evaluate = new EvaluateAgent(seed, config, runCount, oneLevelRepetitions, resultDirFile);
-		return evaluate.evaluateAgent(agentId, agentFQCN);		
+		return evaluate.evaluateAgent(agentId, agent);		
 	}
 		
-  public static PacManResults evaluate(String[] args) throws JSAPException {
-		// --------------
-		// IMPLEMENTATION
-		// --------------
-		
-		initJSAP();
-	    
-	    header();
-	    
-	    readConfig(args);
-	    
-	    sanityChecks();
-	    
-	    return evaluateAgent();
-	}
+    public static PacManResults evaluate(String[] args, IPacManController pacman) {
+        try {
+            agent = pacman;
+
+            initJSAP();
+
+            header();
+
+            readConfig(args);
+
+            sanityChecks();
+
+            return evaluateAgent();
+        } catch (JSAPException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 	public static void main(String[] args) {
-		try {
-	    evaluate(args);
-			System.out.println("---// FINISHED //---");
-		} catch (JSAPException e) {
-			System.err.println(e);
-		}
+        evaluate(args, null);
+		System.out.println("---// FINISHED //---");
 	}
 
 }

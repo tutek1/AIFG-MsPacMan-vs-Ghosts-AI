@@ -10,6 +10,7 @@ import cz.cuni.mff.amis.pacman.tournament.run.PacManRunResult;
 import cz.cuni.mff.amis.pacman.tournament.run.PacManRunsGenerator;
 import cz.cuni.mff.amis.pacman.tournament.utils.Sanitize;
 import game.SimulatorConfig;
+import game.controllers.pacman.IPacManController;
 
 public class EvaluateAgent {
 	
@@ -35,7 +36,7 @@ public class EvaluateAgent {
 		System.out.println("[" + agentId + "] " + msg);
 	}
 	
-	public PacManResults evaluateAgent(String agentId, String agentFQCN) {
+	public PacManResults evaluateAgent(String agentId, IPacManController agent) {
 		agentId = Sanitize.idify(agentId);
 		
 		log(agentId, "EVALUATING AGENT IN " + runCount + " RUNS with " + oneRunRepetitions + " repetition, TOTAL " + (runCount * oneRunRepetitions) + " SIMULATIONS!");
@@ -71,7 +72,7 @@ public class EvaluateAgent {
 				} else runs[i].getConfig().config.replay = false;
 			}
 			
-			PacManRunResult result = runs[i].run(agentFQCN);
+			PacManRunResult result = runs[i].run(agent);
 			
 			if (oneRunRepetitions > 1)
 			  log(agentId, "LEVEL " + (i+1) + " / " + runs.length + " SIMULATIONS FINISHED: " + result.toString());
