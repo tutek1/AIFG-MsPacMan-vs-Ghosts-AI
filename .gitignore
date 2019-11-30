@@ -1,8 +1,9 @@
+.classpath
 .metadata
+.project
 .settings
-.vscode
-bin
 html
 mspac.jar
 replay.log
 results
+target
