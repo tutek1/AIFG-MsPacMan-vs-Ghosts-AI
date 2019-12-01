@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>cz.cuni.mff</groupId>
-            <artifactId>mspacman-vs-ghosts</artifactId>
+            <artifactId>mspacman-vs-ghosts-core</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>

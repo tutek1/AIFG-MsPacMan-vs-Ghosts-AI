@@ -1,0 +1,14 @@
+<project>
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>cz.cuni.mff</groupId>
+	<artifactId>mspacman-vs-ghosts</artifactId>
+	<version>0.1</version>
+    <packaging>pom</packaging>
+    
+	<modules>
+	  <module>PacMan-vs-Ghosts</module>
+	  <module>PacMan-vs-Ghosts-Agents</module>
+	  <module>PacMan-vs-Ghosts-Tournament</module>
+	</modules>
+</project>
