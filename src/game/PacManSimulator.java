@@ -433,19 +433,6 @@ public class PacManSimulator {
 	}
 		
 	public static void main(String[] args) {
-		// PLAY WITHOUT GHOSTS
-		//play(new HumanPacMan());
-		
-		// PLAY WITH 1 GHOST
-		// play(new HumanPacMan(), new GameGhosts(1, false));
-		
-		// PLAY WITH 2 GHOSTS
-		//play(new HumanPacMan(), new GameGhosts(2, false));
-		
-		// PLAY WITH 3 GHOSTS
-		//play(new HumanPacMan(), new GameGhosts(3, false));
-		
-		// PLAY WITH 4 GHOSTS
 		play(new HumanPacMan(), new GameGhosts(4, false));		
 	}
 	
