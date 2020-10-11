@@ -14,7 +14,6 @@
 package game.core;
 
 import game.controllers.pacman.modules.Maze;
-import game.core.G;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 

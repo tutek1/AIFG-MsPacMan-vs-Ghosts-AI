@@ -1,4 +1,4 @@
-# Ms. Pac-Man vs. Ghosts Version 2.2.0
+# Ms. Pac-Man vs. Ghosts Version 2.3
 
 ![screenshot](mspac.png)
 
@@ -16,23 +16,21 @@ The more recent [Ms. Pac-Man Vs. Ghost Team Competition](http://www.pacmanvghost
 
 ## Building the game
 
-This version of Ms. Pac-Man vs. Ghosts works with Java 11, 12, or 13, and probably older Java versions as well.
+This version of Ms. Pac-Man vs. Ghosts works with Java 11 or newer, and possibly older Java versions as well.
 
 This project includes Maven build files.  You should easily be able to load it into Eclipse, Intelli/J, or Visual Studio Code, all of which understand Maven builds.
 
 ## Playing the game
 
-To play the game from the keyboard in a default configuration, run the class PacManSimulator in PacMan-vs-Ghosts/src/game/PacManSimulator.java.  Use the arrow keys to move.  You can press 'P' to pause the game, or 'N' to advance the game by a single frame.
+To play the game from the keyboard in a default configuration, run the class PacManSimulator in src/game/PacManSimulator.java.  Use the arrow keys to move.  You can press 'P' to pause the game, or 'N' to advance the game by a single frame.
 
 This is a fairly faithful recreation of the original Ms. Pac-Man game, with some differences.  In particular, there are no bonus fruits.
 
 ## Writing an agent
 
-Here is the [documentation](https://ksvi.mff.cuni.cz/~dingle/2019/ai/ms_pacman/html/index.html) for the API you can use to build agents to play the game.
+You can enhance the MyPacMan class to build a custom agent that controls Ms. Pac-Man.  On each tick, the game will call your implementation of the tick() method, where you can decide which action Ms. Pac-Man should take.
 
-You can enhance the [MyPacMan](https://ksvi.mff.cuni.cz/~dingle/2019/ai/ms_pacman/html/MyPacMan.html) class to build a custom agent that controls Ms. Pac-Man.  On each tick, the game will call your implementation of the tick() method, where you can decide which action Ms. Pac-Man should take.
-
-The [Game](https://ksvi.mff.cuni.cz/~dingle/2019/ai/ms_pacman/html/game/core/Game.html) interface has everything you need to find about the game state. Note that
+The Game interface has everything you need to find about the game state. Note that
 
 - The maze is represented as a graph of __nodes__.  Each node is a distinct position in the maze and has a unique integer index.  There are about 1,000 nodes in each maze (the exact number varies from level to level) and they are evenly spaced throughout the maze.
 - Each pill in the maze has a unique index.
@@ -40,7 +38,7 @@ The [Game](https://ksvi.mff.cuni.cz/~dingle/2019/ai/ms_pacman/html/game/core/Gam
 - Directions are listed at the top of interface Game (UP=0, RIGHT=1, etc.)
 - The game normally runs at 25 ticks per second.
 
-Here are some of the most important Game methods:
+The Game interface includes these methods:
 
 - `int getCurPacManLoc()` – return Ms. Pac-Man's current position, i.e. the graph node where she is currently located.
 - `int getCurGhostLoc(int whichGhost)` – return the given ghost's current position.
@@ -67,7 +65,7 @@ Here are some of the most important Game methods:
 
 	Warning: this method is about 50-150x slower than `getPathDistance`!  (In my experiments it typically runs in tens of microseconds, whereas `getPathDistance` takes under 1 microsecond.)  That's because it (unfortunately) does not use a precomputed table, so it must trace a path through the maze.
 
-The [GameView](https://ksvi.mff.cuni.cz/~dingle/2019/ai/ms_pacman/html/game/core/Game.html) class has various static methods that draw text or graphics overlaid on the game view.  These are handy for debugging.  Perhaps the most useful is
+The GameView class has various static methods that draw text or graphics overlaid on the game view.  These are handy for debugging.  Perhaps the most useful is
 
 - `public static void addPoints(Game game, Color color, int... nodeIndices)`
 
@@ -77,96 +75,12 @@ See the sample agent NearestPillPacManVS.java for an example of using these draw
 
 ## Evaluating your agent
 
-The Evaluate class (in PacMan-vs-Ghosts-Agents) will evaluate your MyPacMan agent by running it on a series of random games.  As it does so, it will generate a couple of CSV files showing the scores achieved in each game and other statistics.  It will also print output to the console showing some of this data, including the average score your agent achieves.
+The Evaluate class will evaluate your MyPacMan agent by running it on a series of random games.  As it does so, it will generate a couple of CSV files showing the scores achieved in each game and other statistics.  It will also print output to the console showing some of this data, including the average score your agent achieves.
 
-The evaluation will also generate a series of replay files.  Each of these files logs all the activity in a single game.  To replay any game, run the PacManReplayer class (in PacMan-vs-Ghosts/src/game).  Change the filename in the main() method to the name of the replay file you wish to run.
+The evaluation will also generate a series of replay files.  Each of these files logs all the activity in a single game.  To replay any game, run the PacManReplayer class (in src/game).  Change the filename in the main() method to the name of the replay file you wish to run.
 
 ## Other notes
 
-The PacMan-vs-Ghosts-Agents subproject contains a set of sample agents (some that control Ms. Pac-Man, and also some that control ghosts).
+The game.controllers package contains a set of sample agents (some that control Ms. Pac-Man, and also some that control ghosts).
 
 When running an agent, press the 'H' key to "hijack" control and manually navigate Ms. Pac-Man.
-
-## Change log
-
-v 2.2.0
-
-- CODE MOVED TO MY OWN REPOSITORY: https://github.com/kefik/MsPacMan-vs-Ghosts-AI
-- changed the way images and text files are loaded (now they are loaded as resources)
-- reworked Exec into PacManSimulator & PacManReplayer
-- you can run the game WITHOUT ghosts as well (in order to play with pathfinding only)
-- fixed native ghosts bug (infinite loop)
-- PacManReplayer is fully working! Issue from 2.1.2 solved by explicitly logging node indices (positions) of Ms Pac-Man & Ghosts
-- GameView allows to display DebugTexts as well
-- Example agents moved to separate project PacMan-vs-Ghosts-Agents
-- Direction enum created
-- PacMan & Ghosts actions are now transfered in PacManAction & GhostsActions objects rather than numbers
-- Maze module created that allows you to access the maze in an OOP way
-- PacManHijackController created that allows you to pause/advance single frame/hijack PacMan controls at any time (great for debugging!)
-- Visualization now contains Scale2x mode (taken from MarioAI, kudos to Sergey Karakovskiy), which is enabled as default
-- starter package deleted (all example agents contain main() methods so they are directly runnable / modifiable / copy-paste ...)
-- the simulation features TIMED execution of Pac-Man/Ghosts logic only (but you can always set high thinking time as there is no "fixed" waiting)
-
-v 2.1.2
-
-- changed the way the images and text files are loaded to allow applet version to work
-- added a way to _G_ to record games for javascript replays on web-site
-- localised file-name descriptors
-- added the following helper methods:
-	- public int getNextEdibleGhostScore();
-	- public int getNumActivePills();
-	- public int getNumActivePowerPills();
-	- public int[] getPillIndicesActive();
-	- public int[] getPowerPillIndicesActive();
-- updated the sample controllers to use the new functions
-- added boolean flag to GameView to prevent unnecessary storing of information
-- use StringBuilder to save replays
-- updated recording feature to flush string after each save
-- include starter package in code distribution
-
-known issues:
-
-- bug in recording replays: the ghost update method (every nth game tick) causes the replay to crash whenever a power pill has been eaten). This is caused by the lack of update for edible ghosts. Fix in progress.
-
-v 2.1.1
-
-- changed the graphics in GameView to do double buffering
-- added the ability to do simple visuals for debugging/testing/demonstrations
-- changed the way a game is initialised: removed the singleton pattern
-- added NearestPillPacManVS to illustrate the visuals
-- added 5 (utility) methods in Game/G:
-	- public int[] getPath(int from,int to);
-	- public int getTarget(int from,int[] targets,boolean nearest,DM measure);
-	- public int[] getGhostPath(int whichGhost,int to);
-	- public int getGhostPathDistance(int whichGhost,int to);
-	- public int getGhostTarget(int from,int[] targets,boolean nearest);
-- changelog now included in source code distribution
-	
-v 2.1.0
-
-- fixed the creation of the junction array in the class Node (changed from >3 to >2)
-- changed the spelling from juntionIndices to junctionIndices
-- added 2 methods to Game (and G) to get all possible directions for Ms Pac-Man and the ghosts as an array
-	- changed the sample controllers accordingly
-	- changed the game core accordingly
-- removed Random from G (can use it from Game)
-- changed advanceGame(-) to return the actual actions taken (primarily for replays)
-- fixed the replay mechanism which was buggy in some cases where a life was lost
-- added a sample experimental setup to Exec to illsutrate how to run many games efficiently
-- fixed nearestPillPac-Man to include search for power pills
-- changed the way ghost reversals are done (now using a Boolean flag)
-- added more comments to source code, especially in Game	
-	
-v 2.0.2
-
-- fixed the isJunction function which now checks for more than 2 options, not 3 (thanks to Daryl)
-	
-v 2.0.1
-
-- fixed the speed of the ghosts when edible - now they move more slowly, as before (thanks to Kien)
-- the scores obtained for eating ghosts in succession was incorrect - now it is 200-400-800-1600 (thanks to Kien)
-- added the ability to record and replay games by saving the actions taken by the controllers	
-	
-v 2.0.0
-
-- complete revamp of the code. Please see documentation on the website for information regarding the code
