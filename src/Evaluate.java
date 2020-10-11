@@ -1,4 +1,4 @@
-import cz.cuni.mff.amis.pacman.tournament.EvaluateAgentConsole;
+import tournament.EvaluateAgentConsole;
 
 class Evaluate {
 	public static void main(String[] args) {

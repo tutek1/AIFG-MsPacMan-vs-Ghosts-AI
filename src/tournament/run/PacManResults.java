@@ -1,10 +1,10 @@
-package cz.cuni.mff.amis.pacman.tournament.run;
+package tournament.run;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.cuni.mff.amis.pacman.tournament.EvaluationInfos;
-import cz.cuni.mff.amis.pacman.tournament.PacManConfig;
+import tournament.EvaluationInfos;
+import tournament.PacManConfig;
 
 public class PacManResults extends EvaluationInfos {
 	

@@ -1,4 +1,4 @@
-package cz.cuni.mff.amis.pacman.tournament.utils;
+package tournament.utils;
 
 public class Sanitize {
 

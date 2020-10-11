@@ -1,4 +1,4 @@
-package cz.cuni.mff.amis.pacman.tournament;
+package tournament;
 
 import game.SimulatorConfig;
 import game.controllers.pacman.IPacManController;
@@ -12,7 +12,7 @@ import com.martiansoftware.jsap.JSAP;
 import com.martiansoftware.jsap.JSAPException;
 import com.martiansoftware.jsap.JSAPResult;
 
-import cz.cuni.mff.amis.pacman.tournament.run.PacManResults;
+import tournament.run.PacManResults;
 
 public class EvaluateAgentConsole {
 	

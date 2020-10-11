@@ -1,14 +1,14 @@
-package cz.cuni.mff.amis.pacman.tournament;
+package tournament;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 
-import cz.cuni.mff.amis.pacman.tournament.run.PacManResults;
-import cz.cuni.mff.amis.pacman.tournament.run.PacManRun;
-import cz.cuni.mff.amis.pacman.tournament.run.PacManRunResult;
-import cz.cuni.mff.amis.pacman.tournament.run.PacManRunsGenerator;
-import cz.cuni.mff.amis.pacman.tournament.utils.Sanitize;
+import tournament.run.PacManResults;
+import tournament.run.PacManRun;
+import tournament.run.PacManRunResult;
+import tournament.run.PacManRunsGenerator;
+import tournament.utils.Sanitize;
 import game.SimulatorConfig;
 import game.controllers.pacman.IPacManController;
 

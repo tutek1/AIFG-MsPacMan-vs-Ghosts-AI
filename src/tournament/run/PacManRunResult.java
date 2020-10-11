@@ -1,7 +1,7 @@
-package cz.cuni.mff.amis.pacman.tournament.run;
+package tournament.run;
 
-import cz.cuni.mff.amis.pacman.tournament.EvaluationInfos;
-import cz.cuni.mff.amis.pacman.tournament.PacManConfig;
+import tournament.EvaluationInfos;
+import tournament.PacManConfig;
 
 
 public class PacManRunResult extends EvaluationInfos {

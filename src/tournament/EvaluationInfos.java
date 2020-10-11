@@ -1,4 +1,4 @@
-package cz.cuni.mff.amis.pacman.tournament;
+package tournament;
 
 import game.core.Game;
 
