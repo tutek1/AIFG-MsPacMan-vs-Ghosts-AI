@@ -163,7 +163,7 @@ public class PacManReplayer {
 		
 		ReplayerConfig config = new ReplayerConfig();
 		
-                String filename = "results/MyPacMan-Run-0-Iter-0.replay";
+                String filename = "results/MyAgent-Run-0-Iter-0.replay";
 
 		File replay = new File(filename);
 		if (!replay.exists()) {

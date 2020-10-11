@@ -22,13 +22,31 @@ This project includes Maven build files.  You should easily be able to load it i
 
 ## Playing the game
 
-To play the game from the keyboard in a default configuration, run the class PacManSimulator in src/game/PacManSimulator.java.  Use the arrow keys to move.  You can press 'P' to pause the game, or 'N' to advance the game by a single frame.
+To play the game from the keyboard on Linux or macOS, run
+
+```
+$ ./mspac
+```
+
+Or, on Windows:
+
+```
+> .\mspac
+```
+
+Use the arrow keys to move.  You can press 'P' to pause the game, or 'N' to advance the game by a single frame.
 
 This is a fairly faithful recreation of the original Ms. Pac-Man game, with some differences.  In particular, there are no bonus fruits.
 
 ## Writing an agent
 
-You can enhance the MyPacMan class to build a custom agent that controls Ms. Pac-Man.  On each tick, the game will call your implementation of the tick() method, where you can decide which action Ms. Pac-Man should take.
+You can enhance the MyAgent class to build a custom agent that controls Ms. Pac-Man.  On each tick, the game will call your implementation of the tick() method, where you can decide which action Ms. Pac-Man should take.
+
+To see your agent play the game, run
+
+```
+$ ./mspac MyAgent
+```
 
 The Game interface has everything you need to find about the game state. Note that
 
@@ -75,7 +93,7 @@ See the sample agent NearestPillPacManVS.java for an example of using these draw
 
 ## Evaluating your agent
 
-The Evaluate class will evaluate your MyPacMan agent by running it on a series of random games.  As it does so, it will generate a couple of CSV files showing the scores achieved in each game and other statistics.  It will also print output to the console showing some of this data, including the average score your agent achieves.
+The Evaluate class will evaluate your MyAgent agent by running it on a series of random games.  As it does so, it will generate a couple of CSV files showing the scores achieved in each game and other statistics.  It will also print output to the console showing some of this data, including the average score your agent achieves.
 
 The evaluation will also generate a series of replay files.  Each of these files logs all the activity in a single game.  To replay any game, run the PacManReplayer class (in src/game).  Change the filename in the main() method to the name of the replay file you wish to run.
 

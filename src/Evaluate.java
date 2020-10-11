@@ -8,8 +8,8 @@ class Evaluate {
 				, "-o", "-pp true -tp 1.0 -gc 4 -lc 20 -v false -2x true -p false -tt 40 -r true"   // prototype-options";
 				, "-c", "50"  // run-count
 				, "-r", "1"  // one-run-repetitions
-				, "-p", "MyPacMan" // fully qualified class name
-				, "-i", "MyPacMan"   // agent-id
+				, "-p", "MyAgent" // fully qualified class name
+				, "-i", "MyAgent"   // agent-id
 				, "-d", "./results" // result-dir"	
     };
 

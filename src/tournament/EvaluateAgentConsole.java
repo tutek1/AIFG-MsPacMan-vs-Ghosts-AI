@@ -108,7 +108,7 @@ public class EvaluateAgentConsole {
     	FlaggedOption opt1 = new FlaggedOption(ARG_AGENT_FQCN_LONG)
         	.setStringParser(JSAP.STRING_PARSER)
             .setRequired(false)
-            .setDefault("MyPacMan") 
+            .setDefault("MyAgent") 
         	.setShortFlag(ARG_AGENT_FQCN_SHORT)
         	.setLongFlag(ARG_AGENT_FQCN_LONG);    
         opt1.setHelp("Agent fully-qualified class name to evaluate. Must be present on classpath.");
