@@ -45,6 +45,8 @@ public final class GameView extends JComponent
     private Scale2x scale2x;
     
     public static GameView lastInstance;
+
+    private static final int TOP_BORDER = 20;
     
     public GameView(_G_ game, int scale)
     {
@@ -53,11 +55,11 @@ public final class GameView extends JComponent
         this.game=game;
 
         width = game.getWidth() * MAG;
-        height = game.getHeight() * MAG + 20;
+        height = TOP_BORDER + game.getHeight() * MAG + 20;
         setPreferredSize(new Dimension(width * scale, height * scale));
         if (scale > 1)
             scale2x = new Scale2x(this.getPreferredSize().width, this.getPreferredSize().height);
-
+        
         images=loadImages();
         
         isVisible=true;
@@ -117,20 +119,19 @@ public final class GameView extends JComponent
         ghostsImgs[5][0][1]=getImage("edible-ghost-blink-2.png");                      
     }
     
-    /////////////////////////////////
-    ////// Component Painting ///////
-    /////////////////////////////////
-    
     public void paintComponent(Graphics g) 
     {
     	if(offscreen==null)
     	{
     		offscreen=createImage(width, height); 
-    		bufferGraphics=offscreen.getGraphics();
+            bufferGraphics=offscreen.getGraphics();
+            bufferGraphics.translate(0, TOP_BORDER);
+            Font font = new Font(Font.MONOSPACED, Font.PLAIN, 11);
+            bufferGraphics.setFont(font);
     	}   	
     	
         drawMaze();        
-        drawDebugInfo();	//this will be used during testing only and will be disabled in the competition itself        
+        drawDebugInfo();
         drawPills();
         drawPowerPills();
         drawPacMan();
@@ -151,7 +152,7 @@ public final class GameView extends JComponent
     private void drawMaze()
     {
     	bufferGraphics.setColor(Color.BLACK);
-    	bufferGraphics.fillRect(0,0,width,height);
+    	bufferGraphics.fillRect(0,- TOP_BORDER,width,height);
         
         if(images[game.getCurMaze()]!=null) 
         	bufferGraphics.drawImage(images[game.getCurMaze()],2,6,null);
@@ -218,18 +219,19 @@ public final class GameView extends JComponent
     private void drawLives()
     {
     	for(int i=0;i<game.getLivesRemaining()-1;i++) //-1 as lives remaining includes the current life
-    		bufferGraphics.drawImage(pacmanImgs[G.RIGHT][0],210-(30*i)/2,260,null);
+    		bufferGraphics.drawImage(pacmanImgs[G.RIGHT][0],15 + 15 * i,260,null);
     }
     
     private void drawGameInfo()
     {
-    	bufferGraphics.setColor(Color.WHITE);
-    	bufferGraphics.drawString("S: ",4,271);
-    	bufferGraphics.drawString(""+game.getScore(),16,271);        
-    	bufferGraphics.drawString("L: ",78,271);
-    	bufferGraphics.drawString(""+(game.getCurLevel()+1),90,271);        
-    	bufferGraphics.drawString("T: ",116,271);
-    	bufferGraphics.drawString(""+game.getLevelTime(),129,271);
+        bufferGraphics.setColor(Color.WHITE);
+        
+        bufferGraphics.drawString("SCORE", 99, -9);
+        bufferGraphics.drawString(String.format("%5d", game.getScore()),99,2);
+
+        // bufferGraphics.drawString("SCORE: " + game.getScore(), 80, -3);
+               
+    	bufferGraphics.drawString("L: "+(game.getCurLevel()+1),190,271);        
     }
     
     private void drawGameOver()
@@ -282,8 +284,6 @@ public final class GameView extends JComponent
     {
     	return frame;
     }
-    
-    
     
     ////////////////////////////////////////
     ////// Visual aids for debugging ///////
