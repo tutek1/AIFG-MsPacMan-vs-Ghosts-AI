@@ -198,17 +198,12 @@ public final class GameView extends JComponent
     {
     	for(int index=0;index<G.NUM_GHOSTS;index++)
     	{
-	    	int loc=game.getCurGhostLoc(index);
-	    	int x=game.getX(loc);
-	    	int y=game.getY(loc);
-	    	
-            if (index == game.getEatingGhost()) {
-                bufferGraphics.setFont(smallFont);
-                bufferGraphics.setColor(new Color(0, 0xbd, 0xbd));
-                bufferGraphics.drawString("" + game.getEatingScore(), x * MAG - 2, y * MAG + 13);
+            if (index == game.getEatingGhost())
                 continue;
-            }
 
+	    	int loc=game.getCurGhostLoc(index);
+	    	int x=game.getX(loc), y=game.getY(loc);
+	    	
 	    	if(game.getEdibleTime(index)>0)
 	    	{
 	    		if(game.getEdibleTime(index)<_G_.EDIBLE_ALERT && ((game.getTotalTime()%6)/3)==0)
@@ -223,7 +218,16 @@ public final class GameView extends JComponent
 	    		else    		
 	    			bufferGraphics.drawImage(ghostsImgs[index][game.getCurGhostDir(index)][(game.getTotalTime()%6)/3],x*MAG-1,y*MAG+3,null);
 	        }
-    	}
+        }
+        
+        int g = game.getEatingGhost();
+        if (g >= 0) {
+	    	int loc=game.getCurGhostLoc(g);
+	    	int x=game.getX(loc), y=game.getY(loc);
+            bufferGraphics.setFont(smallFont);
+            bufferGraphics.setColor(new Color(0, 0xbd, 0xbd));
+            bufferGraphics.drawString("" + game.getEatingScore(), x * MAG - 2, y * MAG + 13);
+        }
     }
 
     private void drawLives()

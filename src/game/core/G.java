@@ -57,6 +57,8 @@ public class G implements Game
     protected int[] curGhostLocs,lastGhostDirs,edibleTimes,lairTimes;
     
     protected int eatingGhost, eatingTime, eatingScore;
+
+    protected int dyingTime;
 	
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////  Constructors and Initialisers   //////////////////////////
@@ -198,19 +200,37 @@ public class G implements Game
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////  Game Play   //////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
-			
-	//Central method that advances the game state
-	public int[] advanceGame(PacManAction pacMan, GhostsActions ghosts)
-	{			
+    
+    boolean actionPaused() {
         if (eatingTime > 0) {
-            --eatingTime;
-            if (eatingTime == 0) {
+            if (--eatingTime == 0) {
                 edibleTimes[eatingGhost]=0;					
                 lairTimes[eatingGhost]=(int)(G.COMMON_LAIR_TIME*(Math.pow(G.LAIR_REDUCTION,totLevel)));					
                 curGhostLocs[eatingGhost]=mazes[curMaze].lairPosition;
                 lastGhostDirs[eatingGhost]=G.INITIAL_GHOST_DIRS[eatingGhost];
-            } else return null;
+            }
+            return true;
         }
+
+        if (dyingTime > 0) {
+            if (--dyingTime == 0) {
+                livesRemaining--;
+                if(livesRemaining<=0)
+                    gameOver=true;
+                else
+                    reset(false);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+	//Central method that advances the game state
+	public int[] advanceGame(PacManAction pacMan, GhostsActions ghosts)
+	{			
+        if (actionPaused())
+            return null;
 
 		updatePacMan(pacMan);   	      //move pac-man		
 		eatPill();						  //eat a pill
@@ -256,20 +276,13 @@ public class G implements Game
 	//Central method that advances the game state
 	public int[] advanceGameReplay(PacManAction pacMan, GhostsActions ghosts, int pacManLocation, int[] ghostsLocations)
 	{
-        if (eatingTime > 0) {
-            --eatingTime;
-            if (eatingTime == 0) {
-                edibleTimes[eatingGhost]=0;					
-                lairTimes[eatingGhost]=(int)(G.COMMON_LAIR_TIME*(Math.pow(G.LAIR_REDUCTION,totLevel)));					
-                curGhostLocs[eatingGhost]=mazes[curMaze].lairPosition;
-                lastGhostDirs[eatingGhost]=G.INITIAL_GHOST_DIRS[eatingGhost];
-            } else return null;
-        }
+        if (actionPaused())
+            return null;
 		
 		lastPacManDir = pacMan.get().index;
 		curPacManLoc = pacManLocation;
 		
-		eatPill();						  //eat a pill
+		eatPill();		  //eat a pill
 		eatPowerPill();	  //eat a power pill
 		
 		if (ghosts != null) {
@@ -283,7 +296,7 @@ public class G implements Game
 		//last directions to the initial ones, not the ones taken
 		int[] replayStep={lastPacManDir,lastGhostDirs[0],lastGhostDirs[1],lastGhostDirs[2],lastGhostDirs[3],curPacManLoc, curGhostLocs[0], curGhostLocs[1], curGhostLocs[2], curGhostLocs[3]};
 		
-		feast();							//ghosts eat pac-man or vice versa
+		feast();		//ghosts eat pac-man or vice versa
 		
 		if (ghosts != null) {
 			for(int i=0;i<lairTimes.length;i++) {
@@ -423,9 +436,6 @@ public class G implements Game
 				else
 					edibleTimes[i]=0;
 			
-			//This turns all ghosts edible, independent on whether they are in the lair or not
-//			Arrays.fill(edibleTimes,(int)(G.EDIBLE_TIME*(Math.pow(G.EDIBLE_TIME_REDUCTION,totLevel))));						
-			
 			reverse=true;
 		}
 		else if (levelTime>1 && G.rnd.nextDouble() < G.GHOST_REVERSAL) //random ghost reversal
@@ -454,15 +464,7 @@ public class G implements Game
 				}
 				else													//ghost eats pac-man
 				{
-					livesRemaining--;
-					
-					if(livesRemaining<=0)
-					{
-						gameOver=true;
-						return;
-					}
-					else
-						reset(false);
+                    dyingTime = 20;
 				}
 			}
 		}
