@@ -21,10 +21,6 @@ public class _G_ extends G
 {
 	public static final int EDIBLE_ALERT=30;	//for display only (ghosts turning blue)
 	
-	//to save replays
-	private int pacManDir=G.INITIAL_PAC_DIR;
-	private StringBuilder sb;
-
 	public _G_(){}
 	
 	//Instantiates everything to start a new game
@@ -63,9 +59,6 @@ public class _G_ extends G
 		}
 		
 		reset(false);
-		
-		//for replays
-		this.sb=new StringBuilder();
 	}
 	
 	//Size of the Maze (for display only)
