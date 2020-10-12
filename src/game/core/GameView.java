@@ -34,6 +34,7 @@ public final class GameView extends JComponent
 	private static boolean isVisible=false;
 	
     private final _G_ game;
+    private int width, height;
     private final BufferedImage[][] pacmanImgs=new BufferedImage[4][3];
     private final BufferedImage[][][] ghostsImgs=new BufferedImage[6][4][2];
     private final BufferedImage[] images;
@@ -45,11 +46,18 @@ public final class GameView extends JComponent
     
     public static GameView lastInstance;
     
-    public GameView(_G_ game)
+    public GameView(_G_ game, int scale)
     {
     	lastInstance = this;
     	
         this.game=game;
+
+        width = game.getWidth() * MAG;
+        height = game.getHeight() * MAG + 20;
+        setPreferredSize(new Dimension(width * scale, height * scale));
+        if (scale > 1)
+            scale2x = new Scale2x(this.getPreferredSize().width, this.getPreferredSize().height);
+
         images=loadImages();
         
         isVisible=true;
@@ -117,7 +125,7 @@ public final class GameView extends JComponent
     {
     	if(offscreen==null)
     	{
-    		offscreen=createImage(this.getPreferredSize().width,this.getPreferredSize().height); 
+    		offscreen=createImage(width, height); 
     		bufferGraphics=offscreen.getGraphics();
     	}   	
     	
@@ -143,7 +151,7 @@ public final class GameView extends JComponent
     private void drawMaze()
     {
     	bufferGraphics.setColor(Color.BLACK);
-    	bufferGraphics.fillRect(0,0,game.getWidth()*MAG,game.getHeight()*MAG+20);
+    	bufferGraphics.fillRect(0,0,width,height);
         
         if(images[game.getCurMaze()]!=null) 
         	bufferGraphics.drawImage(images[game.getCurMaze()],2,6,null);
@@ -230,11 +238,6 @@ public final class GameView extends JComponent
     	bufferGraphics.drawString("Game Over",80,150);
     }
     
-    public Dimension getPreferredSize()
-    {
-        return new Dimension(game.getWidth()*MAG,game.getHeight()*MAG+20);
-    }
-    
     private BufferedImage[] loadImages() 
     {
         BufferedImage[] images=new BufferedImage[4];
@@ -261,25 +264,12 @@ public final class GameView extends JComponent
         return image;
     }
     
-    public void setScale2x() {
-    	if (scale2x != null) return; // ALREADY ENABLED
-    	
-        scale2x = new Scale2x(this.getPreferredSize().width, this.getPreferredSize().height);
-        if (frame != null) {
-            frame.setSize(frame.getWidth() * 2, frame.getHeight() * 2);
-            frame.repaint();
-        }
-    }
-    
     public GameView showGame()
     {
         this.frame = new GameFrame(this);
-        if (scale2x != null) {
-        	this.frame.setSize(frame.getWidth() * 2, frame.getHeight() * 2);
-        	this.frame.center();
-        	
-        	this.frame.setLocation(650, 10);
-        }
+        this.frame.center();
+        
+        this.frame.setLocation(650, 10);
         this.frame.setVisible(true);
               
         //just wait for a bit for player to be ready
@@ -293,25 +283,7 @@ public final class GameView extends JComponent
     	return frame;
     }
     
-    public class GameFrame extends JFrame
-    {
-        public GameFrame(JComponent comp)
-        {
-            super("Ms. Pac-Man vs. Ghosts");
-            getContentPane().add(BorderLayout.CENTER,comp);
-            pack();
-            Dimension screen=Toolkit.getDefaultToolkit().getScreenSize();
-            this.setLocation((int)(screen.getWidth()*3/8),(int)(screen.getHeight()*3/8));
-            this.setResizable(false);
-            setDefaultCloseOperation(EXIT_ON_CLOSE);
-            repaint();            
-        }
-        
-        public void center() {
-        	Dimension screen=Toolkit.getDefaultToolkit().getScreenSize();
-        	this.setLocation((int)(screen.getWidth()- getWidth()) / 2,(int)(screen.getHeight() - getHeight()) / 2);
-        }
-    }
+    
     
     ////////////////////////////////////////
     ////// Visual aids for debugging ///////
