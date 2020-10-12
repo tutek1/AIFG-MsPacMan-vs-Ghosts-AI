@@ -1,6 +1,5 @@
 package game.controllers.pacman.examples;
 
-import game.PacManSimulator;
 import game.controllers.pacman.PacManHijackController;
 import game.core.G;
 import game.core.Game;
@@ -28,9 +27,5 @@ public final class PacmanOnly extends PacManHijackController
 				
 		//return the next direction once the closest target has been identified
 		pacman.set(game.getNextPacManDir(game.getTarget(current,targetsArray,true,G.DM.PATH),true,Game.DM.PATH));	
-	}
-	
-	public static void main(String[] args) {
-		PacManSimulator.play(new PacmanOnly());
 	}
 }

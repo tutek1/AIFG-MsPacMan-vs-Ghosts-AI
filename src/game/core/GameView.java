@@ -229,8 +229,6 @@ public final class GameView extends JComponent
         bufferGraphics.drawString("SCORE", 99, -9);
         bufferGraphics.drawString(String.format("%5d", game.getScore()),99,2);
 
-        // bufferGraphics.drawString("SCORE: " + game.getScore(), 80, -3);
-               
     	bufferGraphics.drawString("L: "+(game.getCurLevel()+1),190,271);        
     }
     

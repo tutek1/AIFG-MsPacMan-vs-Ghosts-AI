@@ -1,7 +1,5 @@
 package game.controllers.pacman.examples;
 
-import game.PacManSimulator;
-import game.controllers.ghosts.game.GameGhosts;
 import game.controllers.pacman.PacManHijackController;
 import game.core.G;
 import game.core.Game;
@@ -73,12 +71,5 @@ public final class NearestPillPacManVS extends PacManHijackController
 //				GameView.addPoints(game,colors[i],game.getGhostPath(i,current));
 			
 		pacman.set(game.getNextPacManDir(nearest,true,Game.DM.PATH));		
-	}
-	
-	public static void main(String[] args) {
-		while (true) {
-			PacManSimulator.play(new NearestPillPacManVS(), new GameGhosts(false));
-			GameView.lastInstance.setVisible(false);
-		}
 	}
 }
