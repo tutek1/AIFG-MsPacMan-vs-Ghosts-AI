@@ -37,7 +37,8 @@ public final class GameView extends JComponent
     private int width, height;
     private final BufferedImage[][] pacmanImgs=new BufferedImage[4][3];
     private final BufferedImage[][][] ghostsImgs=new BufferedImage[6][4][2];
-    private final BufferedImage[] images;
+    private final BufferedImage[] mazeImages;
+    private BufferedImage fruitImages;
         
     private GameFrame frame;    
     private Graphics bufferGraphics; 
@@ -61,7 +62,7 @@ public final class GameView extends JComponent
         if (scale > 1)
             scale2x = new Scale2x(this.getPreferredSize().width, this.getPreferredSize().height);
         
-        images=loadImages();
+        mazeImages=loadMazeImages();
 
         font = new Font(Font.MONOSPACED, Font.PLAIN, 11);
         smallFont = new Font(Font.MONOSPACED, Font.PLAIN, 8);
@@ -120,7 +121,9 @@ public final class GameView extends JComponent
         ghostsImgs[4][0][0]=getImage("edible-ghost-1.png");
         ghostsImgs[4][0][1]=getImage("edible-ghost-2.png");
         ghostsImgs[5][0][0]=getImage("edible-ghost-blink-1.png");
-        ghostsImgs[5][0][1]=getImage("edible-ghost-blink-2.png");                      
+        ghostsImgs[5][0][1]=getImage("edible-ghost-blink-2.png");       
+        
+        fruitImages = getImage("fruits.png");
     }
     
     public void paintComponent(Graphics g) 
@@ -136,6 +139,7 @@ public final class GameView extends JComponent
         drawDebugInfo();
         drawPills();
         drawPowerPills();
+        drawFruit();
         drawPacMan();
         drawGhosts();
         drawLives();
@@ -156,8 +160,8 @@ public final class GameView extends JComponent
     	bufferGraphics.setColor(Color.BLACK);
     	bufferGraphics.fillRect(0,- TOP_BORDER,width,height);
         
-        if(images[game.getCurMaze()]!=null) 
-        	bufferGraphics.drawImage(images[game.getCurMaze()],2,6,null);
+        if(mazeImages[game.getCurMaze()]!=null) 
+        	bufferGraphics.drawImage(mazeImages[game.getCurMaze()],2,6,null);
     }
 
     private void drawPills()
@@ -230,10 +234,34 @@ public final class GameView extends JComponent
         }
     }
 
+    static int[] bounceY = {
+        0, 1, 0, 0,
+        -1, -1, -1, -1
+    };
+
+    void drawFruitAt(int type, int x, int y, boolean score) {
+        bufferGraphics.drawImage(fruitImages,
+            x, y, x + 16, y + 16,
+            type * 16, score ? 16 : 0, type * 16 + 16, score ? 32 : 16, null);
+    }
+
+    private void drawFruit() {
+        int f = game.getFruitLoc();
+        if (f != -1) {  // a fruit currently exists
+            int x = game.getX(f), y = game.getY(f);
+            int bounce = bounceY[game.getLevelTime() % 8];
+            drawFruitAt(game.getFruitType(), x * MAG, y * MAG + 2 + bounce, false);
+        }
+        if (game.ateFruitTime > 0) {  // we recently ate a fruit
+            int x = game.getX(game.ateFruitLoc), y = game.getY(game.ateFruitLoc);
+            drawFruitAt(game.ateFruitType, x * MAG, y * MAG + 2, true);  // draw fruit score
+        }
+    }
+
     private void drawLives()
     {
     	for(int i=0;i<game.getLivesRemaining()-1;i++) //-1 as lives remaining includes the current life
-    		bufferGraphics.drawImage(pacmanImgs[G.RIGHT][0],15 + 15 * i,260,null);
+    		bufferGraphics.drawImage(pacmanImgs[G.RIGHT][0],15 + 15 * i,257,null);
     }
     
     private void drawGameInfo()
@@ -244,16 +272,17 @@ public final class GameView extends JComponent
         bufferGraphics.drawString("SCORE", 99, -9);
         bufferGraphics.drawString(String.format("%5d", game.getScore()),99,2);
 
-    	bufferGraphics.drawString("L: "+(game.getCurLevel()+1),190,271);        
+        for (int i = 0 ; i <= Math.min(game.getCurLevel(), 7) ; ++i)
+            drawFruitAt(i, 195 - 18 * i, 256, false);
     }
     
     private void drawGameOver()
     {
     	bufferGraphics.setColor(Color.WHITE);
-    	bufferGraphics.drawString("Game Over",80,150);
+    	bufferGraphics.drawString("GAME OVER",82,150);
     }
     
-    private BufferedImage[] loadImages() 
+    private BufferedImage[] loadMazeImages() 
     {
         BufferedImage[] images=new BufferedImage[4];
         
@@ -288,7 +317,7 @@ public final class GameView extends JComponent
         this.frame.setVisible(true);
               
         //just wait for a bit for player to be ready
-        try{Thread.sleep(2000);}catch(Exception e){}
+        try{Thread.sleep(1500);}catch(Exception e){}
         
         return this;
     }

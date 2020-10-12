@@ -18,16 +18,7 @@ import game.controllers.Direction;
 import game.controllers.ghosts.GhostsActions;
 import game.controllers.pacman.PacManAction;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /*
  * Simple implementation of Ms Pac-Man. The class Game contains all code relating to the
@@ -55,9 +46,13 @@ public class G implements Game
 	protected boolean extraLife;
 	//ghosts-specific
     protected int[] curGhostLocs,lastGhostDirs,edibleTimes,lairTimes;
-    
-    protected int eatingGhost, eatingTime, eatingScore;
 
+    protected int fruitLoc = -1, fruitType, fruitDir;
+    protected int ateFruitTime = 0, ateFruitLoc, ateFruitType;
+
+    static int[] FruitValue = { 100, 200, 500, 700, 1000, 2000, 5000 };
+
+    protected int eatingGhost, eatingTime, eatingScore;
     protected int dyingTime;
 	
 	/////////////////////////////////////////////////////////////////////////////
@@ -96,7 +91,12 @@ public class G implements Game
 		copy.lastGhostDirs=Arrays.copyOf(lastGhostDirs,lastGhostDirs.length);
 		copy.edibleTimes=Arrays.copyOf(edibleTimes,edibleTimes.length);
 		copy.lairTimes=Arrays.copyOf(lairTimes,lairTimes.length);
-		
+        copy.fruitLoc = fruitLoc; copy.fruitType = fruitType;
+        copy.fruitDir = fruitDir;
+        copy.eatingGhost = eatingGhost; copy.eatingTime = eatingTime;
+        copy.eatingScore = eatingScore;
+        copy.dyingTime = dyingTime;
+        
 		return copy;
 	}
 	
@@ -140,7 +140,11 @@ public class G implements Game
 		ghostEatMultiplier=1;
 		
 		for(int i=0;i<lairTimes.length;i++)
-			lairTimes[i]=(int)(G.LAIR_TIMES[i]*(Math.pow(LAIR_REDUCTION,totLevel)));
+            lairTimes[i]=(int)(G.LAIR_TIMES[i]*(Math.pow(LAIR_REDUCTION,totLevel)));
+            
+        eatingTime = dyingTime = 0;
+        fruitLoc = -1;
+        ateFruitTime = 0;
 	}
 	
 	// Remove 'number' of pills from the maze
@@ -226,6 +230,48 @@ public class G implements Game
         return false;
     }
 
+    void updateFruit() {
+        if (ateFruitTime > 0)
+            --ateFruitTime;
+
+        if (fruitLoc == -1 && (getNumberPills() - getNumActivePills() == 64 ||
+                               getNumActivePills() == 66)) {
+            int[] startX = new int[4];
+            int count = 0;
+
+            for (Node n : mazes[curMaze].graph)
+                if (n.x == 0 || n.x == 108)   // at left or right edge of maze
+                    startX[count++] = n.nodeIndex;
+            
+            if (count == 0)
+                throw new RuntimeException("can't find any tunnels");
+            
+            fruitLoc = startX[rnd.nextInt(count)];
+            fruitType = totLevel < 7 ? totLevel : rnd.nextInt(7);
+            fruitDir = getX(fruitLoc) == 0 ? Game.RIGHT : Game.LEFT;
+        } else if (fruitLoc != -1) {
+             if (levelTime % 2 == 0) {
+                int[] possible = getPossibleDirs(fruitLoc, fruitDir, false);
+                fruitDir = possible[rnd.nextInt(possible.length)];
+                fruitLoc = getNeighbour(fruitLoc, fruitDir);
+                int x = getX(fruitLoc);
+                if (x == 0 || x == 108) { // edge of maze
+                    fruitLoc = -1;      // fruit is gone
+                    return;
+                }
+             }
+
+             int distance = getPathDistance(curPacManLoc,fruitLoc);
+             if (distance <= G.EAT_DISTANCE && distance != -1) {  // ate a fruit
+                 score += FruitValue[fruitType];
+                 ateFruitTime = 20;
+                 ateFruitLoc = fruitLoc;
+                 ateFruitType = fruitType;
+                 fruitLoc = -1;
+             }
+        }
+    }
+
 	//Central method that advances the game state
 	public int[] advanceGame(PacManAction pacMan, GhostsActions ghosts)
 	{			
@@ -258,8 +304,10 @@ public class G implements Game
 						curGhostLocs[i]=mazes[curMaze].initialGhostsPosition;
 				}
 			}
-		}
-				
+        }
+
+        updateFruit();
+        
 		if(!extraLife && score>=EXTRA_LIFE_SCORE)	//award 1 extra life at 10000 points
 		{
 			extraLife=true;
@@ -294,7 +342,9 @@ public class G implements Game
 		
 		//This is primarily done for the replays as reset (as possibly called by feast()) sets the 
 		//last directions to the initial ones, not the ones taken
-		int[] replayStep={lastPacManDir,lastGhostDirs[0],lastGhostDirs[1],lastGhostDirs[2],lastGhostDirs[3],curPacManLoc, curGhostLocs[0], curGhostLocs[1], curGhostLocs[2], curGhostLocs[3]};
+        int[] replayStep={ lastPacManDir,
+            lastGhostDirs[0],lastGhostDirs[1],lastGhostDirs[2],lastGhostDirs[3],curPacManLoc,
+            curGhostLocs[0], curGhostLocs[1], curGhostLocs[2], curGhostLocs[3]};
 		
 		feast();		//ghosts eat pac-man or vice versa
 		
@@ -308,7 +358,9 @@ public class G implements Game
 						curGhostLocs[i]=mazes[curMaze].initialGhostsPosition;
 				}
 			}
-		}
+        }
+        
+        updateFruit();
 				
 		if(!extraLife && score>=EXTRA_LIFE_SCORE)	//award 1 extra life at 10000 points
 		{
@@ -453,19 +505,16 @@ public class G implements Game
 			
 			if(distance<=G.EAT_DISTANCE && distance!=-1)
 			{
-				if(edibleTimes[i]>0)									//pac-man eats ghost
+				if(edibleTimes[i]>0)		//pac-man eats ghost
 				{
                     eatingScore = G.GHOST_EAT_SCORE*ghostEatMultiplier;
                     eatingGhost = i;
-                    eatingTime = 20;
+                    eatingTime = 12;
 					score += eatingScore;
                     ghostEatMultiplier*=2;
-
 				}
-				else													//ghost eats pac-man
-				{
+				else						//ghost eats pac-man
                     dyingTime = 20;
-				}
 			}
 		}
 		
@@ -1032,145 +1081,9 @@ public class G implements Game
 		neighbours[getReverse(lastDirection)]=-1;
 		
 		return neighbours;
-	}		
-	
-	/*
-	 * Stores the actual mazes, each of which is simply a connected graph. The differences between the mazes are the connectivity
-	 * and the x,y coordinates (used for drawing or to compute the Euclidean distance. There are 3 built-in distance functions in
-	 * total: Euclidean, Manhattan and Dijkstra's shortest path distance. The latter is pre-computed and loaded, the others are
-	 * computed on the fly whenever getNextDir(-) is called.
-	 */
-	protected final class Maze
-	{
-		private String[] nodeNames={"a","b","c","d"};
-		private String[] distNames={"da","db","dc","dd"};
-		
-		protected int[] distances,pillIndices,powerPillIndices,junctionIndices;				//Information for the controllers
-		protected Node[] graph;																//The actual maze, stored as a graph (set of nodes)
-		protected int initialPacPosition,lairPosition,initialGhostsPosition,width,height;	//Maze-specific information
-		protected String name;																//Name of the Maze
-					
-		/*
-		 * Each maze is stored as a (connected) graph: all nodes have neighbours, stored in an array of length 4. The
-		 * index of the array associates the direction the neighbour is located at: '[up,right,down,left]'.
-		 * For instance, if node '9' has neighbours '[-1,12,-1,6]', you can reach node '12' by going right, and node
-		 * 6 by going left. The directions returned by the controllers should thus be in {0,1,2,3} and can be used
-		 * directly to determine the next node to go to.
-		 */		
-		protected Maze(int index)
-		{
-			loadNodes(nodeNames[index]);
-			loadDistances(distNames[index]);
-		}
-		
-		//Loads all the nodes from files and initialises all maze-specific information.
-		private void loadNodes(String fileName)
-		{
-	        try
-	        {         	
-	        	BufferedReader br=new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("resources/data/"+fileName)));
-	            String input=br.readLine();		
-	            
-	            //preamble
-	            String[] pr=input.split("\t");       
-	            this.name=pr[0];
-	            this.initialPacPosition=Integer.parseInt(pr[1]);
-	            this.lairPosition=Integer.parseInt(pr[2]);
-	            this.initialGhostsPosition=Integer.parseInt(pr[3]);	            
-	            this.graph=new Node[Integer.parseInt(pr[4])];	            
-	            this.pillIndices=new int[Integer.parseInt(pr[5])];
-	            this.powerPillIndices=new int[Integer.parseInt(pr[6])];
-	            this.junctionIndices=new int[Integer.parseInt(pr[7])];
-	            this.width=Integer.parseInt(pr[8]);
-	            this.height=Integer.parseInt(pr[9]);
-	            
-	            input=br.readLine();	
+    }
+    
+    public int getFruitLoc() { return fruitLoc; }
 
-	            int nodeIndex=0;
-	        	int pillIndex=0;
-	        	int powerPillIndex=0;	        	
-	        	int junctionIndex=0;
-
-	            while(input!=null)
-	            {	
-	                String[] nd=input.split("\t");    
-	                Node node=new Node(nd[0],nd[1],nd[2],nd[7],nd[8],new String[]{nd[3],nd[4],nd[5],nd[6]});
-	                
-	                graph[nodeIndex++]=node;
-	                
-	                if(node.pillIndex>=0)
-	                	pillIndices[pillIndex++]=node.nodeIndex;
-	                else if(node.powerPillIndex>=0)
-	                	powerPillIndices[powerPillIndex++]=node.nodeIndex;
-	                
-	                if(node.numNeighbours>2)
-	                	junctionIndices[junctionIndex++]=node.nodeIndex;
-	                
-	                input=br.readLine();
-	            }
-	        }
-	        catch(IOException ioe)
-	        {
-	            ioe.printStackTrace();
-	        }
-		}
-		
-		/*
-		 * Loads the shortest path distances which have been pre-computed. The data contains the shortest distance from
-		 * any node in the maze to any other node. Since the graph is symmetric, the symmetries have been removed to preserve
-		 * memory and all distances are stored in a 1D array; they are looked-up using getDistance(-). 
-		 */		
-		private void loadDistances(String fileName)
-		{
-			this.distances=new int[((graph.length*(graph.length-1))/2)+graph.length];
-			
-	        try
-	        {	        		        	
-	        	BufferedReader br=new BufferedReader(new InputStreamReader((this.getClass().getResourceAsStream("resources/data/"+fileName))));
-	        	
-	            String input=br.readLine();
-	            
-	            int index=0;
-	            
-	            while(input!=null)
-	            {	
-                	distances[index++]=Integer.parseInt(input);
-	                input=br.readLine();
-	            }
-	        }
-	        catch(IOException ioe)
-	        {
-	            ioe.printStackTrace();
-	        }
-		}
-	}
-	
-	/*
-	 * Stores all information relating to a node in the graph, including all the indices required
-	 * to check and update the current state of the game.
-	 */
-	protected final class Node
-	{
-		protected int x,y,nodeIndex,pillIndex,powerPillIndex,numNeighbours;
-		protected int[] neighbours;
-		
-		protected Node(String nodeIndex,String x,String y,String pillIndex,String powerPillIndex,String[] neighbours)
-		{
-			this.nodeIndex=Integer.parseInt(nodeIndex);
-			this.x=Integer.parseInt(x);
-			this.y=Integer.parseInt(y);
-			this.pillIndex=Integer.parseInt(pillIndex);
-			this.powerPillIndex=Integer.parseInt(powerPillIndex);		
-			
-			this.neighbours=new int[neighbours.length];
-			
-			for(int i=0;i<neighbours.length;i++)
-			{
-				this.neighbours[i]=Integer.parseInt(neighbours[i]);
-			
-				if(this.neighbours[i]!=-1)
-					numNeighbours++;
-			}
-		}
-	}
+    public int getFruitType() { return fruitType; }
 }
