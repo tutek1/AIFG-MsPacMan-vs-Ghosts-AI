@@ -161,7 +161,7 @@ public class PacManSimulator {
 			        int replayStep[] = game.advanceGame(pacManAction, ghostsActions);
 			        
 			        // SAVE ACTIONS TO REPLAY
-			        if (config.replay) {
+			        if (config.replay && replayStep != null) {
 			        	// STORE ACTIONS
 			        	storeActions(replayStep, game.getCurLevel()==lastLevel);
 			        }

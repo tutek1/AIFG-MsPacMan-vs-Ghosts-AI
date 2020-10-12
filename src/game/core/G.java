@@ -54,7 +54,9 @@ public class G implements Game
 	protected int curPacManLoc,lastPacManDir,livesRemaining;
 	protected boolean extraLife;
 	//ghosts-specific
-	protected int[] curGhostLocs,lastGhostDirs,edibleTimes,lairTimes;
+    protected int[] curGhostLocs,lastGhostDirs,edibleTimes,lairTimes;
+    
+    protected int eatingGhost, eatingTime, eatingScore;
 	
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////  Constructors and Initialisers   //////////////////////////
@@ -200,6 +202,16 @@ public class G implements Game
 	//Central method that advances the game state
 	public int[] advanceGame(PacManAction pacMan, GhostsActions ghosts)
 	{			
+        if (eatingTime > 0) {
+            --eatingTime;
+            if (eatingTime == 0) {
+                edibleTimes[eatingGhost]=0;					
+                lairTimes[eatingGhost]=(int)(G.COMMON_LAIR_TIME*(Math.pow(G.LAIR_REDUCTION,totLevel)));					
+                curGhostLocs[eatingGhost]=mazes[curMaze].lairPosition;
+                lastGhostDirs[eatingGhost]=G.INITIAL_GHOST_DIRS[eatingGhost];
+            } else return null;
+        }
+
 		updatePacMan(pacMan);   	      //move pac-man		
 		eatPill();						  //eat a pill
 		boolean reverse=eatPowerPill();	  //eat a power pill
@@ -209,7 +221,10 @@ public class G implements Game
 		
 		//This is primarily done for the replays as reset (as possibly called by feast()) sets the 
 		//last directions to the initial ones, not the ones taken
-		int[] replayStep={lastPacManDir,lastGhostDirs[0],lastGhostDirs[1],lastGhostDirs[2],lastGhostDirs[3],curPacManLoc, curGhostLocs[0], curGhostLocs[1], curGhostLocs[2], curGhostLocs[3]};
+        int[] replayStep={
+            lastPacManDir,
+            lastGhostDirs[0],lastGhostDirs[1],lastGhostDirs[2],lastGhostDirs[3],
+            curPacManLoc, curGhostLocs[0], curGhostLocs[1], curGhostLocs[2], curGhostLocs[3]};
 		
 		feast();							//ghosts eat pac-man or vice versa
 		
@@ -240,8 +255,17 @@ public class G implements Game
 	
 	//Central method that advances the game state
 	public int[] advanceGameReplay(PacManAction pacMan, GhostsActions ghosts, int pacManLocation, int[] ghostsLocations)
-	{			
-		//updatePacMan(pacMan);   	      //move pac-man
+	{
+        if (eatingTime > 0) {
+            --eatingTime;
+            if (eatingTime == 0) {
+                edibleTimes[eatingGhost]=0;					
+                lairTimes[eatingGhost]=(int)(G.COMMON_LAIR_TIME*(Math.pow(G.LAIR_REDUCTION,totLevel)));					
+                curGhostLocs[eatingGhost]=mazes[curMaze].lairPosition;
+                lastGhostDirs[eatingGhost]=G.INITIAL_GHOST_DIRS[eatingGhost];
+            } else return null;
+        }
+		
 		lastPacManDir = pacMan.get().index;
 		curPacManLoc = pacManLocation;
 		
@@ -249,7 +273,6 @@ public class G implements Game
 		eatPowerPill();	  //eat a power pill
 		
 		if (ghosts != null) {
-			//updateGhosts(ghosts, reverse);    //move ghosts
 			for (int i = 0; i < 4; ++i) {
 				lastGhostDirs[i] = ghosts.ghost(i).get().index;
 				curGhostLocs[i] = ghostsLocations[i];
@@ -422,12 +445,12 @@ public class G implements Game
 			{
 				if(edibleTimes[i]>0)									//pac-man eats ghost
 				{
-					score+=G.GHOST_EAT_SCORE*ghostEatMultiplier;
-					ghostEatMultiplier*=2;
-					edibleTimes[i]=0;					
-					lairTimes[i]=(int)(G.COMMON_LAIR_TIME*(Math.pow(G.LAIR_REDUCTION,totLevel)));					
-					curGhostLocs[i]=mazes[curMaze].lairPosition;
-					lastGhostDirs[i]=G.INITIAL_GHOST_DIRS[i];
+                    eatingScore = G.GHOST_EAT_SCORE*ghostEatMultiplier;
+                    eatingGhost = i;
+                    eatingTime = 20;
+					score += eatingScore;
+                    ghostEatMultiplier*=2;
+
 				}
 				else													//ghost eats pac-man
 				{
@@ -573,7 +596,13 @@ public class G implements Game
 	public boolean isEdible(int whichGhost)
 	{
 		return edibleTimes[whichGhost]>0;
-	}
+    }
+    
+    public int getEatingTime() { return eatingTime; }
+
+    public int getEatingGhost() { return eatingTime > 0 ? eatingGhost : -1; }
+
+    public int getEatingScore() { return eatingScore; }
 
 	//Returns the score of the game
 	public int getScore()

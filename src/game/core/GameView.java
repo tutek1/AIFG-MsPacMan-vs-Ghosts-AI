@@ -43,7 +43,8 @@ public final class GameView extends JComponent
     private Graphics bufferGraphics; 
     private Image offscreen; 
     private Scale2x scale2x;
-    
+    private Font font, smallFont;
+
     public static GameView lastInstance;
 
     private static final int TOP_BORDER = 20;
@@ -61,6 +62,9 @@ public final class GameView extends JComponent
             scale2x = new Scale2x(this.getPreferredSize().width, this.getPreferredSize().height);
         
         images=loadImages();
+
+        font = new Font(Font.MONOSPACED, Font.PLAIN, 11);
+        smallFont = new Font(Font.MONOSPACED, Font.PLAIN, 8);
         
         isVisible=true;
         
@@ -126,8 +130,6 @@ public final class GameView extends JComponent
     		offscreen=createImage(width, height); 
             bufferGraphics=offscreen.getGraphics();
             bufferGraphics.translate(0, TOP_BORDER);
-            Font font = new Font(Font.MONOSPACED, Font.PLAIN, 11);
-            bufferGraphics.setFont(font);
     	}   	
     	
         drawMaze();        
@@ -187,8 +189,9 @@ public final class GameView extends JComponent
         
     	if(pacDir>=0 && pacDir<4)
     		pacManDir=pacDir;
-    	
-    	bufferGraphics.drawImage(pacmanImgs[pacManDir][(game.getTotalTime()%6)/2],game.getX(pacLoc)*MAG-1,game.getY(pacLoc)*MAG+3,null);
+        
+        if (game.getEatingTime() == 0)   // not currently eating a ghost
+    	    bufferGraphics.drawImage(pacmanImgs[pacManDir][(game.getTotalTime()%6)/2],game.getX(pacLoc)*MAG-1,game.getY(pacLoc)*MAG+3,null);
     }
 
     private void drawGhosts() 
@@ -199,6 +202,13 @@ public final class GameView extends JComponent
 	    	int x=game.getX(loc);
 	    	int y=game.getY(loc);
 	    	
+            if (index == game.getEatingGhost()) {
+                bufferGraphics.setFont(smallFont);
+                bufferGraphics.setColor(new Color(0, 0xbd, 0xbd));
+                bufferGraphics.drawString("" + game.getEatingScore(), x * MAG - 2, y * MAG + 13);
+                continue;
+            }
+
 	    	if(game.getEdibleTime(index)>0)
 	    	{
 	    		if(game.getEdibleTime(index)<_G_.EDIBLE_ALERT && ((game.getTotalTime()%6)/3)==0)
@@ -225,6 +235,7 @@ public final class GameView extends JComponent
     private void drawGameInfo()
     {
         bufferGraphics.setColor(Color.WHITE);
+        bufferGraphics.setFont(font);
         
         bufferGraphics.drawString("SCORE", 99, -9);
         bufferGraphics.drawString(String.format("%5d", game.getScore()),99,2);
