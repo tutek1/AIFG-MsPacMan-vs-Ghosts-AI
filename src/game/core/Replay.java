@@ -1,6 +1,6 @@
 package game.core;
 
-import game.PacManSimulator.GameConfig;
+import game.GameConfig;
 import game.controllers.Direction;
 import game.controllers.ghosts.GhostsActions;
 import game.controllers.ghosts.IGhostsController;

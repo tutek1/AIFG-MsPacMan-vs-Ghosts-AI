@@ -13,9 +13,9 @@
  */
 package game.core;
 
-import game.PacManSimulator.GameConfig;
-
 import java.util.BitSet;
+
+import game.GameConfig;
 
 public class _G_ extends G
 {
@@ -79,74 +79,4 @@ public class _G_ extends G
 	{
 		return mazes[curMaze].height;
 	}
-	
-	//for the web-site javascript replays
-    public void monitorGame()
-    {
-        sb.append("{");
-
-        //maze
-        sb.append("ma:"+curMaze+",");
-        sb.append("tt:"+totalTime+",");
-        sb.append("li:"+livesRemaining+",");
-        sb.append("sc:"+score+",");
-        sb.append("lt:"+levelTime+",");
-        sb.append("le:"+totLevel+",");
-        
-        // pacman
-        sb.append("pn:"+curPacManLoc+",");
-        
-        int pacDir=lastPacManDir;
-        
-    	if(pacDir>=0 && pacDir<4)
-    		pacManDir=pacDir;
-        
-        sb.append("pd:"+pacManDir+",");
-        
-        // ghosts
-        sb.append("gh:[");
-        sb.append("{gn:"+curGhostLocs[0]+",");
-        sb.append("di:"+lastGhostDirs[0]+",et:"+edibleTimes[0]);
-        sb.append(",lt:"+lairTimes[0]);
-        sb.append("},");
-        sb.append("{gn:"+curGhostLocs[1]+",");
-        sb.append("di:"+lastGhostDirs[1]+",et:"+edibleTimes[1]);
-        sb.append(",lt:"+lairTimes[1]);
-        sb.append("},");
-        sb.append("{gn:"+curGhostLocs[2]+",");
-        sb.append("di:"+lastGhostDirs[2]+",et:"+edibleTimes[2]);
-        sb.append(",lt:"+lairTimes[2]);
-        sb.append("},");
-        sb.append("{gn:"+curGhostLocs[3]+",");
-        sb.append("di:"+lastGhostDirs[3]+",et:"+edibleTimes[3]);
-        sb.append(",lt:"+lairTimes[3]);
-        sb.append("}");
-        sb.append("],");
-
-        // pills
-        sb.append("pi:\"");
-
-        for (int i = 0; i < getPillIndices().length; i++)
-            if(checkPill(i))
-                sb.append("1");
-            else
-                sb.append("0");
-
-        sb.append("\",");
-        sb.append("po:\"");
-
-        for (int i = 0; i < getPowerPillIndices().length; i++)
-            if(checkPowerPill(i))
-                sb.append("1");
-            else
-                sb.append("0");
-
-        sb.append("\"");
-        sb.append("},\n");
-    }
-    
-    public StringBuilder getRecordedMatch()
-    {
-    	return sb;
-    }
 }

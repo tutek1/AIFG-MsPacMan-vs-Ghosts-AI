@@ -79,7 +79,7 @@ public class PacManReplayer {
 		// INITIALIZE THE VIEW
 		if (config.visualize) {
 			gv = new GameView(game);
-			if (config.visualizationScale2x) gv.setScale2x(true);
+			if (config.visualizationScale2x) gv.setScale2x();
 			gv.showGame();
 			hijack = new Hijack();
 			gv.getFrame().addKeyListener(hijack);

@@ -13,7 +13,7 @@
  */
 package game.core;
 
-import game.PacManSimulator.GameConfig;
+import game.GameConfig;
 import game.controllers.Direction;
 import game.controllers.ghosts.GhostsActions;
 import game.controllers.pacman.PacManAction;
@@ -1037,12 +1037,6 @@ public class G implements Game
 		{
 	        try
 	        {         	
-	        	//APPLET	        	
-	        	//BufferedReader br=new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/data/"+fileName)));
-	        	//APPLICATION
-	        	
-	        	// ORIG:
-	        	//BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(pathMazes+System.getProperty("file.separator")+fileName)));	 
 	        	BufferedReader br=new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("resources/data/"+fileName)));
 	            String input=br.readLine();		
 	            
@@ -1101,12 +1095,6 @@ public class G implements Game
 			
 	        try
 	        {	        		        	
-	        	//APPLET
-//	        	BufferedReader br=new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/data/"+fileName)));
-	        	//APPLICATION
-	        	
-	        	//ORIG:
-	        	//BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(pathMazes+System.getProperty("file.separator")+fileName)));
 	        	BufferedReader br=new BufferedReader(new InputStreamReader((this.getClass().getResourceAsStream("resources/data/"+fileName))));
 	        	
 	            String input=br.readLine();

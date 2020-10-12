@@ -251,11 +251,6 @@ public final class GameView extends JComponent
         
         try
         {            
-        	//APPLET
-//        	image=ImageIO.read(this.getClass().getResourceAsStream("/images/"+fileName));
-        	//APPLICATION
-        	//ORIG:
-        	//image=ImageIO.read(new File(pathImages+System.getProperty("file.separator")+fileName));
         	image=ImageIO.read(this.getClass().getResourceAsStream("resources/images/"+fileName));
         }
         catch(IOException e) 
@@ -266,26 +261,14 @@ public final class GameView extends JComponent
         return image;
     }
     
-    public void setScale2x(boolean state) {
-    	if (state && scale2x != null) return; // ALREADY ENABLED
-    	if (!state && scale2x == null) return; // ALREADY DISABLED
+    public void setScale2x() {
+    	if (scale2x != null) return; // ALREADY ENABLED
     	
-    	if (state) {
-    		scale2x = new Scale2x(this.getPreferredSize().width, this.getPreferredSize().height);
-    		if (frame != null) {
-    			frame.setSize(frame.getWidth() * 2, frame.getHeight() * 2);
-    			//frame.setPreferredSize(new Dimension(frame.getWidth() * 2, frame.getHeight() * 2));
-    			frame.repaint();
-    		}
-    	} else {
-    		// !state
-    		scale2x = null;
-    		if (frame != null) {
-    			frame.setSize(frame.getWidth() / 2, frame.getHeight() / 2);
-    			//frame.setPreferredSize(new Dimension(frame.getWidth() / 2, frame.getHeight() / 2));
-    			frame.repaint();
-    		}
-    	}
+        scale2x = new Scale2x(this.getPreferredSize().width, this.getPreferredSize().height);
+        if (frame != null) {
+            frame.setSize(frame.getWidth() * 2, frame.getHeight() * 2);
+            frame.repaint();
+        }
     }
     
     public GameView showGame()
@@ -293,7 +276,6 @@ public final class GameView extends JComponent
         this.frame = new GameFrame(this);
         if (scale2x != null) {
         	this.frame.setSize(frame.getWidth() * 2, frame.getHeight() * 2);
-        	//this.frame.setPreferredSize(new Dimension(frame.getWidth() * 2, frame.getHeight() * 2));
         	this.frame.center();
         	
         	this.frame.setLocation(650, 10);
@@ -315,6 +297,7 @@ public final class GameView extends JComponent
     {
         public GameFrame(JComponent comp)
         {
+            super("Ms. Pac-Man vs. Ghosts");
             getContentPane().add(BorderLayout.CENTER,comp);
             pack();
             Dimension screen=Toolkit.getDefaultToolkit().getScreenSize();

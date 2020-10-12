@@ -1,6 +1,5 @@
 package game;
 
-import game.PacManSimulator.GameConfig;
 import game.controllers.ghosts.IGhostsController;
 import game.controllers.ghosts.game.GameGhosts;
 import game.controllers.pacman.IPacManController;

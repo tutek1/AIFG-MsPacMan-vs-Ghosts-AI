@@ -2,8 +2,6 @@ package game;
 
 import game.controllers.ghosts.GhostsActions;
 import game.controllers.ghosts.IGhostsController;
-import game.controllers.ghosts.game.GameGhosts;
-import game.controllers.pacman.HumanPacMan;
 import game.controllers.pacman.IPacManController;
 import game.controllers.pacman.PacManAction;
 import game.core.G;
@@ -27,63 +25,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class PacManSimulator {
 	
-	public static class GameConfig {
-		
-		public int seed = -1;
-		
-		/**
-		 * Whether POWER PILLS should be present within the environment.
-		 */
-		public boolean powerPillsEnabled = true;
-		
-		/**
-		 * Total percentage of PILLS present within the level. If < 1, some (random) pills will be taken away.
-		 */
-		public double totalPills = 1;
-		
-		/**
-		 * How many levels Ms PacMan may play (-1 => unbound).
-		 */
-		public int levelsToPlay = -1;
-		
-		/**
-		 * How many lives to start with.
-		 */
-		public int lives = G.NUM_LIVES;
-		
-		public GameConfig clone() {
-			GameConfig result = new GameConfig();
-			
-			result.seed = seed;
-			result.powerPillsEnabled = powerPillsEnabled;
-			result.totalPills = totalPills;
-			result.levelsToPlay = levelsToPlay;
-			
-			return result;
-		}
-
-		public String asString() {
-			return "" + seed + ";" + powerPillsEnabled + ";" + totalPills + ";" + levelsToPlay;
-		}
-		
-		public void fromString(String line) {
-			String[] all = line.split(";");
-			seed = Integer.parseInt(all[0]);
-			powerPillsEnabled = Boolean.parseBoolean(all[1]);
-			totalPills = Double.parseDouble(all[2]);
-			levelsToPlay = Integer.parseInt(all[3]);
-		}
-
-		public String getCSVHeader() {
-			return "seed;powerPillsEnabled;totalPills;levelsToPlay";
-		}
-		
-		public String getCSV() {
-			return "" + seed + ";" + powerPillsEnabled + ";" + totalPills + ";" + levelsToPlay;
-		}
-		
-	}
-
 	private SimulatorConfig config;
 	
 	private GameView gv;
@@ -120,7 +61,7 @@ public class PacManSimulator {
 		// INITIALIZE THE VIEW
 		if (config.visualize) {
 			gv = new GameView(game);
-			if (config.visualizationScale2x) gv.setScale2x(true);
+			if (config.visualizationScale2x) gv.setScale2x();
 			gv.showGame();
 			
 			if (config.pacManController instanceof KeyListener) {				
@@ -400,7 +341,7 @@ public class PacManSimulator {
 	
 	public static Game play(IPacManController pacMan, IGhostsController ghosts) {
 		return play(pacMan, ghosts, 0, G.NUM_LIVES, -1);
-	}	
+	}
 	
 	/**
 	 * Run simulation visualized w/o ghosts.
@@ -431,9 +372,4 @@ public class PacManSimulator {
 		
 		return play(config);		
 	}
-		
-	public static void main(String[] args) {
-		play(new HumanPacMan(), new GameGhosts(4, false));		
-	}
-	
 }
