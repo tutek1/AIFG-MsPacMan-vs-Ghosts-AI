@@ -272,7 +272,7 @@ public final class GameView extends JComponent
         bufferGraphics.drawString("SCORE", 99, -9);
         bufferGraphics.drawString(String.format("%5d", game.getScore()),99,2);
 
-        for (int i = 0 ; i <= Math.min(game.getCurLevel(), 7) ; ++i)
+        for (int i = 0 ; i < Math.min(game.getCurLevel(), 7) ; ++i)
             drawFruitAt(i, 195 - 18 * i, 256, false);
     }
     

@@ -140,7 +140,7 @@ public class G implements Game
 		ghostEatMultiplier=1;
 		
 		for(int i=0;i<lairTimes.length;i++)
-            lairTimes[i]=(int)(G.LAIR_TIMES[i]*(Math.pow(LAIR_REDUCTION,totLevel)));
+            lairTimes[i]=(int)(G.LAIR_TIMES[i]*(Math.pow(LAIR_REDUCTION,totLevel - 1)));
             
         eatingTime = dyingTime = 0;
         fruitLoc = -1;
@@ -209,7 +209,7 @@ public class G implements Game
         if (eatingTime > 0) {
             if (--eatingTime == 0) {
                 edibleTimes[eatingGhost]=0;					
-                lairTimes[eatingGhost]=(int)(G.COMMON_LAIR_TIME*(Math.pow(G.LAIR_REDUCTION,totLevel)));					
+                lairTimes[eatingGhost]=(int)(G.COMMON_LAIR_TIME*(Math.pow(G.LAIR_REDUCTION,totLevel - 1)));					
                 curGhostLocs[eatingGhost]=mazes[curMaze].lairPosition;
                 lastGhostDirs[eatingGhost]=G.INITIAL_GHOST_DIRS[eatingGhost];
             }
@@ -247,7 +247,7 @@ public class G implements Game
                 throw new RuntimeException("can't find any tunnels");
             
             fruitLoc = startX[rnd.nextInt(count)];
-            fruitType = totLevel < 7 ? totLevel : rnd.nextInt(7);
+            fruitType = totLevel <= 7 ? totLevel - 1 : rnd.nextInt(7);
             fruitDir = getX(fruitLoc) == 0 ? Game.RIGHT : Game.LEFT;
         } else if (fruitLoc != -1) {
              if (levelTime % 2 == 0) {
@@ -480,7 +480,7 @@ public class G implements Game
 			powerPills.clear(powerPillIndex);
 			
 			//This ensures that only ghosts outside the lair (i.e., inside the maze) turn edible
-			int newEdibleTime=(int)(G.EDIBLE_TIME*(Math.pow(G.EDIBLE_TIME_REDUCTION,totLevel)));
+			int newEdibleTime=(int)(G.EDIBLE_TIME*(Math.pow(G.EDIBLE_TIME_REDUCTION,totLevel - 1)));
 			
 			for(int i=0;i<NUM_GHOSTS;i++)
 				if(lairTimes[i]==0)
@@ -533,7 +533,7 @@ public class G implements Game
 			score+=G.PILL*pills.cardinality()+G.POWER_PILL*powerPills.cardinality();			 
 			
 			//put a cap on the total number of levels played
-			if(totLevel+1==G.MAX_LEVELS)
+			if(totLevel==G.MAX_LEVELS)
 			{
 				gameOver=true;
 				return;

@@ -45,7 +45,7 @@ public class _G_ extends G
 		score=0;
 		levelTime=0;
 		totalTime=0;
-		totLevel=0;
+		totLevel=1;
 		livesRemaining=config.lives;
 		extraLife=false;
 		gameOver=false;

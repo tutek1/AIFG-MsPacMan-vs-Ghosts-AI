@@ -19,20 +19,7 @@ public class PacManResults extends EvaluationInfos {
 		}
 	}
 	
-	public void addRunResults(List<PacManRunResult> results) {
-		for (PacManRunResult result : results) {
-			runResults.add(result);
-			configs.add(result.getConfig());
-			addResults(result.getResults());
-		}
-	}
-
 	public List<PacManRunResult> getRunResults() {
 		return runResults;
 	}
-
-	public List<SimulatorConfig> getConfigs() {
-		return configs;
-	}
-	
 }

@@ -6,13 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EvaluationInfos {
-	
 	private List<Game> results = new ArrayList<Game>();
 	
-	public int totalVictories;
-	public double avgVictories;
-	public int totalDeaths;
-	public double avgDeaths;
 	public int totalScore;
 	public double avgScore;
 	
@@ -24,26 +19,13 @@ public class EvaluationInfos {
 	}
 
 	public void addResult(Game result) {
-		if (result.getLivesRemaining() > 0) {
-			++totalVictories;
-		} else {
-			++totalDeaths;
-		}
 		totalScore     += result.getScore();		
 		totalTimeSpent += result.getTotalTime();
 		
 		results.add(result);
 		
-		avgVictories = ((double)totalVictories) / ((double)results.size());
-		avgDeaths    = ((double)totalDeaths)    / ((double)results.size());
-		avgScore     = ((double)totalScore)     / ((double)results.size());		
-		avgTimeSpent = ((double)totalTimeSpent) / ((double)results.size());
-	}
-	
-	public void addResults(Game... results) {
-		for (Game info : results) {
-			addResult(info);
-		}
+		avgScore     = (double) totalScore     / results.size();		
+		avgTimeSpent = (double) totalTimeSpent / results.size();
 	}
 	
 	public void addResults(List<Game> results) {
@@ -53,13 +35,11 @@ public class EvaluationInfos {
 	}
 	
 	public String getCSVHeader() {
-		return "resultCount;totalVictories;avgVictories;totalDeaths;avgDeaths;totalScore;avgScore;totalTimeSpent;avgTimeSpent";
+		return "resultCount;totalScore;avgScore;totalTimeSpent;avgTimeSpent";
 	}
 	
 	public String getCSV() {
 		return results.size() 
-			   + ";" + totalVictories + ";" + avgVictories
-			   + ";" + totalDeaths    + ";" + avgDeaths
 			   + ";" + totalScore     + ";" + avgScore
 			   + ";" + totalTimeSpent + ";" + avgTimeSpent;		
 	}

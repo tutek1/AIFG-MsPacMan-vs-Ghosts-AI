@@ -104,7 +104,7 @@ public interface Game
     // previous direction with -1
 	public int[] getGhostNeighbours(int whichGhost);				
 	
-	public int getCurLevel();		//returns the current level; the first level is 0
+	public int getCurLevel();		//returns the current level; the first level is 1
 	public int getCurMaze();				//returns the current maze
 	public int getCurPacManLoc();			//returns the node index Ms Pac-Man is at
 	public int getCurPacManDir();			//returns the last direction taken by Ms Pac-Man
