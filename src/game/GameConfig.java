@@ -15,7 +15,9 @@ public class GameConfig {
 	 * Total percentage of PILLS present within the level. If < 1, some (random) pills will be taken away.
 	 */
 	public double totalPills = 1;
-	
+    
+    public int startingLevel = 1;
+
 	/**
 	 * How many levels Ms PacMan may play (-1 => unbound).
 	 */
@@ -31,14 +33,16 @@ public class GameConfig {
 		
 		result.seed = seed;
 		result.powerPillsEnabled = powerPillsEnabled;
-		result.totalPills = totalPills;
+        result.totalPills = totalPills;
+        result.startingLevel = startingLevel;
 		result.levelsToPlay = levelsToPlay;
 		
 		return result;
 	}
 
 	public String asString() {
-		return "" + seed + ";" + powerPillsEnabled + ";" + totalPills + ";" + levelsToPlay;
+        return "" + seed + ";" + powerPillsEnabled + ";" + totalPills + ";" +
+               startingLevel + ";" + levelsToPlay;
 	}
 	
 	public void fromString(String line) {
@@ -46,15 +50,17 @@ public class GameConfig {
 		seed = Integer.parseInt(all[0]);
 		powerPillsEnabled = Boolean.parseBoolean(all[1]);
 		totalPills = Double.parseDouble(all[2]);
-		levelsToPlay = Integer.parseInt(all[3]);
+		startingLevel = Integer.parseInt(all[3]);
+		levelsToPlay = Integer.parseInt(all[4]);
 	}
 
 	public String getCSVHeader() {
-		return "seed;powerPillsEnabled;totalPills;levelsToPlay";
+		return "seed;powerPillsEnabled;totalPills;startingLevel;levelsToPlay";
 	}
 	
 	public String getCSV() {
-		return "" + seed + ";" + powerPillsEnabled + ";" + totalPills + ";" + levelsToPlay;
+        return "" + seed + ";" + powerPillsEnabled + ";" + totalPills + ";" +
+               startingLevel + ";" + levelsToPlay;
 	}
 	
 }

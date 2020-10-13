@@ -9,6 +9,7 @@ public class MsPacMan {
     static void usage() {
         out.println("usage: mspac [<agent-classname>] [<option>...]");
         out.println("options:");
+        out.println("  -level <num> : starting level");
         out.println("  -seed <num> : random seed");
         out.println("  -sim <count> : simulate a series of games without visualization");
         out.println("  -v : verbose");
@@ -17,6 +18,7 @@ public class MsPacMan {
     public static void main(String[] args) throws Exception {
         IPacManController agent = null;
         String agentName = null;
+        int level = 1;
         int seed = 0;
         boolean seedSpecified = false;
         int sim = 0;
@@ -25,6 +27,9 @@ public class MsPacMan {
         for (int i = 0 ; i < args.length ; ++i) {
             String s = args[i];
             switch (s) {
+                case "-level":
+                    level = Integer.parseInt(args[++i]); 
+                    break;
                 case "-seed":
                     seed = Integer.parseInt(args[++i]);
                     seedSpecified = true;
@@ -44,6 +49,10 @@ public class MsPacMan {
             }
         }
 
+		SimulatorConfig config = new SimulatorConfig();
+        config.ghostsController = new GameGhosts(4);
+        config.game.startingLevel = level;
+
         if (sim > 0) {
             if (agent == null) {
                 System.out.println("must specify agent with -sim");
@@ -51,17 +60,17 @@ public class MsPacMan {
             }
             if (!seedSpecified)
                 seed = 0;
-            SimulatorConfig config = new SimulatorConfig();
-            config.ghostsController = new GameGhosts(4);
             config.visualize = false;
             EvaluateAgent evaluate = new EvaluateAgent(seed, config, sim, null);
             evaluate.evaluateAgent(agentName, agent, verbose);		
         } else {
             if (agent == null)
                 agent = new HumanPacMan();
+            config.pacManController = agent;
             if (!seedSpecified)
                 seed = -1;      // random game
-            PacManSimulator.play(agent, new GameGhosts(4), seed);
+            config.game.seed = seed;
+            PacManSimulator.play(config);
         }
     }
 }

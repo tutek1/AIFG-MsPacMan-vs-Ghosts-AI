@@ -1,8 +1,6 @@
 package game;
 
 import game.controllers.ghosts.GhostsActions;
-import game.controllers.ghosts.IGhostsController;
-import game.controllers.pacman.IPacManController;
 import game.controllers.pacman.PacManAction;
 import game.core.G;
 import game.core.Game;
@@ -11,7 +9,6 @@ import game.core.Replay;
 import game.core._G_;
 
 import java.awt.event.KeyListener;
-import java.io.File;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -306,30 +303,5 @@ public class PacManSimulator {
 	public static Game play(SimulatorConfig config) {
 		PacManSimulator simulator = new PacManSimulator();
 		return simulator.run(config);		
-	}
-	
-	/**
-	 * Run simulation visualized with ghosts.
-	 */
-	public static Game play(IPacManController pacMan, IGhostsController ghosts, int seed, int lives, int thinkTime) {
-		SimulatorConfig config = new SimulatorConfig();
-		
-		config.pacManController = pacMan;
-		config.ghostsController = ghosts;
-		
-		config.replay = true;
-		config.replayFile = new File("./replay.log");
-		
-		config.game.seed = seed;
-	    config.game.lives = lives;
-		
-		if (thinkTime >= 0)
-		    config.thinkTimeMillis = thinkTime;
-		
-		return play(config);	
-	}
-	
-	public static Game play(IPacManController pacMan, IGhostsController ghosts, int seed) {
-		return play(pacMan, ghosts, seed, G.NUM_LIVES, -1);
 	}
 }

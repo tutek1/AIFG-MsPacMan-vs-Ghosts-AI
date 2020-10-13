@@ -99,7 +99,17 @@ public class G implements Game
         
 		return copy;
 	}
-	
+    
+    void setLevel(int level) {
+        totLevel = level;
+
+        if (totLevel <= 2)
+            curMaze = 0;
+        else if (totLevel <= 5)
+            curMaze = 1;
+        else curMaze = 2 + (totLevel - 6) / 4 % 2;
+    }
+
 	//If pac-man has been eaten or a new level has been reached
 	protected void reset(boolean newLevel)
 	{
@@ -113,14 +123,7 @@ public class G implements Game
 				}
 			}
 			
-            totLevel++;
-            if (totLevel <= 2)
-                curMaze = 0;
-            else if (totLevel <= 5)
-                curMaze = 1;
-            else curMaze = 2 + (totLevel - 6) / 4 % 2;
-
-			curMaze=(curMaze+1)%G.NUM_MAZES;
+            setLevel(totLevel + 1);
 			levelTime=0;	
 			pills=new BitSet(getNumberPills());
 			pills.set(0,getNumberPills());
