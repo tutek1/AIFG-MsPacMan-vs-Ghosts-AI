@@ -1,6 +1,6 @@
 package game.controllers.pacman.examples;
 
-import game.controllers.pacman.PacManHijackController;
+import game.controllers.pacman.PacManControllerBase;
 import game.core.G;
 import game.core.Game;
 import game.core.GameView;
@@ -13,7 +13,7 @@ import java.awt.Color;
  * not make sense from a controller's point of view (i.e., they might not be useful)
  * Comment/un-comment code below as desired (drawing all visuals would probably be too much).
  */
-public final class NearestPillPacManVS extends PacManHijackController
+public final class NearestPillPacManVS extends PacManControllerBase
 {	
 	@Override
 	public void tick(Game game, long timeDue) {

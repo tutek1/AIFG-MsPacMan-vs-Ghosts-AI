@@ -1,10 +1,10 @@
 package game.controllers.pacman.examples;
 
-import game.controllers.pacman.PacManHijackController;
+import game.controllers.pacman.PacManControllerBase;
 import game.core.G;
 import game.core.Game;
 
-public final class RandomNonRevPacMan extends PacManHijackController
+public final class RandomNonRevPacMan extends PacManControllerBase
 {	
 	@Override
 	public void tick(Game game, long timeDue) {

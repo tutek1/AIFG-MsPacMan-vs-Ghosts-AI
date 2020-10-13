@@ -1,8 +1,8 @@
-import game.controllers.pacman.PacManHijackController;
+import game.controllers.pacman.PacManControllerBase;
 import game.core.G;
 import game.core.Game;
 
-public final class MyAgent extends PacManHijackController
+public final class MyAgent extends PacManControllerBase
 {	
 	@Override
 	public void tick(Game game, long timeDue) {
