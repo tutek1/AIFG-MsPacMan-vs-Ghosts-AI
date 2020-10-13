@@ -13,35 +13,27 @@ import game.SimulatorConfig;
 import game.controllers.pacman.IPacManController;
 
 public class EvaluateAgent {
-	
 	private int seed = 0;
 
 	private SimulatorConfig prototypeConfig;
 	
 	private int runCount;
 	
-	private int oneRunRepetitions;
-	
 	private File resultDirFile;
 	
-	public EvaluateAgent(int seed, SimulatorConfig prototypeConfig, int runCount, int oneRunRepetitions, File resultDirFile) {
+	public EvaluateAgent(int seed, SimulatorConfig prototypeConfig, int runCount, File resultDirFile) {
 		this.seed = seed;
 		this.prototypeConfig = prototypeConfig;
 		this.runCount = runCount;
-		this.oneRunRepetitions = oneRunRepetitions;
 		this.resultDirFile = resultDirFile;
 	}
 	
-	private void log(String agentId, String msg) {
-		System.out.println("[" + agentId + "] " + msg);
-	}
-	
-	public PacManResults evaluateAgent(String agentId, IPacManController agent) {
+	public PacManResults evaluateAgent(String agentId, IPacManController agent, boolean verbose) {
 		agentId = Sanitize.idify(agentId);
 		
         System.out.println("Evaluating agent...");
         
-		PacManRun[] runs = PacManRunsGenerator.generateRunList(seed, prototypeConfig, runCount, oneRunRepetitions);
+		PacManRun[] runs = PacManRunsGenerator.generateRunList(seed, prototypeConfig, runCount);
 		
 		PacManResults results = new PacManResults();
 		
@@ -67,10 +59,7 @@ public class EvaluateAgent {
 				} else runs[i].getConfig().replay = false;
 			}
 			
-			PacManRunResult result = runs[i].run(agent);
-			
-			if (oneRunRepetitions > 1)
-			  log(agentId, "LEVEL " + (i+1) + " / " + runs.length + " SIMULATIONS FINISHED: " + result.toString());
+			PacManRunResult result = runs[i].run(agent, verbose);
 			
 			results.addRunResults(result);
 		}

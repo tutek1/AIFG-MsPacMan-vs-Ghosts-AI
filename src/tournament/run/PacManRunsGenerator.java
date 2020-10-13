@@ -13,7 +13,7 @@ public class PacManRunsGenerator {
 		return seeds;
 	}
 	
-	public static SimulatorConfig[] generateConfigs(int randomSeed, SimulatorConfig prototypeOptions, int runCount, int oneRunRepetitions) {
+	public static SimulatorConfig[] generateConfigs(int randomSeed, SimulatorConfig prototypeOptions, int runCount) {
 		int[] seeds = generateSeeds(randomSeed, runCount);
 				
 		SimulatorConfig[] configs = new SimulatorConfig[runCount];
@@ -26,8 +26,8 @@ public class PacManRunsGenerator {
 		return configs;
 	}
 	
-	public static PacManRun[] generateRunList(int randomSeed, SimulatorConfig prototypeOptions, int runCount, int oneRunRepetitions) {
-		SimulatorConfig[] configs = generateConfigs(randomSeed, prototypeOptions, runCount, oneRunRepetitions);
+	public static PacManRun[] generateRunList(int randomSeed, SimulatorConfig prototypeOptions, int runCount) {
+		SimulatorConfig[] configs = generateConfigs(randomSeed, prototypeOptions, runCount);
 		PacManRun[] runs = new PacManRun[runCount];
 		for (int i = 0; i < runCount; ++i) {
 			runs[i] = new PacManRun(configs[i]);

@@ -10,18 +10,23 @@ public class MsPacMan {
         out.println("usage: mspac [<agent-classname>] [<option>...]");
         out.println("options:");
         out.println("  -sim <count> : simulate a series of games without visualization");
+        out.println("  -v : verbose");
         System.exit(1);
     }
     public static void main(String[] args) throws Exception {
         IPacManController agent = null;
         String agentName = null;
         int sim = 0;
+        boolean verbose = false;
 
         for (int i = 0 ; i < args.length ; ++i) {
             String s = args[i];
             switch (s) {
                 case "-sim":
                     sim = Integer.parseInt(args[++i]);;
+                    break;
+                case "-v":
+                    verbose = true;
                     break;
                 default:
                     if (s.startsWith("-"))
@@ -40,8 +45,8 @@ public class MsPacMan {
             SimulatorConfig config = new SimulatorConfig();
             config.ghostsController = new GameGhosts(4);
             config.visualize = false;
-            EvaluateAgent evaluate = new EvaluateAgent(0, config, sim, 1, null);
-            evaluate.evaluateAgent(agentName, agent);		
+            EvaluateAgent evaluate = new EvaluateAgent(0, config, sim, null);
+            evaluate.evaluateAgent(agentName, agent, verbose);		
         } else {
             if (agent == null)
                 agent = new HumanPacMan();

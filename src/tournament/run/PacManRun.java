@@ -12,7 +12,7 @@ public class PacManRun {
 		this.config = config;
 	}
 	
-	public synchronized PacManRunResult run(IPacManController pacMan) {		
+	public synchronized PacManRunResult run(IPacManController pacMan, boolean verbose) {		
 		PacManRunResult result = new PacManRunResult(config);
 		
         config.pacManController = pacMan;
@@ -20,9 +20,10 @@ public class PacManRun {
         Game info = PacManSimulator.play(config);
         result.addResult(info);
         
-        System.out.printf(
-            "seed %2d: reached level %d, score = %5d\n",
-            config.game.seed, info.getCurLevel(), info.getScore());
+        if (verbose)
+            System.out.printf(
+                "seed %2d: reached level %d, score = %5d\n",
+                config.game.seed, info.getCurLevel(), info.getScore());
 
 		return result;		
 	}
