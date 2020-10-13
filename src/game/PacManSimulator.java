@@ -238,9 +238,7 @@ public class PacManSimulator {
 	}
 	
 	private interface IThinkingMethod {
-		
 		public void think();
-		
 	}
 	
 	private CountDownLatch thinkingLatch;
@@ -304,8 +302,6 @@ public class PacManSimulator {
 	
 	/**
 	 * Run simulation according to the configuration.
-	 * @param config
-	 * @return
 	 */
 	public static Game play(SimulatorConfig config) {
 		PacManSimulator simulator = new PacManSimulator();
@@ -314,9 +310,6 @@ public class PacManSimulator {
 	
 	/**
 	 * Run simulation visualized with ghosts.
-	 * @param pacMan
-	 * @param ghosts
-	 * @return
 	 */
 	public static Game play(IPacManController pacMan, IGhostsController ghosts, int seed, int lives, int thinkTime) {
 		SimulatorConfig config = new SimulatorConfig();
@@ -336,37 +329,7 @@ public class PacManSimulator {
 		return play(config);	
 	}
 	
-	public static Game play(IPacManController pacMan, IGhostsController ghosts) {
-		return play(pacMan, ghosts, 0, G.NUM_LIVES, -1);
-	}
-	
-	/**
-	 * Run simulation visualized w/o ghosts.
-	 * @param pacMan
-	 * @param ghosts
-	 * @return
-	 */
-	public static Game play(IPacManController pacMan) {
-		return play(pacMan, null);		
-	}
-	
-	/**
-	 * Run simulation headless.
-	 * @param pacMan
-	 * @param ghosts
-	 * @return
-	 */
-	public static Game simulate(IPacManController pacMan, IGhostsController ghosts) {
-		SimulatorConfig config = new SimulatorConfig();		
-		
-		config.visualize = false;
-		
-		config.pacManController = pacMan;
-		config.ghostsController = ghosts;
-		
-		config.replay = true;
-		config.replayFile = new File("./replay.log");
-		
-		return play(config);		
+	public static Game play(IPacManController pacMan, IGhostsController ghosts, int seed) {
+		return play(pacMan, ghosts, seed, G.NUM_LIVES, -1);
 	}
 }
