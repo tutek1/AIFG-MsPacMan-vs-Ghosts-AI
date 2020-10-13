@@ -113,8 +113,14 @@ public class G implements Game
 				}
 			}
 			
+            totLevel++;
+            if (totLevel <= 2)
+                curMaze = 0;
+            else if (totLevel <= 5)
+                curMaze = 1;
+            else curMaze = 2 + (totLevel - 6) / 4 % 2;
+
 			curMaze=(curMaze+1)%G.NUM_MAZES;
-			totLevel++;
 			levelTime=0;	
 			pills=new BitSet(getNumberPills());
 			pills.set(0,getNumberPills());
