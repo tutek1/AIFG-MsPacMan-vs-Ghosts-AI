@@ -13,13 +13,11 @@ public class PacManRun {
 	}
 	
 	public synchronized PacManRunResult run(IPacManController pacMan, boolean verbose) {		
-		PacManRunResult result = new PacManRunResult(config);
-		
         config.pacManController = pacMan;
         
         Game info = PacManSimulator.play(config);
-        result.addResult(info);
-        
+		PacManRunResult result = new PacManRunResult(config, info);
+		
         if (verbose)
             System.out.printf(
                 "seed %2d: reached level %d, score = %5d\n",

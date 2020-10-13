@@ -1,26 +1,26 @@
 package tournament.run;
 
 import game.SimulatorConfig;
-import tournament.EvaluationInfos;
+import game.core.Game;
 
-public class PacManRunResult extends EvaluationInfos {
-	
-	private SimulatorConfig config;	
+public class PacManRunResult {
+    private SimulatorConfig config;	
+    private Game info;
 		
-	public PacManRunResult(SimulatorConfig config) {
-		this.config = config;
-	}
-	
-	public SimulatorConfig getConfig() {
-		return config;
-	}
+	public PacManRunResult(SimulatorConfig config, Game info) {
+        this.config = config;
+        this.info = info;
+    }
+    
+    public Game getInfo() { return info; }
 	
 	public String getCSVHeader() {
-		return super.getCSVHeader() + ";" + config.getCSVHeader();
+		return config.getCSVHeader() + ";levelReached;score;timeSpent";
 	}
 	
 	public String getCSV() {
-		return super.getCSV() + ";" + config.getCSV();		
+        return config.getCSV() + ";" + info.getCurLevel() + ";" + info.getScore() +
+            ";" + info.getTotalTime();
 	}
 	
 }

@@ -80,8 +80,8 @@ public class EvaluateAgent {
 	}
 	
 	private void outputAgentAvgs(String agentId, PacManResults results) {
-		File file = new File(resultDirFile, agentId + ".runs.avgs.csv");
-		System.out.println("[" + agentId + "] Outputing runs avgs into: " + file.getAbsolutePath());
+		File file = new File(resultDirFile, agentId + ".runs.csv");
+		System.out.println("[" + agentId + "] Outputing runs into: " + file.getAbsolutePath());
 		
 		PrintWriter writer = null;
 		try {
