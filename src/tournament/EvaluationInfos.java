@@ -66,7 +66,7 @@ public class EvaluationInfos {
 	
 	@Override
 	public String toString() {
-		return "EvaluationInfos[RUNS=" + results.size() + ", AVGS: WIN=" + avgVictories + ", DEATH=" + avgDeaths + ", SCORE=" + avgScore + ", TIME=" + avgTimeSpent + "]";
+		return String.format("avg score = %.1f", avgScore);
 	}
 	
 }

@@ -1,22 +1,14 @@
 package tournament.run;
 
 import game.SimulatorConfig;
-
-import java.util.Random;
-
 import tournament.PacManConfig;
 
 public class PacManRunsGenerator {
-	
 	public static int[] generateSeeds(int randomSeed, int count) {
-		Random random = new Random(randomSeed);
 		int[] seeds = new int[count];
 		
 		for (int i = 0; i < count; ++i) {
-			seeds[i] = random.nextInt();
-			while (seeds[i] <= 0) {
-				seeds[i] += Integer.MAX_VALUE;
-			}			
+			seeds[i] = randomSeed + i;
 		}
 		
 		return seeds;

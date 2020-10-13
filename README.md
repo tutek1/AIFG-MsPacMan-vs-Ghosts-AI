@@ -36,8 +36,6 @@ Or, on Windows:
 
 Use the arrow keys to move.  You can press 'P' to pause the game, or 'N' to advance the game by a single frame.
 
-This is a fairly faithful recreation of the original Ms. Pac-Man game, with some differences.  In particular, there are no bonus fruits.
-
 ## Writing an agent
 
 You can enhance the MyAgent class to build a custom agent that controls Ms. Pac-Man.  On each tick, the game will call your implementation of the tick() method, where you can decide which action Ms. Pac-Man should take.

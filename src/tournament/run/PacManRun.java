@@ -48,7 +48,8 @@ public class PacManRun {
 			Game info = PacManSimulator.play(simulatorConfig);
 			result.addResult(info);
 			
-			System.out.println("GAME FINISHED - Score: " + info.getScore() + ", Time: " + info.getTotalTime() + ", " + (info.getLivesRemaining() > 0 ? "WIN" : "LOSE"));
+            System.out.printf("seed %2d: score = %5d\n",
+                simulatorConfig.game.seed, info.getScore());
 		}
 		return result;		
 	}

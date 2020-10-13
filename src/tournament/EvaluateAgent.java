@@ -39,8 +39,8 @@ public class EvaluateAgent {
 	public PacManResults evaluateAgent(String agentId, IPacManController agent) {
 		agentId = Sanitize.idify(agentId);
 		
-		log(agentId, "EVALUATING AGENT IN " + runCount + " RUNS with " + oneRunRepetitions + " repetition, TOTAL " + (runCount * oneRunRepetitions) + " SIMULATIONS!");
-		
+        System.out.println("Evaluating agent...");
+        
 		PacManRun[] runs = PacManRunsGenerator.generateRunList(seed, prototypeConfig, runCount, oneRunRepetitions);
 		
 		PacManResults results = new PacManResults();
@@ -54,11 +54,6 @@ public class EvaluateAgent {
 		}
 						
 		for (int i = 0; i < runs.length; ++i) {
-			String s = "RUN " + (i+1) + " / " + runs.length;
-			if (oneRunRepetitions > 1)
-				s = s + " (" + oneRunRepetitions + " repetitions)";
-			log(agentId, s);
-			
 			if (runs[i].getConfig().config.replay) {
 				if (replayDir != null) {
 					if (runs[i].getConfig().config.replayFile == null) {
@@ -80,8 +75,7 @@ public class EvaluateAgent {
 			results.addRunResults(result);
 		}
 		
-		log(agentId, "EVALUATION FINISHED!");
-		log(agentId, results.toString());
+		System.out.println(results);
 		
 		if (resultDirFile != null)
 			outputResults(agentId, results);
@@ -92,42 +86,9 @@ public class EvaluateAgent {
 	private void outputResults(String agentId, PacManResults results) {		
 		resultDirFile.mkdirs();
 		
-		//outputAgentResults(agentId, results);
 		outputAgentAvgs(agentId, results);
 		outputAgentGlobalAvgs(agentId, results);
 	}
-
-	
-//	private void outputAgentResults(String agentId, PacManResults results) {
-//		File file = new File(resultDirFile, agentId + ".runs.csv");
-//		System.out.println("[" + agentId + "] Outputing runs into: " + file.getAbsolutePath());
-//		
-//		PrintWriter writer = null;
-//		try {
-//			writer = new PrintWriter(new FileOutputStream(file));
-//			
-//			writer.println("agentId;configNumber;simulationNumber;" + results.getRunResults().get(0).getCSVHeader());
-//			int simulationNumber = 0;
-//			int configNumber = 0;
-//			for (PacManConfig config : results.getConfigs()) {
-//				++configNumber;
-//				for (int i = 0; i < config.repetitions; ++i) {
-//					++simulationNumber;
-//					writer.print(agentId);
-//					writer.print(";" + configNumber);
-//					writer.print(";" + simulationNumber);
-//					PacManRunResult info = results.getRunResults().get(simulationNumber-1);
-//					writer.println(";" + info.getCSV());
-//				}
-//			}
-//			
-//		} catch (Exception e) {
-//			throw new RuntimeException("Failed to write results into: " + file.getAbsolutePath());
-//		} finally {
-//			if (writer != null) writer.close();
-//		}
-//		
-//	}
 	
 	private void outputAgentAvgs(String agentId, PacManResults results) {
 		File file = new File(resultDirFile, agentId + ".runs.avgs.csv");

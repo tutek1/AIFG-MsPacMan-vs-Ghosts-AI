@@ -38,13 +38,11 @@ public class PacManSimulator {
     private boolean replayFirstWrite;
 	
 	public synchronized Game run(final SimulatorConfig config) {
-		System.out.println("[PacManSimulator] RUNNING: " + config.getOptions());
-		
 		// RESET INSTANCE & SAVE CONFIG
 		reset(config);
 		
 		// INIT RANDOMNESS
-		if (config.game.seed <= 0) {
+		if (config.game.seed < 0) {
 			config.game.seed = new Random(System.currentTimeMillis()).nextInt();
 			while (config.game.seed < 0) config.game.seed += Integer.MAX_VALUE;
 		}
