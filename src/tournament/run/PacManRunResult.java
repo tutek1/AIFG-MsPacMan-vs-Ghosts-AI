@@ -1,18 +1,17 @@
 package tournament.run;
 
+import game.SimulatorConfig;
 import tournament.EvaluationInfos;
-import tournament.PacManConfig;
-
 
 public class PacManRunResult extends EvaluationInfos {
 	
-	private PacManConfig config;	
+	private SimulatorConfig config;	
 		
-	public PacManRunResult(PacManConfig config) {
+	public PacManRunResult(SimulatorConfig config) {
 		this.config = config;
 	}
 	
-	public PacManConfig getConfig() {
+	public SimulatorConfig getConfig() {
 		return config;
 	}
 	

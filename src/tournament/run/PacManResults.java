@@ -3,12 +3,12 @@ package tournament.run;
 import java.util.ArrayList;
 import java.util.List;
 
+import game.SimulatorConfig;
 import tournament.EvaluationInfos;
-import tournament.PacManConfig;
 
 public class PacManResults extends EvaluationInfos {
 	
-	private List<PacManConfig> configs = new ArrayList<PacManConfig>();
+	private List<SimulatorConfig> configs = new ArrayList<SimulatorConfig>();
 	private List<PacManRunResult> runResults = new ArrayList<PacManRunResult>();
 	
 	public void addRunResults(PacManRunResult... results) {
@@ -31,7 +31,7 @@ public class PacManResults extends EvaluationInfos {
 		return runResults;
 	}
 
-	public List<PacManConfig> getConfigs() {
+	public List<SimulatorConfig> getConfigs() {
 		return configs;
 	}
 	

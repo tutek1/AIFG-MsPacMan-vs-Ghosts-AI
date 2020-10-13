@@ -54,17 +54,17 @@ public class EvaluateAgent {
 		}
 						
 		for (int i = 0; i < runs.length; ++i) {
-			if (runs[i].getConfig().config.replay) {
+			if (runs[i].getConfig().replay) {
 				if (replayDir != null) {
-					if (runs[i].getConfig().config.replayFile == null) {
-						runs[i].getConfig().config.replayFile = new File(replayDir, agentId + "-Run-" + i + ".replay");
+					if (runs[i].getConfig().replayFile == null) {
+						runs[i].getConfig().replayFile = new File(replayDir, agentId + "-Run-" + i + ".replay");
 					} else {
-						String file = runs[i].getConfig().config.replayFile.getName();
+						String file = runs[i].getConfig().replayFile.getName();
 						int index = file.lastIndexOf(".");
 						String newFile = file.substring(0, index) + "-Run-" + i + "." + file.substring(index+1);
-						runs[i].getConfig().config.replayFile = new File(runs[i].getConfig().config.replayFile.getParentFile(), newFile);
+						runs[i].getConfig().replayFile = new File(runs[i].getConfig().replayFile.getParentFile(), newFile);
 					}
-				} else runs[i].getConfig().config.replay = false;
+				} else runs[i].getConfig().replay = false;
 			}
 			
 			PacManRunResult result = runs[i].run(agent);
