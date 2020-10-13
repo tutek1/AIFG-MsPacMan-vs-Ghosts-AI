@@ -8,24 +8,24 @@ import java.util.List;
 public class EvaluationInfos {
 	private List<Game> results = new ArrayList<Game>();
 	
-	public int totalScore;
-	public double avgScore;
-	
+    public int totalScore;
+    public int totalLevelReached;
 	public int totalTimeSpent;
-	public double avgTimeSpent;
 		
 	public List<Game> getResults() {
 		return results;
 	}
 
+    double avg(int i) {
+        return (double) i / results.size();
+    }
+
 	public void addResult(Game result) {
-		totalScore     += result.getScore();		
+        totalScore     += result.getScore();
+        totalLevelReached += result.getCurLevel();		
 		totalTimeSpent += result.getTotalTime();
 		
 		results.add(result);
-		
-		avgScore     = (double) totalScore     / results.size();		
-		avgTimeSpent = (double) totalTimeSpent / results.size();
 	}
 	
 	public void addResults(List<Game> results) {
@@ -35,18 +35,19 @@ public class EvaluationInfos {
 	}
 	
 	public String getCSVHeader() {
-		return "resultCount;totalScore;avgScore;totalTimeSpent;avgTimeSpent";
+		return "resultCount;avgScore;avgLevelReached;avgTimeSpent";
 	}
 	
 	public String getCSV() {
 		return results.size() 
-			   + ";" + totalScore     + ";" + avgScore
-			   + ";" + totalTimeSpent + ";" + avgTimeSpent;		
+			   + ";" + avg(totalScore) + ";" + avg(totalLevelReached) + ";" + avg(totalTimeSpent);
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("avg score = %.1f", avgScore);
+		return String.format(
+            "avg level reached = %.1f, avg score = %.1f",
+            avg(totalLevelReached), avg(totalScore));
 	}
 	
 }

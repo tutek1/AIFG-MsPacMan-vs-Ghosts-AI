@@ -20,7 +20,9 @@ public class PacManRun {
         Game info = PacManSimulator.play(config);
         result.addResult(info);
         
-        System.out.printf("seed %2d: score = %5d\n", config.game.seed, info.getScore());
+        System.out.printf(
+            "seed %2d: reached level %d, score = %5d\n",
+            config.game.seed, info.getCurLevel(), info.getScore());
 
 		return result;		
 	}
