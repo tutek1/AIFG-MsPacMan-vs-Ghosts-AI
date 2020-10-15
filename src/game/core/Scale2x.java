@@ -32,11 +32,6 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-/**
- * Created by IntelliJ IDEA. User: Sergey Karakovskiy,
- * sergey.karakovskiy@gmail.com Date: Oct 6, 2010 Time: 10:27:47 PM Package:
- * ch.idsia.tools
- */
 public class Scale2x {
 	private int width;
 	private int height;

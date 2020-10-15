@@ -155,7 +155,6 @@ public class GameGhosts implements IGhostsController
 						nextStateTimeinSec = 7;
 					}
 					else if(numberOfScatterOccured == 2){
-						
 						nextStateTimeinSec = 5;
 					}
 					else{
@@ -167,7 +166,6 @@ public class GameGhosts implements IGhostsController
 						nextStateTimeinSec = 5;
 					}
 					else if(numberOfScatterOccured == 2){
-						
 						nextStateTimeinSec = 5;
 					}
 					else{
@@ -178,10 +176,6 @@ public class GameGhosts implements IGhostsController
 				numberOfChaseOccured++;
 			}
 			stateChangeShiftTime = game.getTotalTime() + (nextStateTimeinSec*25);
-//			for(int i=0; i< directions.length; i++){
-//				directions[i]= game.getReverse(game.getCurGhostDir(i));
-//				System.out.println("Reverse Ghost" + i + " : " + directions[i] );
-//			}
 
 			// REWRITE DIRECTIONS
 			for (int i = 0; i < directions.length; ++i) {
@@ -193,19 +187,11 @@ public class GameGhosts implements IGhostsController
 		
 		for(int i =0; i<Game.NUM_GHOSTS; i++){
 			if(game.getEdibleTime(i)>0){
-//				if(GhostState[i]!=FRIGHTENED){
-//					directions[i] = game.getReverse(game.getCurGhostDir(i));
-//					GhostState[i]=FRIGHTENED;
-//					continue;
-//				}
 				GhostState[i]=FRIGHTENED;
-				//System.out.println("In fright for " + i + "at edible time" + game.getEdibleTime(i));
 			}
 			else if(GhostState[i]!= currentGlobalState){
-				
 				GhostState[i] = currentGlobalState;
 			}
-	
 			
 			if(GhostState[i]== SCATTER){
 				ghostTarget = ScatterHandler.execute(i, game, timeDue);
@@ -235,7 +221,6 @@ public class GameGhosts implements IGhostsController
 			int chosenDirection = -1;
 			if(game.ghostRequiresAction(i) && GhostState[i] != FRIGHTENED){
 				int[] possibleDirections = game.getPossibleGhostDirs(i);
-				//double[] distancesFromPossibleMoves = new double[possibleDirections.length];
 				double chosenDirectionDistance = 100000;
 				boolean equalPathsCheck = false;
 				for(int j=0; j<possibleDirections.length;j++){
@@ -272,13 +257,9 @@ public class GameGhosts implements IGhostsController
 				
 			}
 			else if(game.ghostRequiresAction(i) && GhostState[i] == FRIGHTENED){
-				//System.out.println("Getting ghost "+ i + "fright dir");
 				int[] ghostPossibleDirs = game.getPossibleGhostDirs(i);
-				//System.out.println(ghostPossibleDirs.length);
 				if(ghostPossibleDirs.length >0){
-					
 					int numOfPossibleDirs = Math.abs(G.rnd.nextInt())%ghostPossibleDirs.length;
-					//System.out.println(numOfPossibleDirs);
 					if(numOfPossibleDirs < 0){
 						chosenDirection = ghostPossibleDirs[numOfPossibleDirs];
 					}

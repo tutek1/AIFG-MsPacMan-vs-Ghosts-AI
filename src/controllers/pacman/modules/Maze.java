@@ -7,13 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 public class Maze {
-
-	private static Random random = new Random(System.currentTimeMillis());
-	
 	public static final int HEIGHT = 120;
 	public static final int WIDTH = 120;
 	
@@ -406,14 +402,6 @@ public class Maze {
 		return nodes;
 	}
 
-	/**
-	 * Returns random {@link MazeNode}.
-	 * @return
-	 */
-	public MazeNode getRandomNode() {
-		return nodes[random.nextInt(nodes.length)];
-	}
-	
 	/**
 	 * Underlying game data.
 	 * @return
