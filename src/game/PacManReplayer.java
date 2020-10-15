@@ -105,7 +105,7 @@ public class PacManReplayer {
 		        // VISUALIZE
 		        if (config.visualize) {
 		        	gv.repaint();
-		        	try{Thread.sleep(config.visualizationMillis);}catch(Exception e){}
+		        	try{Thread.sleep(config.visualizationMillis);}catch(InterruptedException e){}
 		        }
 			}
 		} finally {

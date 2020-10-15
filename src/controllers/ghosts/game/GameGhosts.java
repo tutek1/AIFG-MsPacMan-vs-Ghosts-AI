@@ -28,8 +28,8 @@ public class GameGhosts implements IGhostsController
 	public GameGhostAI GhostPrevAI;
 	public long stateChangeCurrentTime;
 	public long stateChangeShiftTime;
-	public int numberOfScatterOccured;
-	public int numberOfChaseOccured;
+	public int numberOfScatterOccurred;
+	public int numberOfChaseOccurred;
 	
 	public GhostScatterState ScatterHandler;
 	public GameGhostChaseState ChaseHandler;
@@ -57,10 +57,6 @@ public class GameGhosts implements IGhostsController
 		this((ghostCount < 0 ? 0 : (ghostCount > 4 ? 4 : ghostCount)), false);
 	}
 	
-	public GameGhosts(boolean debugging) {
-		this(4, debugging);
-	}
-	
 	public GameGhosts(int ghostCount, boolean debugging){
 		this.ghostCount = ghostCount;
 		Debugging = debugging;
@@ -81,8 +77,8 @@ public class GameGhosts implements IGhostsController
 		GhostPrevAI = new GhostScatterState();
 		stateChangeCurrentTime= game.getTotalTime();
 		stateChangeShiftTime = stateChangeCurrentTime + (7*25);
-		numberOfScatterOccured = 0;
-		numberOfChaseOccured = 0;
+		numberOfScatterOccurred = 0;
+		numberOfChaseOccurred = 0;
 		
 		ScatterHandler = new GhostScatterState();
 		ChaseHandler   = new GameGhostChaseState();
@@ -95,7 +91,16 @@ public class GameGhosts implements IGhostsController
 		
 		ghostTarget = new int[]{0,0};
 		
-		GhostState = new int[]{SCATTER, SCATTER, SCATTER, SCATTER};
+        GhostState = new int[]{SCATTER, SCATTER, SCATTER, SCATTER};
+        
+        // We must make sure that the Color class is loaded now.  Otherwise it will first be
+        // loaded inside Game.tick(), which can take some time and cause the ghosts to
+        // miss their first tick timeout.
+        try {
+            Class.forName("java.awt.Color");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 	}
 	
 	@Override
@@ -105,24 +110,24 @@ public class GameGhosts implements IGhostsController
 	@Override
 	public void tick(Game game, long timeDue) {
 		if(game.getLevelTime()<=10){
-			numberOfScatterOccured = 0;
-			numberOfChaseOccured = 0;
+			numberOfScatterOccurred = 0;
+			numberOfChaseOccurred = 0;
 			stateChangeShiftTime = game.getTotalTime();
 		}
 		
 		int[] directions = new int[]{3, 3, 3, 3};
 		
 		long stateChangeTimer = stateChangeShiftTime - game.getTotalTime();
-		if(stateChangeTimer<0 && numberOfScatterOccured<NUM_SCATTERS_PER_LEVEL){
+		if(stateChangeTimer<0 && numberOfScatterOccurred<NUM_SCATTERS_PER_LEVEL){
 			int nextStateTimeinSec = 0;
 			if(currentGlobalState == SCATTER){
 				currentGlobalState = CHASE;
-				numberOfScatterOccured ++;
+				numberOfScatterOccurred ++;
 				if(game.getCurLevel() == 1){
 					nextStateTimeinSec = 20;
 				}
 				else if(game.getCurLevel()<5){
-					if(numberOfChaseOccured<2){
+					if(numberOfChaseOccurred<2){
 						nextStateTimeinSec = 20;
 					}
 					else{
@@ -130,20 +135,19 @@ public class GameGhosts implements IGhostsController
 					}
 				}
 				else{
-					if(numberOfChaseOccured<2){
+					if(numberOfChaseOccurred<2){
 						nextStateTimeinSec = 20;
 					}
 					else{
 						nextStateTimeinSec = 1037;
 					}
 				}
-				 
 				
 			}
 			else{
 				currentGlobalState = SCATTER;
 				if(game.getCurLevel() == 1){
-					if(numberOfScatterOccured<2){
+					if(numberOfScatterOccurred<2){
 						nextStateTimeinSec = 7;
 					}
 					else{
@@ -151,10 +155,10 @@ public class GameGhosts implements IGhostsController
 					}
 				}
 				else if(game.getCurLevel()<5){
-					if(numberOfScatterOccured<2){
+					if(numberOfScatterOccurred<2){
 						nextStateTimeinSec = 7;
 					}
-					else if(numberOfScatterOccured == 2){
+					else if(numberOfScatterOccurred == 2){
 						nextStateTimeinSec = 5;
 					}
 					else{
@@ -162,10 +166,10 @@ public class GameGhosts implements IGhostsController
 					}
 				}
 				else{
-					if(numberOfScatterOccured<2){
+					if(numberOfScatterOccurred<2){
 						nextStateTimeinSec = 5;
 					}
-					else if(numberOfScatterOccured == 2){
+					else if(numberOfScatterOccurred == 2){
 						nextStateTimeinSec = 5;
 					}
 					else{
@@ -173,7 +177,7 @@ public class GameGhosts implements IGhostsController
 					}
 				
 				}
-				numberOfChaseOccured++;
+				numberOfChaseOccurred++;
 			}
 			stateChangeShiftTime = game.getTotalTime() + (nextStateTimeinSec*25);
 
@@ -183,7 +187,6 @@ public class GameGhosts implements IGhostsController
 			}
 			return;
 		}
-		
 		
 		for(int i =0; i<Game.NUM_GHOSTS; i++){
 			if(game.getEdibleTime(i)>0){
@@ -199,7 +202,6 @@ public class GameGhosts implements IGhostsController
 			if(GhostState[i]== CHASE){
 				ghostTarget= ChaseHandler.execute(i, game, timeDue);
 			}
-			
 			if(GhostState[i]!= FRIGHTENED){
 				Color color;
 				if(i==0){
@@ -214,10 +216,13 @@ public class GameGhosts implements IGhostsController
 				else{
 					color = Color.CYAN;
 				}
-				if (Debugging) {
-					GameView.addLines(game, color, game.getX(game.getCurGhostLoc(i)), game.getY(game.getCurGhostLoc(i)), ghostTarget[X], ghostTarget[Y]);
+                if (Debugging) {
+					GameView.addLines(
+                        game, color,
+                        game.getX(game.getCurGhostLoc(i)), game.getY(game.getCurGhostLoc(i)),
+                        ghostTarget[X], ghostTarget[Y]);
 				}
-			}
+            }
 			int chosenDirection = -1;
 			if(game.ghostRequiresAction(i) && GhostState[i] != FRIGHTENED){
 				int[] possibleDirections = game.getPossibleGhostDirs(i);
@@ -225,7 +230,10 @@ public class GameGhosts implements IGhostsController
 				boolean equalPathsCheck = false;
 				for(int j=0; j<possibleDirections.length;j++){
 					int directionNodeNum = game.getNeighbour(game.getCurGhostLoc(i), possibleDirections[j]);
-					double distanceBetweenNeighbor = GameGhosts.getEuclideanDistance(game.getX(directionNodeNum), game.getY(directionNodeNum),ghostTarget[X],ghostTarget[Y]);
+                    double distanceBetweenNeighbor =
+                        GameGhosts.getEuclideanDistance(
+                            game.getX(directionNodeNum), game.getY(directionNodeNum),
+                            ghostTarget[X],ghostTarget[Y]);
 					
 					if(Double.compare(distanceBetweenNeighbor, chosenDirectionDistance) < 0){
 						equalPathsCheck = false;
@@ -272,7 +280,6 @@ public class GameGhosts implements IGhostsController
 		for (int i = 0; i < directions.length; ++i) {
 			actions.ghost(i).set(directions[i]);
 		}
-		return;
 	}
 	
 	@Override

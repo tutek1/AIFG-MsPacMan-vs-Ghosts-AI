@@ -2,16 +2,10 @@ package game;
 
 import controllers.ghosts.GhostsActions;
 import controllers.pacman.PacManAction;
-import game.core.G;
-import game.core.Game;
-import game.core.GameView;
-import game.core.Replay;
-import game.core._G_;
+import game.core.*;
 
 import java.awt.event.KeyListener;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * One simulator can run one instance of PacMan-vs-Ghosts game.
@@ -22,17 +16,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class PacManSimulator {
 	private GameView gv;
-
 	private _G_ game;
 	
     private long due; 
     
-    // REPLAY STUFF
     private StringBuilder replayData;
     private boolean replayFirstWrite;
 
-    CountDownLatch thinkingLatch;
-	
 	public synchronized Game run(final SimulatorConfig config) {
 		gv = null;
 		game = null;		
@@ -75,7 +65,7 @@ public class PacManSimulator {
 		// START CONTROLLERS (threads auto-start during instantiation)
 		ThinkingThread pacManThread = 
 			new ThinkingThread(
-				this, "PAC-MAN",
+				"PAC-MAN",
 				new IThinkingMethod() {
 					@Override
 					public void think() {
@@ -85,7 +75,7 @@ public class PacManSimulator {
 			);
 		ThinkingThread ghostsThread =
 			new ThinkingThread(
-				this, "GHOSTS",
+				"GHOSTS",
 				new IThinkingMethod() {
 					@Override
 					public void think() {
@@ -94,48 +84,38 @@ public class PacManSimulator {
 					}
 				}
 			);
-		 
+        
 		// START THE GAME
 		try {
 			while(!game.gameOver())
 			{
-				due = System.currentTimeMillis() + config.thinkTimeMillis;
+				long due = System.currentTimeMillis() + config.thinkTimeMillis;
 				
-				// WAKE UP THINKING THREADS
-				thinkingLatch = new CountDownLatch(2);
-				
-				long start = System.currentTimeMillis();
-				
-				pacManThread.alert();
-				ghostsThread.alert();
-				
-				// GIVE THINKING TIME
-		        try{		        			        	
-		        	thinkingLatch.await(config.thinkTimeMillis, TimeUnit.MILLISECONDS);
-		        	
-		        	if (config.visualize) {
-		        		if (System.currentTimeMillis() - start < config.thinkTimeMillis) {
-		        			long sleepTime = config.thinkTimeMillis - (System.currentTimeMillis() - start);
-		        			if (sleepTime > 4) {
-		        				Thread.sleep(sleepTime);
-		        			}
-		        		}
-		        	}
-		        } catch(Exception e) {		        	
-		        }
-		        
-		        if (pacManThread.thinking) {
-		        	System.out.println("[SIMULATOR] PacMan is still thinking!");
-		        }
-		        if (ghostsThread.thinking) {
-		        	System.out.println("[SIMULATOR] Ghosts are still thinking!");
-		        }
-		        
-		        thinkingLatch = null;
+				pacManThread.startThinking();
+				ghostsThread.startThinking();
+                
+                if (!pacManThread.waitForResult(due))
+                    System.out.println("[SIMULATOR] PacMan is still thinking!");
+
+                if (!ghostsThread.waitForResult(due))
+                    System.out.println("[SIMULATOR] Ghosts are still thinking!");
+
+                if (config.visualize) {
+                    long sleepTime = due - System.currentTimeMillis();
+                    if (sleepTime > 4) {
+                        try {
+                           Thread.sleep(sleepTime);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
 		        
 		        // OBTAIN ACTIONS
 		        PacManAction  pacManAction  = config.pacManController.getAction().clone();
-		        GhostsActions ghostsActions = (config.ghostsController == null ? null : config.ghostsController.getActions().clone());
+                GhostsActions ghostsActions =
+                    config.ghostsController == null ? null :
+                                                      config.ghostsController.getActions().clone();
 				
 		        // SIMULATION PAUSED?
 		        boolean advanceGame = true;
@@ -145,7 +125,8 @@ public class PacManSimulator {
 			        		advanceGame = false;
 			        	}
 			        	config.pacManController.getAction().nextFrame = false;
-			        	if (config.ghostsController != null) config.ghostsController.getActions().nextFrame = false;
+                        if (config.ghostsController != null)
+                            config.ghostsController.getActions().nextFrame = false;
 			        }
 		        }
 		        
@@ -167,11 +148,15 @@ public class PacManSimulator {
 			        	
 			        	// INFORM CONTROLLERS
 			        	config.pacManController.nextLevel(game.copy());
-			    		if (config.ghostsController != null) config.ghostsController.nextLevel(game.copy());
+                        if (config.ghostsController != null)
+                            config.ghostsController.nextLevel(game.copy());
 			    		
 			    		// FLUSH REPLAY DATA TO FILE
 			    		if (config.replay) {
-			    			Replay.saveActions(config.game, (config.ghostsController == null ? 0 : config.ghostsController.getGhostCount()), replayData.toString(), config.replayFile, replayFirstWrite);
+			    			Replay.saveActions(
+                                config.game,
+                                config.ghostsController == null ? 0 : config.ghostsController.getGhostCount(),
+                                replayData.toString(), config.replayFile, replayFirstWrite);
 			        		replayFirstWrite = false;
 			        		replayData = new StringBuilder();
 			    		}
@@ -195,7 +180,10 @@ public class PacManSimulator {
 			
 			// SAVE REPLAY DATA
 			if (config.replay) {
-				Replay.saveActions(config.game, (config.ghostsController == null ? 0 : config.ghostsController.getGhostCount()), replayData.toString(), config.replayFile, replayFirstWrite);
+				Replay.saveActions(
+                    config.game,
+                    config.ghostsController == null ? 0 : config.ghostsController.getGhostCount(),
+                    replayData.toString(), config.replayFile, replayFirstWrite);
 			}
 			
 			// CLEAN UP

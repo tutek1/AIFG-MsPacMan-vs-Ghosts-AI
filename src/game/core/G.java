@@ -598,7 +598,10 @@ public class G implements Game
 	//neighbour is filtered out. Alternatively use: getNeighbour(), given curGhostLoc[-] for all directions
 	public int[] getGhostNeighbours(int whichGhost)
 	{
-		int[] neighbours=Arrays.copyOf(mazes[curMaze].graph[curGhostLocs[whichGhost]].neighbours,mazes[curMaze].graph[curGhostLocs[whichGhost]].neighbours.length);		
+        int[] neighbours=
+            Arrays.copyOf(
+                mazes[curMaze].graph[curGhostLocs[whichGhost]].neighbours,
+                mazes[curMaze].graph[curGhostLocs[whichGhost]].neighbours.length);		
 		neighbours[getReverse(lastGhostDirs[whichGhost])]=-1;
 		
 		return neighbours;

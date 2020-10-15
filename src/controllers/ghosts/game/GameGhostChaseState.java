@@ -37,7 +37,13 @@ public class GameGhostChaseState implements GameGhostAI {
 			}	
 		}
 		if(ghostType == CLYDE){
-			double distanceFromPac = GameGhosts.getEuclideanDistance(game.getX(game.getCurGhostLoc(ghostType)), game.getY(game.getCurGhostLoc(ghostType)),  game.getX(game.getCurPacManLoc()), game.getY(game.getCurPacManLoc()));
+            double distanceFromPac =
+                GameGhosts.getEuclideanDistance(
+                    game.getX(game.getCurGhostLoc(ghostType)),
+                    game.getY(game.getCurGhostLoc(ghostType)),
+                    game.getX(game.getCurPacManLoc()),
+                    game.getY(game.getCurPacManLoc()));
+
 			if (distanceFromPac >= ClydeMaintainDistance*tileDist){
 				target[X] = game.getX(game.getCurPacManLoc());
 				target[Y] = game.getY(game.getCurPacManLoc());	
@@ -72,10 +78,7 @@ public class GameGhostChaseState implements GameGhostAI {
 			int vectorY = pacFrontY - blinkyLocY;
 			target[X]= blinkyLocX + vectorX*2;
 			target[Y]= blinkyLocY + vectorY*2;
-		
-				
 		}
 		return target;
 	}
-
 }

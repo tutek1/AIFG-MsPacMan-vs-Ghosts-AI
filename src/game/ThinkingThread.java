@@ -2,59 +2,66 @@ package game;
 
 class ThinkingThread extends Thread 
 {
-	private final PacManSimulator pacManSimulator;
-	public boolean thinking = false;
+	private boolean thinking = false;
     private IThinkingMethod method;
     private boolean alive;
     
-    public ThinkingThread(PacManSimulator pacManSimulator, String name, IThinkingMethod method) 
+    public ThinkingThread(String name, IThinkingMethod method) 
     {
     	super(name);
-		this.pacManSimulator = pacManSimulator;
         this.method = method;
         alive=true;
         start();
     }
 
-    public synchronized  void kill() 
+    public synchronized void kill() 
     {
         alive=false;
         notify();
     }
     
-    public synchronized void alert()
+    public synchronized void startThinking()
     {
-        notify();
+        if (!thinking) {
+            thinking = true;
+            notify();
+        }
+    }
+
+    public synchronized boolean waitForResult(long until) {
+        while (thinking && System.currentTimeMillis() < until) {
+            try {
+                wait(until - System.currentTimeMillis());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return !thinking;
     }
 
     public void run() 
     {
-    	 try {
-        	while(alive) 
-	        {
-	        	try {
-	        		synchronized(this)
-	        		{
-        				wait(); // waked-up via alert()
-	                }
-	        	} catch(InterruptedException e)	{
-	                e.printStackTrace();
-	            }
+        while (true) {
+            // Wait until we should think.
+            synchronized (this) {
+                while (alive && !thinking)
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
 
-	        	if (alive) {
-	        		thinking = true;
-	        		method.think();
-	        		thinking = false;
-	        		try {
-	        			this.pacManSimulator.thinkingLatch.countDown();
-	        		} catch (Exception e) {
-	        			// thinkingLatch may be nullified...
-	        		}
-	        	} 
-	        	
-	        }
-        } finally {
-        	alive = false;
+                if (!alive)
+                    return;
+            }
+
+            method.think();
+
+            // Report that we are done.
+            synchronized (this) {
+                thinking = false;
+                notify();
+            }
         }
     }
 }

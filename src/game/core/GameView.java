@@ -315,7 +315,7 @@ public final class GameView extends JComponent
         this.frame.setVisible(true);
               
         //just wait for a bit for player to be ready
-        try{Thread.sleep(1500);}catch(Exception e){}
+        try{Thread.sleep(1500);}catch(InterruptedException e){}
         
         return this;
     }
