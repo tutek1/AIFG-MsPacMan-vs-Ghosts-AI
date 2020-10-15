@@ -13,8 +13,8 @@
  */
 package game.core;
 
-import game.controllers.ghosts.GhostsActions;
-import game.controllers.pacman.PacManAction;
+import controllers.ghosts.GhostsActions;
+import controllers.pacman.PacManAction;
 
 /*
  * This interface defines the contract between the game engine and the controllers. It provides all

@@ -1,7 +1,7 @@
 package game;
 
-import game.controllers.ghosts.GhostsActions;
-import game.controllers.pacman.PacManAction;
+import controllers.ghosts.GhostsActions;
+import controllers.pacman.PacManAction;
 import game.core.G;
 import game.core.Game;
 import game.core.GameView;

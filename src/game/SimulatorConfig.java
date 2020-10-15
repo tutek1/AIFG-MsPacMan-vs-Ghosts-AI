@@ -1,7 +1,7 @@
 package game;
 
-import game.controllers.ghosts.IGhostsController;
-import game.controllers.pacman.IPacManController;
+import controllers.ghosts.IGhostsController;
+import controllers.pacman.IPacManController;
 
 import java.io.File;
 

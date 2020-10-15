@@ -1,9 +1,9 @@
 package game;
 
-import game.controllers.ghosts.GhostsActions;
-import game.controllers.ghosts.IGhostsController;
-import game.controllers.pacman.IPacManController;
-import game.controllers.pacman.PacManAction;
+import controllers.ghosts.GhostsActions;
+import controllers.ghosts.IGhostsController;
+import controllers.pacman.IPacManController;
+import controllers.pacman.PacManAction;
 import game.core.G;
 import game.core.GameView;
 import game.core.Replay;

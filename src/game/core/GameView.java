@@ -13,11 +13,9 @@
  */
 package game.core;
 
-import game.controllers.pacman.modules.Maze;
+import controllers.pacman.modules.Maze;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-
-import tools.Scale2x;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

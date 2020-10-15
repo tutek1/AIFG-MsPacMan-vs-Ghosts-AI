@@ -1,4 +1,4 @@
-import game.controllers.pacman.PacManControllerBase;
+import controllers.pacman.PacManControllerBase;
 import game.core.G;
 import game.core.Game;
 

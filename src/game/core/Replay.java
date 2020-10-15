@@ -1,11 +1,11 @@
 package game.core;
 
 import game.GameConfig;
-import game.controllers.Direction;
-import game.controllers.ghosts.GhostsActions;
-import game.controllers.ghosts.IGhostsController;
-import game.controllers.pacman.IPacManController;
-import game.controllers.pacman.PacManAction;
+import controllers.Direction;
+import controllers.ghosts.GhostsActions;
+import controllers.ghosts.IGhostsController;
+import controllers.pacman.IPacManController;
+import controllers.pacman.PacManAction;
 
 import java.io.BufferedReader;
 import java.io.File;

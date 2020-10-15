@@ -14,9 +14,9 @@
 package game.core;
 
 import game.GameConfig;
-import game.controllers.Direction;
-import game.controllers.ghosts.GhostsActions;
-import game.controllers.pacman.PacManAction;
+import controllers.Direction;
+import controllers.ghosts.GhostsActions;
+import controllers.pacman.PacManAction;
 
 import java.util.*;
 

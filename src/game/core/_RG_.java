@@ -2,7 +2,7 @@ package game.core;
 
 import java.util.Arrays;
 
-import game.controllers.ghosts.GhostsActions;
+import controllers.ghosts.GhostsActions;
 
 /**
  * This class is to replay games that were recorded using Replay. The only differences are:

@@ -2,7 +2,7 @@ package tournament.run;
 
 import game.PacManSimulator;
 import game.SimulatorConfig;
-import game.controllers.pacman.IPacManController;
+import controllers.pacman.IPacManController;
 import game.core.Game;
 
 public class PacManRun {

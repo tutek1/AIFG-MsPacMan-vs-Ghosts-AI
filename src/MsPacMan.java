@@ -1,8 +1,8 @@
 import static java.lang.System.out;
 
 import game.*;
-import game.controllers.ghosts.game.GameGhosts;
-import game.controllers.pacman.*;
+import controllers.ghosts.game.GameGhosts;
+import controllers.pacman.*;
 import tournament.EvaluateAgent;
 
 public class MsPacMan {

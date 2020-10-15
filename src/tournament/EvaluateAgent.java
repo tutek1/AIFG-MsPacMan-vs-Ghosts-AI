@@ -10,7 +10,7 @@ import tournament.run.PacManRunResult;
 import tournament.run.PacManRunsGenerator;
 import tournament.utils.Sanitize;
 import game.SimulatorConfig;
-import game.controllers.pacman.IPacManController;
+import controllers.pacman.IPacManController;
 
 public class EvaluateAgent {
 	private int seed = 0;
