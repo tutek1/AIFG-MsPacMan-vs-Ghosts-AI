@@ -21,9 +21,6 @@ import java.util.concurrent.TimeUnit;
  * @author Jimmy
  */
 public class PacManSimulator {
-	
-	private SimulatorConfig config;
-	
 	private GameView gv;
 
 	private _G_ game;
@@ -33,10 +30,12 @@ public class PacManSimulator {
     // REPLAY STUFF
     private StringBuilder replayData;
     private boolean replayFirstWrite;
+
+    CountDownLatch thinkingLatch;
 	
 	public synchronized Game run(final SimulatorConfig config) {
-		// RESET INSTANCE & SAVE CONFIG
-		reset(config);
+		gv = null;
+		game = null;		
 		
 		// INIT RANDOMNESS
 		if (config.game.seed < 0) {
@@ -76,21 +75,22 @@ public class PacManSimulator {
 		// START CONTROLLERS (threads auto-start during instantiation)
 		ThinkingThread pacManThread = 
 			new ThinkingThread(
-				"PAC-MAN",
+				this, "PAC-MAN",
 				new IThinkingMethod() {
 					@Override
 					public void think() {
-						PacManSimulator.this.config.pacManController.tick(game.copy(), due);		
+						config.pacManController.tick(game.copy(), due);		
 					}
 				}
 			);
 		ThinkingThread ghostsThread =
 			new ThinkingThread(
-				"GHOSTS",
+				this, "GHOSTS",
 				new IThinkingMethod() {
 					@Override
 					public void think() {
-						if (PacManSimulator.this.config.ghostsController != null) PacManSimulator.this.config.ghostsController.tick(game, due);			
+                        if (config.ghostsController != null)
+                            config.ghostsController.tick(game, due);			
 					}
 				}
 			);
@@ -215,13 +215,6 @@ public class PacManSimulator {
 		return game;
 	}
 
-	private void reset(SimulatorConfig config) {
-		this.config = config;
-		
-		gv = null;
-		game = null;		
-	}
-	
 	private void storeActions(int[] replayStep, boolean newLine) {
 		replayData.append( (game.getTotalTime()-1) + "\t" );
 	
@@ -231,69 +224,6 @@ public class PacManSimulator {
 	
 	    if(newLine) {
 	    	replayData.append("\n");
-	    }
-	}
-	
-	private interface IThinkingMethod {
-		public void think();
-	}
-	
-	private CountDownLatch thinkingLatch;
-	
-	private class ThinkingThread extends Thread 
-	{
-		public boolean thinking = false;
-	    private IThinkingMethod method;
-	    private boolean alive;
-	    
-	    public ThinkingThread(String name, IThinkingMethod method) 
-	    {
-	    	super(name);
-	        this.method = method;
-	        alive=true;
-	        start();
-	    }
-
-	    public synchronized  void kill() 
-	    {
-	        alive=false;
-	        notify();
-	    }
-	    
-	    public synchronized void alert()
-	    {
-	        notify();
-	    }
-
-	    public void run() 
-	    {
-	    	 try {
-	        	while(alive) 
-		        {
-		        	try {
-		        		synchronized(this)
-		        		{
-	        				wait(); // waked-up via alert()
-		                }
-		        	} catch(InterruptedException e)	{
-		                e.printStackTrace();
-		            }
-	
-		        	if (alive) {
-		        		thinking = true;
-		        		method.think();
-		        		thinking = false;
-		        		try {
-		        			thinkingLatch.countDown();
-		        		} catch (Exception e) {
-		        			// thinkingLatch may be nullified...
-		        		}
-		        	} 
-		        	
-		        }
-	        } finally {
-	        	alive = false;
-	        }
 	    }
 	}
 	
