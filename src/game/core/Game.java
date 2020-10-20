@@ -229,7 +229,13 @@ public interface Game
     //that ghosts may not reverse)
     public int getGhostPathDistance(int whichGhost,int to);	
     
+    // Return the location at which a fruit currently exists, or -1 if none.
     public int getFruitLoc();
     
+    // Return the type of fruit that currently exists, or -1 if none.  Fruit types
+    // are numbered 0 = cherries, 1 = strawberry, ..., 6 = banana.
     public int getFruitType();
+
+    // Return the point value of the fruit that currently exists, or 0 if none.
+    public int getFruitValue();
 }

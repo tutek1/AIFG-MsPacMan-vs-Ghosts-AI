@@ -20,6 +20,10 @@ public class EvaluationInfos {
         return (double) i / results.size();
     }
 
+    public double avgScore() {
+        return avg(totalScore);
+    }
+
 	public void addResult(Game result) {
         totalScore     += result.getScore();
         totalLevelReached += result.getCurLevel();		
@@ -40,7 +44,7 @@ public class EvaluationInfos {
 	
 	public String getCSV() {
 		return results.size() 
-			   + ";" + avg(totalScore) + ";" + avg(totalLevelReached) + ";" + avg(totalTimeSpent);
+			   + ";" + avgScore() + ";" + avg(totalLevelReached) + ";" + avg(totalTimeSpent);
 	}
 	
 	@Override

@@ -1097,5 +1097,7 @@ public class G implements Game
     
     public int getFruitLoc() { return fruitLoc; }
 
-    public int getFruitType() { return fruitType; }
+    public int getFruitType() { return fruitLoc == -1 ? -1 : fruitType; }
+
+    public int getFruitValue() { return fruitLoc == -1 ? 0 : FruitValue[fruitType]; }
 }
