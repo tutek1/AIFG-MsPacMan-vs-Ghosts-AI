@@ -12,8 +12,6 @@ Midway released the arcade game Ms. Pac-Man in 1981.  Like its predecessor Pac-M
 
 In recent years, the [University of Essex](https://www.essex.ac.uk/) ran a series of competitions for software agents that attempt to play Ms. Pac-Man automatically, including the [Ms. Pac-Man versus Ghosts Competition](https://ieeexplore.ieee.org/document/5949599) from 2011-12.  Simon Lucas wrote an implementation of Ms. Pac-Man for that competition, and it was later modified by Philipp Rohlfshagen and other authors.  The implementation here is derived from that code, with further changes by Jakub Gemrot and [Adam Dingle](https://ksvi.mff.cuni.cz/~dingle/) from the Faculty of Mathematics and Physics at [Charles University](https://cuni.cz/UKEN-1.html).
 
-The more recent [Ms. Pac-Man Vs. Ghost Team Competition](http://www.pacmanvghosts.co.uk/) has its own updated implementation of Ms. Pac-Man.  Perhaps we will merge in changes from that codebase at some point.
-
 ## Building the game
 
 This version of Ms. Pac-Man vs. Ghosts works with Java 11 or newer, and possibly older Java versions as well.
@@ -33,6 +31,8 @@ Or, on Windows:
 ```
 > .\mspac
 ```
+
+By default, the game is controlled from the keyboard.  Various options are available; type './mspac -help' to see them.
 
 Use the arrow keys to move.  You can press 'P' to pause the game, or 'N' to advance the game by a single frame.
 
@@ -91,12 +91,27 @@ See the sample agent NearestPillPacManVS.java for an example of using these draw
 
 ## Evaluating your agent
 
-The Evaluate class will evaluate your MyAgent agent by running it on a series of random games.  As it does so, it will generate a couple of CSV files showing the scores achieved in each game and other statistics.  It will also print output to the console showing some of this data, including the average score your agent achieves.
+The -sim option will run a series of random games without visualization, and will report statistics about an agent's average performance over these games.  For example, to run 20 games of MyAgent:
 
-The evaluation will also generate a series of replay files.  Each of these files logs all the activity in a single game.  To replay any game, run the PacManReplayer class (in src/game).  Change the filename in the main() method to the name of the replay file you wish to run.
+```
+$ ./mspac MyAgent -sim 20
+```
+
+If you want to see the outcome of each individual simulated game, add the -v (verbose) option:
+
+```
+$ ./mspac MyAgent -sim 20 -v
+```
+
+In this output you will see the random seed that was used for each game.  If you'd like to repeat any individual game, you can rerun that game with its particular seed.  For example, suppose that you see that your agent did poorly in the game with seed 12.  You can rerun that game like this:
+
+```
+$ ./mario MyAgent -seed 12
+```
+
 
 ## Other notes
 
-The game.controllers package contains a set of sample agents (some that control Ms. Pac-Man, and also some that control ghosts).
+The controllers.pacman.examples package contains a set of sample Ms. Pac-Man agents.  (The controllers.ghosts.examples package contains additional agents that control ghosts.)
 
 When running an agent, press the 'H' key to "hijack" control and manually navigate Ms. Pac-Man.
