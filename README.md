@@ -38,13 +38,11 @@ Use the arrow keys to move.  You can press 'P' to pause the game, or 'N' to adva
 
 ## Writing an agent
 
-You can enhance the MyAgent class to build a custom agent that controls Ms. Pac-Man.  On each tick, the game will call your implementation of the tick() method, where you can decide which action Ms. Pac-Man should take.
+Here is the [documentation](https://ksvi.mff.cuni.cz/~dingle/2020-1/ai_1/ms_pacman/api.html) for the API you can use to build agents to play the game.
 
-To see your agent play the game, run
+The package controllers.pacman.examples contains several sample agents, which you may wish to study as a starting point.
 
-```
-$ ./mspac MyAgent
-```
+You can enhance the MyAgent class to build a custom agent.  On each tick, the game will call your implementation of the tick() method, where you can decide which action Ms. Pac-Man should take.
 
 The Game interface has everything you need to find about the game state. Note that
 
@@ -54,40 +52,13 @@ The Game interface has everything you need to find about the game state. Note th
 - Directions are listed at the top of interface Game (UP=0, RIGHT=1, etc.)
 - The game normally runs at 25 ticks per second.
 
-The Game interface includes these methods:
+For more details, see the [API documentation](https://ksvi.mff.cuni.cz/~dingle/2020-1/ai_1/ms_pacman/api.html).
 
-- `int getCurPacManLoc()` – return Ms. Pac-Man's current position, i.e. the graph node where she is currently located.
-- `int getCurGhostLoc(int whichGhost)` – return the given ghost's current position.
-- `int getCurGhostDir(int whichGhost)` – return the given ghost's current direction.
-- `int getX(int nodeIndex), int getY(int nodeIndex)` - return the X/Y pixel positions of the given graph node
-- `int getNeighbour(int nodeIndex, int direction)` – return the given node's neighbor in the given direction, or -1 if none.
-- `boolean isEdible(int whichGhost)` – true if the given ghost is currently edible
-- `int getEdibleTime(int whichGhost)` - the number of remaining ticks during which the given ghost will be edible.
-- `int getPillIndex(int nodeIndex)` – return the index of the pill that is/was at the given position, or -1 if this is not a position that ever holds a pill in this maze. Note that this method returns the same value whether or not the pill has already been eaten. You must call `checkPill` to find out whether the pill still exists. (Do not pass -1 to `checkPill`; that will result in an out of bounds error.)
-- `boolean checkPill(int pillIndex)` – return true if the given pill still exists, i.e. has not been eaten.
-- `double getEuclideanDistance(int from, int to)`<br>
-  `int getManhattanDistance(int from, int to)`
+To see your agent play the game, run
 
-	Return the Euclidean or Manhattan distance between two maze nodes.
-- `int getPathDistance(int from, int to)`<br>
-
-	Return the shortest-path distance walking through the maze without going through walls. This method uses a precomputed table so it is very fast (it doesn't need to perform a depth-first search of its own!)
-	
-	Note that if g is the position of a ghost in its lair, and p is any position in the maze, then `getPathDistance(g, p)` will return -1, meaning that there is no path from the ghost's position to the maze position since the lair is surrounded by walls.
-
-- `public int getGhostPathDistance(int whichGhost, int to)`
-
-  Return the shortest distance that the given ghost may travel through the maze to reach the given position, taking into consideration that ghosts may not reverse direction.
-
-	Warning: this method is about 50-150x slower than `getPathDistance`!  (In my experiments it typically runs in tens of microseconds, whereas `getPathDistance` takes under 1 microsecond.)  That's because it (unfortunately) does not use a precomputed table, so it must trace a path through the maze.
-
-The GameView class has various static methods that draw text or graphics overlaid on the game view.  These are handy for debugging.  Perhaps the most useful is
-
-- `public static void addPoints(Game game, Color color, int... nodeIndices)`
-
-  Draw a set of points at the given maze nodes, in the given color.  This is a nice way to draw a path through the maze.  (You must call this method anew on every tick if you want the path you draw to remain visible.)
-
-See the sample agent NearestPillPacManVS.java for an example of using these drawing methods.
+```
+$ ./mspac MyAgent
+```
 
 ## Evaluating your agent
 
