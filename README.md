@@ -77,7 +77,7 @@ $ ./mspac MyAgent -sim 20 -v
 In this output you will see the random seed that was used for each game.  If you'd like to repeat any individual game, you can rerun that game with its particular seed.  For example, suppose that you see that your agent did poorly in the game with seed 12.  You can rerun that game like this:
 
 ```
-$ ./mario MyAgent -seed 12
+$ ./mspac MyAgent -seed 12
 ```
 
 
