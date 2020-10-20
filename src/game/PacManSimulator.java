@@ -89,7 +89,7 @@ public class PacManSimulator {
 		try {
 			while(!game.gameOver())
 			{
-				long due = System.currentTimeMillis() + config.thinkTimeMillis;
+				due = System.currentTimeMillis() + config.thinkTimeMillis;
 				
 				pacManThread.startThinking();
 				ghostsThread.startThinking();
