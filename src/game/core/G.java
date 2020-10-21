@@ -521,6 +521,7 @@ public class G implements Game
                     eatingTime = 12;
 					score += eatingScore;
                     ghostEatMultiplier*=2;
+                    break;  // can eat only one ghost at once
 				}
 				else						//ghost eats pac-man
                     dyingTime = 20;
