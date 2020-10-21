@@ -205,21 +205,22 @@ public final class GameView extends JComponent
 
 	    	int loc=game.getCurGhostLoc(index);
 	    	int x=game.getX(loc), y=game.getY(loc);
-	    	
+            int pulse = (game.getTotalTime()%6)/3;
+            int imageIndex, dir, xpos;
+            
 	    	if(game.getEdibleTime(index)>0)
 	    	{
-	    		if(game.getEdibleTime(index)<_G_.EDIBLE_ALERT && ((game.getTotalTime()%6)/3)==0)
-	    			bufferGraphics.drawImage(ghostsImgs[5][0][(game.getTotalTime()%6)/3],x*MAG-1,y*MAG+3,null);
-	            else
-	            	bufferGraphics.drawImage(ghostsImgs[4][0][(game.getTotalTime()%6)/3],x*MAG-1,y*MAG+3,null);
+	    		imageIndex = game.getEdibleTime(index)<_G_.EDIBLE_ALERT && (pulse==0) ? 5 : 4;
+                dir = 0;
 	    	}
 	    	else 
 	    	{
-	    		if(game.getLairTime(index)>0) 		
-	    			bufferGraphics.drawImage(ghostsImgs[index][G.UP][(game.getTotalTime()%6)/3],x*MAG-1+(index*5),y*MAG+3,null);
-	    		else    		
-	    			bufferGraphics.drawImage(ghostsImgs[index][game.getCurGhostDir(index)][(game.getTotalTime()%6)/3],x*MAG-1,y*MAG+3,null);
-	        }
+                imageIndex = index;
+                dir = game.getLairTime(index)>0 ? G.UP : game.getCurGhostDir(index);
+            }
+            xpos = game.getLairTime(index)>0 ? x*MAG-1+(index*5) : x*MAG-1;
+            
+            bufferGraphics.drawImage(ghostsImgs[imageIndex][dir][pulse],xpos,y*MAG+3,null);
         }
         
         int g = game.getEatingGhost();

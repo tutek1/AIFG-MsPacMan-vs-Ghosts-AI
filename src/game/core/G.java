@@ -488,14 +488,10 @@ public class G implements Game
 			ghostEatMultiplier=1;
 			powerPills.clear(powerPillIndex);
 			
-			//This ensures that only ghosts outside the lair (i.e., inside the maze) turn edible
 			int newEdibleTime=(int)(G.EDIBLE_TIME*(Math.pow(G.EDIBLE_TIME_REDUCTION,totLevel - 1)));
 			
 			for(int i=0;i<NUM_GHOSTS;i++)
-				if(lairTimes[i]==0)
-					edibleTimes[i]=newEdibleTime;
-				else
-					edibleTimes[i]=0;
+				edibleTimes[i]=newEdibleTime;
 			
 			reverse=true;
 		}
