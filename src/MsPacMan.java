@@ -35,7 +35,7 @@ public class MsPacMan {
                     seedSpecified = true;
                     break;
                 case "-sim":
-                    sim = Integer.parseInt(args[++i]);;
+                    sim = Integer.parseInt(args[++i]);
                     break;
                 case "-v":
                     verbose = true;
