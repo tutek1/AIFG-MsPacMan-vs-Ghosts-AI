@@ -203,10 +203,17 @@ public final class GameView extends JComponent
             if (index == game.getEatingGhost())
                 continue;
 
-	    	int loc=game.getCurGhostLoc(index);
-	    	int x=game.getX(loc), y=game.getY(loc);
+            int x, y;
+            if (game.isInLair(index)) {
+                x = game.lairX[index];
+                y = game.lairY[index];
+            } else {
+	    	    int loc=game.getCurGhostLoc(index);
+                x=game.getX(loc);
+                y=game.getY(loc);
+            }
             int pulse = (game.getTotalTime()%6)/3;
-            int imageIndex, dir, xpos;
+            int imageIndex, dir;
             
 	    	if(game.getEdibleTime(index)>0)
 	    	{
@@ -216,11 +223,9 @@ public final class GameView extends JComponent
 	    	else 
 	    	{
                 imageIndex = index;
-                dir = game.getLairTime(index)>0 ? G.UP : game.getCurGhostDir(index);
+                dir = game.getCurGhostDir(index);
             }
-            xpos = game.getLairTime(index)>0 ? x*MAG-1+(index*5) : x*MAG-1;
-            
-            bufferGraphics.drawImage(ghostsImgs[imageIndex][dir][pulse],xpos,y*MAG+3,null);
+            bufferGraphics.drawImage(ghostsImgs[imageIndex][dir][pulse],x*MAG-1,y*MAG+3,null);
         }
         
         int g = game.getEatingGhost();

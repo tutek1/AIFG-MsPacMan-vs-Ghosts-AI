@@ -23,11 +23,13 @@ import java.util.*;
 /*
  * Simple implementation of Ms Pac-Man. The class Game contains all code relating to the
  * game; the class GameView displays the game. Controllers must implement PacManController
- * and GhostController respectively. The game may be executed using Exec.
+ * and GhostController respectively.
  */
 public class G implements Game
 {	
-	public static Random rnd = new Random();
+    public static Random rnd = new Random();
+    
+    static int[] DX = { 0, 1, 0, -1 }, DY = { -1, 0, 1, 0 };
 	
 	protected GameConfig config;
 	
@@ -45,7 +47,7 @@ public class G implements Game
 	protected int curPacManLoc,lastPacManDir,livesRemaining;
 	protected boolean extraLife;
 	//ghosts-specific
-    protected int[] curGhostLocs,lastGhostDirs,edibleTimes,lairTimes;
+    protected int[] curGhostLocs,lastGhostDirs,edibleTimes,lairTimes, lairX, lairY;
 
     protected int fruitLoc = -1, fruitType, fruitDir;
     protected int ateFruitTime = 0, ateFruitLoc, ateFruitType;
@@ -91,6 +93,8 @@ public class G implements Game
 		copy.lastGhostDirs=Arrays.copyOf(lastGhostDirs,lastGhostDirs.length);
 		copy.edibleTimes=Arrays.copyOf(edibleTimes,edibleTimes.length);
 		copy.lairTimes=Arrays.copyOf(lairTimes,lairTimes.length);
+		copy.lairX=Arrays.copyOf(lairX,lairX.length);
+		copy.lairY=Arrays.copyOf(lairY,lairY.length);
         copy.fruitLoc = fruitLoc; copy.fruitType = fruitType;
         copy.fruitDir = fruitDir;
         copy.eatingGhost = eatingGhost; copy.eatingTime = eatingTime;
@@ -142,9 +146,11 @@ public class G implements Game
 		curPacManLoc=getInitialPacPosition();
 		lastPacManDir=G.INITIAL_PAC_DIR;
 		
-        Arrays.fill(curGhostLocs,mazes[curMaze].lairPosition);	
         curGhostLocs[0] = mazes[curMaze].initialGhostsPosition;
-		lastGhostDirs=Arrays.copyOf(G.INITIAL_GHOST_DIRS,G.INITIAL_GHOST_DIRS.length);
+        lastGhostDirs[0] = G.INITIAL_GHOST_DIRS[0];
+
+        for (int i = 1; i < lairTimes.length ; ++i)
+            placeInLair(i);
 	
 		Arrays.fill(edibleTimes,0);		
 		ghostEatMultiplier=1;
@@ -212,17 +218,22 @@ public class G implements Game
 		}
 	}
 		
-	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////  Game Play   //////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
     
+    void placeInLair(int index) {
+        curGhostLocs[index]=mazes[curMaze].lairPosition;
+        int offset = index == 2 ? 0 : index == 3 ? 2 : 1;
+        lairX[index] = getX(curGhostLocs[index]) + 8 * offset;
+        lairY[index] = getY(curGhostLocs[index]) + 2;
+        lastGhostDirs[index] = offset == 1 ? UP : DOWN;
+    }
+
     boolean actionPaused() {
         if (eatingTime > 0) {
             if (--eatingTime == 0) {
                 edibleTimes[eatingGhost]=0;					
-                lairTimes[eatingGhost]=(int)(G.COMMON_LAIR_TIME*(Math.pow(G.LAIR_REDUCTION,totLevel - 1)));					
-                curGhostLocs[eatingGhost]=mazes[curMaze].lairPosition;
-                lastGhostDirs[eatingGhost]=G.INITIAL_GHOST_DIRS[eatingGhost];
+                lairTimes[eatingGhost]=(int)(G.COMMON_LAIR_TIME*(Math.pow(G.LAIR_REDUCTION,totLevel - 1)));	
+                placeInLair(eatingGhost);				
             }
             return true;
         }
@@ -308,12 +319,7 @@ public class G implements Game
 		if (ghosts != null) {
 			for(int i=0;i<lairTimes.length && i < ghosts.ghostCount; i++) {
 				if(lairTimes[i]>0)
-				{
 					lairTimes[i]--;
-				
-					if(lairTimes[i]==0)
-						curGhostLocs[i]=mazes[curMaze].initialGhostsPosition;
-				}
 			}
         }
 
@@ -362,12 +368,7 @@ public class G implements Game
 		if (ghosts != null) {
 			for(int i=0;i<lairTimes.length;i++) {
 				if(lairTimes[i]>0)
-				{
 					lairTimes[i]--;
-				
-					if(lairTimes[i]==0)
-						curGhostLocs[i]=mazes[curMaze].initialGhostsPosition;
-				}
 			}
         }
         
@@ -416,7 +417,7 @@ public class G implements Game
 
 		return direction;		
 	}
-	
+    
 	//Updates the locations of the ghosts
 	protected void updateGhosts(GhostsActions ghosts,boolean reverse)
 	{
@@ -424,11 +425,32 @@ public class G implements Game
 		for (int i = 0; i < ghosts.ghostCount; ++i) {
 			directions[i] = ghosts.actions[i].get().index;
 		}
-		
-		for(int i=0;i<ghosts.ghostCount;i++)
-		{		
-			if(lairTimes[i]==0)
-			{
+        
+        int lairX0 = getX(mazes[curMaze].lairPosition),
+            lairY0 = getY(mazes[curMaze].lairPosition);
+
+        for(int i=0;i<ghosts.ghostCount;i++)
+            if (isInLair(i)) {
+                if (totalTime % 2 == 0) {
+                    lairX[i] += DX[lastGhostDirs[i]];
+                    lairY[i] += DY[lastGhostDirs[i]];
+                    if (lairY[i] <= lairY0 - 11) {   // exited lair
+                        curGhostLocs[i]=mazes[curMaze].initialGhostsPosition;
+                        lastGhostDirs[i]=G.INITIAL_GHOST_DIRS[i];
+                    } else if (lairTimes[i] > 0) {
+                        if (lairY[i] == lairY0 + 4)
+                            lastGhostDirs[i] = UP;
+                        else if (lairY[i] == lairY0)
+                            lastGhostDirs[i] = DOWN;
+                    } else {    // time to leave
+                        if (lairX[i] < lairX0 + 8)
+                            lastGhostDirs[i] = RIGHT;
+                        else if (lairX[i] > lairX0 + 8)
+                            lastGhostDirs[i] = LEFT;
+                        else lastGhostDirs[i] = UP;
+                    }
+                }
+            } else {
 				if(reverse)
 				{
 					lastGhostDirs[i]=getReverse(lastGhostDirs[i]);
@@ -441,7 +463,6 @@ public class G implements Game
 					curGhostLocs[i]=getNeighbour(curGhostLocs[i],directions[i]);
 				}
 			}
-		}		
 	}
 	
 	//Checks the directions supplied by the controller and substitutes for a legal ones if necessary
@@ -646,7 +667,11 @@ public class G implements Game
 	public int getCurGhostDir(int whichGhost)
 	{
 		return lastGhostDirs[whichGhost];
-	}
+    }
+    
+    public boolean isInLair(int whichGhost) {
+        return curGhostLocs[whichGhost] == mazes[curMaze].lairPosition;
+    }
 	
 	//Returns the edible time for the specified ghost
 	public int getEdibleTime(int whichGhost)

@@ -36,7 +36,9 @@ public class _G_ extends G
 		curGhostLocs=new int[G.NUM_GHOSTS];
 		lastGhostDirs=new int[G.NUM_GHOSTS];
 		edibleTimes=new int[G.NUM_GHOSTS];
-		lairTimes=new int[G.NUM_GHOSTS];
+        lairTimes=new int[G.NUM_GHOSTS];
+        lairX = new int[G.NUM_GHOSTS];
+        lairY = new int[G.NUM_GHOSTS];
 
 		pills=new BitSet(getNumberPills());
 		pills.set(0,getNumberPills());
