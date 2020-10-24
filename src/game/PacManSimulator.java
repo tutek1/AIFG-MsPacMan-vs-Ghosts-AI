@@ -44,7 +44,7 @@ public class PacManSimulator {
 
 		// INITIALIZE THE VIEW
 		if (config.visualize) {
-			gv = new GameView(game, config.visualizationScale2x ? 2 : 1);
+			gv = new GameView(game, config.visualizationScale);
 			gv.showGame();
 			
 			if (config.pacManController instanceof KeyListener) {				

@@ -58,7 +58,7 @@ public final class GameView extends JComponent
         height = TOP_BORDER + game.getHeight() * MAG + 20;
         setPreferredSize(new Dimension(width * scale, height * scale));
         if (scale > 1)
-            scale2x = new Scale2x(this.getPreferredSize().width, this.getPreferredSize().height);
+            scale2x = new Scale2x(this.getPreferredSize().width, this.getPreferredSize().height, scale);
         
         mazeImages=loadMazeImages();
 

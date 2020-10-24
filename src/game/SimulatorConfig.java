@@ -10,7 +10,7 @@ public class SimulatorConfig {
 	public GameConfig game = new GameConfig();
 	
 	public boolean visualize = true;
-	public boolean visualizationScale2x = true;
+	public int visualizationScale = 3;
 	
 	public boolean mayBePaused = true;
 	
@@ -34,7 +34,7 @@ public class SimulatorConfig {
 		result.game = game.clone();
 		
 		result.visualize = visualize;
-		result.visualizationScale2x = visualizationScale2x;
+		result.visualizationScale = visualizationScale;
 		
 		result.mayBePaused = mayBePaused;
 		
@@ -55,7 +55,7 @@ public class SimulatorConfig {
 	
 	public String getCSV() {
         return game.getCSV() + ";" + thinkTimeMillis + ";" +
-               visualize + ";" + visualizationScale2x + ";" + mayBePaused + ";" +
+               visualize + ";" + visualizationScale + ";" + mayBePaused + ";" +
                replay + ";" + (replayFile == null ? null : replayFile.getAbsolutePath());
 	}	
 }
