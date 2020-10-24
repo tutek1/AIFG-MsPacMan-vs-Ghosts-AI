@@ -142,13 +142,15 @@ public class G implements Game
 		curPacManLoc=getInitialPacPosition();
 		lastPacManDir=G.INITIAL_PAC_DIR;
 		
-		Arrays.fill(curGhostLocs,mazes[curMaze].lairPosition);	
+        Arrays.fill(curGhostLocs,mazes[curMaze].lairPosition);	
+        curGhostLocs[0] = mazes[curMaze].initialGhostsPosition;
 		lastGhostDirs=Arrays.copyOf(G.INITIAL_GHOST_DIRS,G.INITIAL_GHOST_DIRS.length);
 	
 		Arrays.fill(edibleTimes,0);		
 		ghostEatMultiplier=1;
-		
-		for(int i=0;i<lairTimes.length;i++)
+        
+        lairTimes[0] = 0;
+		for(int i=1;i<lairTimes.length;i++)
             lairTimes[i]=(int)(G.LAIR_TIMES[i]*(Math.pow(LAIR_REDUCTION,totLevel - 1)));
             
         eatingTime = dyingTime = 0;
