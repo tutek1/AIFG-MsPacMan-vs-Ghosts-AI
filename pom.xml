@@ -15,7 +15,8 @@
 
         <resources>
             <resource>
-              <directory>src</directory>
+              <directory>src/game/core/resources</directory>
+              <targetPath>game/core/resources</targetPath>
             </resource>
         </resources>
     </build>
