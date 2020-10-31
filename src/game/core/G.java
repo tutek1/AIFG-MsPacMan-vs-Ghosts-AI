@@ -49,7 +49,7 @@ public class G implements Game
 	//ghosts-specific
     protected int[] curGhostLocs,lastGhostDirs,edibleTimes,lairTimes, lairX, lairY;
 
-    protected int fruitLoc = -1, fruitType, fruitDir;
+    protected int fruitLoc = -1, fruitType, fruitDir, fruitsLeft;
     protected int ateFruitTime = 0, ateFruitLoc, ateFruitType;
 
     static int[] FruitValue = { 100, 200, 500, 700, 1000, 2000, 5000 };
@@ -114,6 +114,24 @@ public class G implements Game
         else curMaze = 2 + (totLevel - 6) / 4 % 2;
     }
 
+    protected void newBoard() {
+        levelTime=0;	
+        pills=new BitSet(getNumberPills());
+        pills.set(0,getNumberPills());
+        powerPills=new BitSet(getNumberPowerPills());
+        powerPills.set(0,getNumberPowerPills());
+
+        if (!config.powerPillsEnabled) {
+            powerPills.clear();
+        }
+        if (config.totalPills < 1) {
+            int number = (int)Math.ceil(pills.length() * (1-(config.totalPills > 0 ? config.totalPills : 0)));
+            decimatePills(number);
+        }
+
+        fruitsLeft = 2;
+    }
+
 	//If pac-man has been eaten or a new level has been reached
 	protected void reset(boolean newLevel)
 	{
@@ -128,19 +146,7 @@ public class G implements Game
 			}
 			
             setLevel(totLevel + 1);
-			levelTime=0;	
-			pills=new BitSet(getNumberPills());
-			pills.set(0,getNumberPills());
-			powerPills=new BitSet(getNumberPowerPills());
-			powerPills.set(0,getNumberPowerPills());
-			
-			if (!config.powerPillsEnabled) {
-				powerPills.clear();
-			}
-			if (config.totalPills < 1) {
-				int number = (int)Math.ceil(pills.length() * (1-(config.totalPills > 0 ? config.totalPills : 0)));
-				decimatePills(number);
-			}
+            newBoard();
 		}
 		
 		curPacManLoc=getInitialPacPosition();
@@ -256,22 +262,26 @@ public class G implements Game
         if (ateFruitTime > 0)
             --ateFruitTime;
 
-        if (fruitLoc == -1 && (getNumberPills() - getNumActivePills() == 64 ||
-                               getNumActivePills() == 66)) {
-            int[] startX = new int[4];
-            int count = 0;
+        if (fruitLoc == -1) {   // no fruit exists
+            if (getNumberPills() - getNumActivePills() == 64 && fruitsLeft == 2 ||
+                getNumActivePills() == 66 && fruitsLeft > 0) {
+                // spawn a new fruit
+                int[] startX = new int[4];
+                int count = 0;
 
-            for (Node n : mazes[curMaze].graph)
-                if (n.x == 0 || n.x == 108)   // at left or right edge of maze
-                    startX[count++] = n.nodeIndex;
-            
-            if (count == 0)
-                throw new RuntimeException("can't find any tunnels");
-            
-            fruitLoc = startX[rnd.nextInt(count)];
-            fruitType = totLevel <= 7 ? totLevel - 1 : rnd.nextInt(7);
-            fruitDir = getX(fruitLoc) == 0 ? Game.RIGHT : Game.LEFT;
-        } else if (fruitLoc != -1) {
+                for (Node n : mazes[curMaze].graph)
+                    if (n.x == 0 || n.x == 108)   // at left or right edge of maze
+                        startX[count++] = n.nodeIndex;
+                
+                if (count == 0)
+                    throw new RuntimeException("can't find any tunnels");
+                
+                fruitLoc = startX[rnd.nextInt(count)];
+                fruitType = totLevel <= 7 ? totLevel - 1 : rnd.nextInt(7);
+                fruitDir = getX(fruitLoc) == 0 ? Game.RIGHT : Game.LEFT;
+                --fruitsLeft;
+            }
+        } else {    // fruit exists
              if (levelTime % 2 == 0) {
                 int[] possible = getPossibleDirs(fruitLoc, fruitDir, false);
                 fruitDir = possible[rnd.nextInt(possible.length)];

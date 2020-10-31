@@ -13,8 +13,6 @@
  */
 package game.core;
 
-import java.util.BitSet;
-
 import game.GameConfig;
 
 public class _G_ extends G
@@ -40,26 +38,14 @@ public class _G_ extends G
         lairX = new int[G.NUM_GHOSTS];
         lairY = new int[G.NUM_GHOSTS];
 
-		pills=new BitSet(getNumberPills());
-		pills.set(0,getNumberPills());
-		powerPills=new BitSet(getNumberPowerPills());
-		powerPills.set(0,getNumberPowerPills());
 		score=0;
-		levelTime=0;
 		totalTime=0;
 		
 		livesRemaining=config.lives;
 		extraLife=false;
 		gameOver=false;
 		
-		if (!config.powerPillsEnabled) {
-			powerPills.clear();
-		}
-		if (config.totalPills < 1) {
-			int number = (int)Math.ceil(pills.length() * (1-(config.totalPills > 0 ? config.totalPills : 0)));
-			decimatePills(number);
-		}
-		
+        newBoard();
 		reset(false);
 	}
 	
