@@ -1,5 +1,7 @@
 import static java.lang.System.out;
 
+import java.io.File;
+
 import game.*;
 import controllers.ghosts.game.GameGhosts;
 import controllers.pacman.*;
@@ -10,6 +12,7 @@ public class MsPacMan {
         out.println("usage: mspac [<agent-classname>] [<option>...]");
         out.println("options:");
         out.println("  -level <num> : starting level");
+        out.println("  -resultdir <path> : directory for results in CSV format");
         out.println("  -seed <num> : random seed");
         out.println("  -sim <count> : simulate a series of games without visualization");
         out.println("  -v : verbose");
@@ -19,6 +22,7 @@ public class MsPacMan {
         IPacManController agent = null;
         String agentName = null;
         int level = 1;
+        String resultdir = null;
         int seed = 0;
         boolean seedSpecified = false;
         int sim = 0;
@@ -29,6 +33,9 @@ public class MsPacMan {
             switch (s) {
                 case "-level":
                     level = Integer.parseInt(args[++i]); 
+                    break;
+                case "-resultdir":
+                    resultdir = args[++i];
                     break;
                 case "-seed":
                     seed = Integer.parseInt(args[++i]);
@@ -43,9 +50,9 @@ public class MsPacMan {
                 default:
                     if (s.startsWith("-"))
                         usage();
-                    agentName = s;
                     agent =
-                        (IPacManController) Class.forName(agentName).getConstructor().newInstance();
+                        (IPacManController) Class.forName(s).getConstructor().newInstance();
+                    agentName = s.substring(s.lastIndexOf(".") + 1);
             }
         }
 
@@ -61,7 +68,9 @@ public class MsPacMan {
             if (!seedSpecified)
                 seed = 0;
             config.visualize = false;
-            EvaluateAgent evaluate = new EvaluateAgent(seed, config, sim, null);
+            EvaluateAgent evaluate =
+                new EvaluateAgent(seed, config, sim,
+                                  resultdir == null ? null : new File(resultdir));
             evaluate.evaluateAgent(agentName, agent, verbose);		
         } else {
             if (agent == null)

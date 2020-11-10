@@ -1,8 +1,6 @@
 package tournament;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 
 import tournament.run.PacManResults;
 import tournament.run.PacManRun;
@@ -40,9 +38,11 @@ public class EvaluateAgent {
 		File replayDir = null;
 
 		if (resultDirFile != null) {
-			resultDirFile.mkdirs();
-			replayDir = new File(resultDirFile, "replays");
-			replayDir.mkdirs();
+            resultDirFile.mkdirs();
+            if (prototypeConfig.replay) {
+                replayDir = new File(resultDirFile, "replays");
+                replayDir.mkdirs();
+            }
 		}
 						
 		for (int i = 0; i < runs.length; ++i) {
@@ -75,41 +75,30 @@ public class EvaluateAgent {
 	private void outputResults(String agentId, PacManResults results) {		
 		resultDirFile.mkdirs();
 		
-		outputAgentAvgs(agentId, results);
-		outputAgentGlobalAvgs(agentId, results);
+		outputRuns(agentId, results);
+		outputAverages(agentId, results);
 	}
 	
-	private void outputAgentAvgs(String agentId, PacManResults results) {
+	private void outputRuns(String agentId, PacManResults results) {
 		File file = new File(resultDirFile, agentId + ".runs.csv");
-		System.out.println("[" + agentId + "] Outputing runs into: " + file.getAbsolutePath());
+		System.out.println("Writing runs into " + file.getPath());
 		
-		PrintWriter writer = null;
-		try {
-			writer = new PrintWriter(new FileOutputStream(file));
-			
-			writer.println("agentId;runNumber;" + results.getRunResults().get(0).getCSVHeader());
-			int configNumber = 0;
+		try (PrintWriter writer = new PrintWriter(new FileOutputStream(file))) {
+			writer.println("agentId;" + results.getRunResults().get(0).getCSVHeader());
 			for (PacManRunResult run : results.getRunResults()) {
-				++configNumber;
-				writer.print(agentId);
-				writer.print(";" + configNumber);
-				writer.println(";" + run.getCSV());				
+				writer.println(agentId + ";" + run.getCSV());				
 			}
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to write results into: " + file.getAbsolutePath());
-		} finally {
-			if (writer != null) writer.close();
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException("Failed to write results into " + file.getPath());
 		}
 	}
 	
-	private void outputAgentGlobalAvgs(String agentId, PacManResults results) {
+	private void outputAverages(String agentId, PacManResults results) {
 		File file = new File(resultDirFile, "results.csv");		
-		System.out.println("[" + agentId + "] Outputing total avgs into: " + file.getAbsolutePath());
+		System.out.println("Writing averages into " + file.getPath());
 		
-		PrintWriter writer = null;
-		try {
-			boolean outputHeaders = !file.exists();
-			writer = new PrintWriter(new FileOutputStream(file, true));
+        boolean outputHeaders = !file.exists();
+		try (PrintWriter writer = new PrintWriter(new FileOutputStream(file, true))) {
 			if (outputHeaders) {
 				writer.println("agentId;configSeed;" + results.getCSVHeader());
 			}
@@ -117,9 +106,7 @@ public class EvaluateAgent {
 			writer.print(seed + ";");
 			writer.println(results.getCSV());
 		} catch (Exception e) {
-			throw new RuntimeException("Failed to write results into: " + file.getAbsolutePath());
-		} finally {
-			if (writer != null) writer.close();
+			throw new RuntimeException("Failed to write results into: " + file.getPath());
 		}
 	}
 

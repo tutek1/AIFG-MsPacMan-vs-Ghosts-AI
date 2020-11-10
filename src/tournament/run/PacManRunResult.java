@@ -15,11 +15,11 @@ public class PacManRunResult {
     public Game getInfo() { return info; }
 	
 	public String getCSVHeader() {
-		return config.getCSVHeader() + ";levelReached;score;timeSpent";
+		return "seed;levelReached;score;timeSpent";
 	}
 	
 	public String getCSV() {
-        return config.getCSV() + ";" + info.getCurLevel() + ";" + info.getScore() +
+        return config.game.seed + ";" + info.getCurLevel() + ";" + info.getScore() +
             ";" + info.getTotalTime();
 	}
 	

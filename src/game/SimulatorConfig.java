@@ -48,14 +48,4 @@ public class SimulatorConfig {
 		
 		return result;
 	}
-
-	public String getCSVHeader() {
-		return game.getCSVHeader() + ";thinkTimeMillis;visualize;visualizeScale2x;mayBePaused;replay;replayFile";
-	}
-	
-	public String getCSV() {
-        return game.getCSV() + ";" + thinkTimeMillis + ";" +
-               visualize + ";" + visualizationScale + ";" + mayBePaused + ";" +
-               replay + ";" + (replayFile == null ? null : replayFile.getAbsolutePath());
-	}	
 }

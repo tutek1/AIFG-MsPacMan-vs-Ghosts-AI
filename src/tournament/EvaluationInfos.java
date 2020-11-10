@@ -39,12 +39,12 @@ public class EvaluationInfos {
 	}
 	
 	public String getCSVHeader() {
-		return "resultCount;avgScore;avgLevelReached;avgTimeSpent";
+		return "games;avgScore;avgLevelReached;avgTimeSpent";
 	}
 	
 	public String getCSV() {
-		return results.size() 
-			   + ";" + avgScore() + ";" + avg(totalLevelReached) + ";" + avg(totalTimeSpent);
+        return String.format("%d;%.2f;%.2f;%.2f",
+            results.size(), avgScore(), avg(totalLevelReached), avg(totalTimeSpent));
 	}
 	
 	@Override

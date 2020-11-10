@@ -53,14 +53,4 @@ public class GameConfig {
 		startingLevel = Integer.parseInt(all[3]);
 		levelsToPlay = Integer.parseInt(all[4]);
 	}
-
-	public String getCSVHeader() {
-		return "seed;powerPillsEnabled;totalPills;startingLevel;levelsToPlay";
-	}
-	
-	public String getCSV() {
-        return "" + seed + ";" + powerPillsEnabled + ";" + totalPills + ";" +
-               startingLevel + ";" + levelsToPlay;
-	}
-	
 }
