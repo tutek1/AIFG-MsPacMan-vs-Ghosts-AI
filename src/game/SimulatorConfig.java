@@ -10,9 +10,6 @@ public class SimulatorConfig {
 	public GameConfig game = new GameConfig();
 	
 	public boolean visualize = true;
-	public int visualizationScale = 3;
-	
-	public boolean mayBePaused = true;
 	
 	public IPacManController pacManController;
 	public IGhostsController ghostsController;
@@ -27,25 +24,4 @@ public class SimulatorConfig {
 	
 	public boolean replay = false;
 	public File replayFile = null;
-	
-	public SimulatorConfig clone() {
-		SimulatorConfig result = new SimulatorConfig();
-		
-		result.game = game.clone();
-		
-		result.visualize = visualize;
-		result.visualizationScale = visualizationScale;
-		
-		result.mayBePaused = mayBePaused;
-		
-		result.pacManController = pacManController;
-		result.ghostsController = ghostsController;
-		
-		result.thinkTimeMillis = thinkTimeMillis;
-				
-		result.replay = replay;
-		result.replayFile = replayFile;
-		
-		return result;
-	}
 }

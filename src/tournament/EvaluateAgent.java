@@ -22,7 +22,7 @@ public class EvaluateAgent {
 		this.resultDir = resultDir;
 	}
 	
-	public PacManResults evaluateAgent(String agentId, IPacManController agent, boolean verbose) {
+	public PacManResults evaluateAgent(String agentId, String agentClass, boolean verbose) {
 		agentId = Sanitize.idify(agentId);
 		
         System.out.println("Evaluating agent...");
@@ -44,7 +44,12 @@ public class EvaluateAgent {
                 config.replayFile = new File(replayDir, agentId + "-Run-" + i + ".replay");
         
             config.game.seed = seed + i;
-            config.pacManController = agent;
+
+            // create new agent instance for each run
+            try {
+                config.pacManController =
+                    (IPacManController) Class.forName(agentClass).getConstructor().newInstance();
+            } catch (Exception e) { throw new RuntimeException(e); }
         
             Game info = PacManSimulator.play(config);
             PacManRunResult result = new PacManRunResult(config.game.seed, info);

@@ -19,8 +19,7 @@ public class MsPacMan {
         System.exit(1);
     }
     public static void main(String[] args) throws Exception {
-        IPacManController agent = null;
-        String agentName = null;
+        String agentClass = null;
         int level = 1;
         String resultdir = null;
         int seed = 0;
@@ -50,9 +49,7 @@ public class MsPacMan {
                 default:
                     if (s.startsWith("-"))
                         usage();
-                    agent =
-                        (IPacManController) Class.forName(s).getConstructor().newInstance();
-                    agentName = s.substring(s.lastIndexOf(".") + 1);
+                    agentClass = s;
             }
         }
 
@@ -61,24 +58,26 @@ public class MsPacMan {
         config.game.startingLevel = level;
 
         if (sim > 0) {
-            if (agent == null) {
+            if (agentClass == null) {
                 System.out.println("must specify agent with -sim");
                 return;
             }
-            if (!seedSpecified)
-                seed = 0;
+            
             config.visualize = false;
             EvaluateAgent evaluate =
-                new EvaluateAgent(seed, config, sim,
+                new EvaluateAgent(seedSpecified ? seed : 0, config, sim,
                                   resultdir == null ? null : new File(resultdir));
-            evaluate.evaluateAgent(agentName, agent, verbose);		
+
+            String agentName = agentClass.substring(agentClass.lastIndexOf(".") + 1);
+            evaluate.evaluateAgent(agentName, agentClass, verbose);		
         } else {
-            if (agent == null)
-                agent = new HumanPacMan();
-            config.pacManController = agent;
-            if (!seedSpecified)
-                seed = -1;      // random game
-            config.game.seed = seed;
+            if (agentClass == null)
+                config.pacManController = new HumanPacMan();
+            else
+                config.pacManController = 
+                    (IPacManController) Class.forName(agentClass).getConstructor().newInstance();
+
+            config.game.seed = seedSpecified ? seed : -1;
             PacManSimulator.play(config);
         }
     }

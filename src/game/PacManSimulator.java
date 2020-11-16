@@ -44,7 +44,7 @@ public class PacManSimulator {
 
 		// INITIALIZE THE VIEW
 		if (config.visualize) {
-			gv = new GameView(game, config.visualizationScale);
+			gv = new GameView(game, 3);
 			gv.showGame();
 			
 			if (config.pacManController instanceof KeyListener) {				
@@ -119,16 +119,14 @@ public class PacManSimulator {
 				
 		        // SIMULATION PAUSED?
 		        boolean advanceGame = true;
-		        if (config.mayBePaused) {
-			        if (pacManAction.pauseSimulation || (ghostsActions != null && ghostsActions.pauseSimulation)) {
-			        	if (!pacManAction.nextFrame && (ghostsActions == null || !ghostsActions.nextFrame)) {
-			        		advanceGame = false;
-			        	}
-			        	config.pacManController.getAction().nextFrame = false;
-                        if (config.ghostsController != null)
-                            config.ghostsController.getActions().nextFrame = false;
-			        }
-		        }
+                if (pacManAction.pauseSimulation || (ghostsActions != null && ghostsActions.pauseSimulation)) {
+                    if (!pacManAction.nextFrame && (ghostsActions == null || !ghostsActions.nextFrame)) {
+                        advanceGame = false;
+                    }
+                    config.pacManController.getAction().nextFrame = false;
+                    if (config.ghostsController != null)
+                        config.ghostsController.getActions().nextFrame = false;
+                }
 		        
 		        // ADVANCE GAME
 		        if (advanceGame) {
