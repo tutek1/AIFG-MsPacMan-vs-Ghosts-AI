@@ -1,14 +1,13 @@
 package tournament.run;
 
-import game.SimulatorConfig;
 import game.core.Game;
 
 public class PacManRunResult {
-    private SimulatorConfig config;	
+    private int seed;	
     private Game info;
 		
-	public PacManRunResult(SimulatorConfig config, Game info) {
-        this.config = config;
+	public PacManRunResult(int seed, Game info) {
+        this.seed = seed;
         this.info = info;
     }
     
@@ -19,8 +18,7 @@ public class PacManRunResult {
 	}
 	
 	public String getCSV() {
-        return config.game.seed + ";" + info.getCurLevel() + ";" + info.getScore() +
-            ";" + info.getTotalTime();
+        return seed + ";" + info.getCurLevel() + ";" + info.getScore() + ";" + info.getTotalTime();
 	}
 	
 }

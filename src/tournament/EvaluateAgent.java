@@ -3,27 +3,23 @@ package tournament;
 import java.io.*;
 
 import tournament.run.PacManResults;
-import tournament.run.PacManRun;
 import tournament.run.PacManRunResult;
-import tournament.run.PacManRunsGenerator;
 import tournament.utils.Sanitize;
-import game.SimulatorConfig;
+import game.*;
+import game.core.Game;
 import controllers.pacman.IPacManController;
 
 public class EvaluateAgent {
 	private int seed = 0;
-
-	private SimulatorConfig prototypeConfig;
-	
+	private SimulatorConfig config;
 	private int runCount;
+	private File resultDir;
 	
-	private File resultDirFile;
-	
-	public EvaluateAgent(int seed, SimulatorConfig prototypeConfig, int runCount, File resultDirFile) {
+	public EvaluateAgent(int seed, SimulatorConfig config, int runCount, File resultDir) {
 		this.seed = seed;
-		this.prototypeConfig = prototypeConfig;
+		this.config = config;
 		this.runCount = runCount;
-		this.resultDirFile = resultDirFile;
+		this.resultDir = resultDir;
 	}
 	
 	public PacManResults evaluateAgent(String agentId, IPacManController agent, boolean verbose) {
@@ -31,56 +27,53 @@ public class EvaluateAgent {
 		
         System.out.println("Evaluating agent...");
         
-		PacManRun[] runs = PacManRunsGenerator.generateRunList(seed, prototypeConfig, runCount);
-		
 		PacManResults results = new PacManResults();
 		
 		File replayDir = null;
 
-		if (resultDirFile != null) {
-            resultDirFile.mkdirs();
-            if (prototypeConfig.replay) {
-                replayDir = new File(resultDirFile, "replays");
+		if (resultDir != null) {
+            resultDir.mkdirs();
+            if (config.replay) {
+                replayDir = new File(resultDir, "replays");
                 replayDir.mkdirs();
             }
 		}
 						
-		for (int i = 0; i < runs.length; ++i) {
-			if (runs[i].getConfig().replay) {
-				if (replayDir != null) {
-					if (runs[i].getConfig().replayFile == null) {
-						runs[i].getConfig().replayFile = new File(replayDir, agentId + "-Run-" + i + ".replay");
-					} else {
-						String file = runs[i].getConfig().replayFile.getName();
-						int index = file.lastIndexOf(".");
-						String newFile = file.substring(0, index) + "-Run-" + i + "." + file.substring(index+1);
-						runs[i].getConfig().replayFile = new File(runs[i].getConfig().replayFile.getParentFile(), newFile);
-					}
-				} else runs[i].getConfig().replay = false;
-			}
-			
-			PacManRunResult result = runs[i].run(agent, verbose);
-			
+		for (int i = 0; i < runCount; ++i) {
+            if (replayDir != null)
+                config.replayFile = new File(replayDir, agentId + "-Run-" + i + ".replay");
+        
+            config.game.seed = seed + i;
+            config.pacManController = agent;
+        
+            Game info = PacManSimulator.play(config);
+            PacManRunResult result = new PacManRunResult(config.game.seed, info);
+            
+            if (verbose)
+                System.out.printf(
+                    "seed %2d: reached level %d, score = %5d\n",
+                    config.game.seed, info.getCurLevel(), info.getScore());
+                
 			results.addRunResults(result);
 		}
 		
 		System.out.println(results);
 		
-		if (resultDirFile != null)
+		if (resultDir != null)
 			outputResults(agentId, results);
 
 		return results;
 	}
 
 	private void outputResults(String agentId, PacManResults results) {		
-		resultDirFile.mkdirs();
+		resultDir.mkdirs();
 		
 		outputRuns(agentId, results);
 		outputAverages(agentId, results);
 	}
 	
 	private void outputRuns(String agentId, PacManResults results) {
-		File file = new File(resultDirFile, agentId + ".runs.csv");
+		File file = new File(resultDir, agentId + ".runs.csv");
 		System.out.println("Writing runs into " + file.getPath());
 		
 		try (PrintWriter writer = new PrintWriter(new FileOutputStream(file))) {
@@ -94,7 +87,7 @@ public class EvaluateAgent {
 	}
 	
 	private void outputAverages(String agentId, PacManResults results) {
-		File file = new File(resultDirFile, "results.csv");		
+		File file = new File(resultDir, "results.csv");		
 		System.out.println("Writing averages into " + file.getPath());
 		
         boolean outputHeaders = !file.exists();
