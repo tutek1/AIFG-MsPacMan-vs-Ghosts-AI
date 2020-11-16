@@ -265,7 +265,7 @@ public final class GameView extends JComponent
     private void drawLives()
     {
     	for(int i=0;i<game.getLivesRemaining()-1;i++) //-1 as lives remaining includes the current life
-    		bufferGraphics.drawImage(pacmanImgs[G.RIGHT][0],15 + 15 * i,257,null);
+    		bufferGraphics.drawImage(pacmanImgs[G.RIGHT][0],10 + 15 * i,257,null);
     }
     
     private void drawGameInfo()
@@ -273,11 +273,17 @@ public final class GameView extends JComponent
         bufferGraphics.setColor(Color.WHITE);
         bufferGraphics.setFont(font);
         
-        bufferGraphics.drawString("SCORE", 99, -9);
-        bufferGraphics.drawString(String.format("%5d", game.getScore()),99,2);
+        bufferGraphics.drawString("SCORE", 95, -9);
+        bufferGraphics.drawString(String.format("%5d", game.getScore()),95,2);
 
-        for (int i = 0 ; i < Math.min(game.getCurLevel(), 7) ; ++i)
-            drawFruitAt(i, 195 - 18 * i, 256, false);
+        int level = game.getCurLevel();
+        if (level > 7) {
+            bufferGraphics.drawString("LEVEL", 7, -9);
+            bufferGraphics.drawString(String.format("%5d", level), 7, 2);
+        }
+
+        for (int i = 0 ; i < Math.min(level, 7) ; ++i)
+            drawFruitAt(i, 203 - 18 * i, 256, false);
     }
     
     private void drawGameOver()
