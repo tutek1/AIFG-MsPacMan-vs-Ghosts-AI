@@ -11,6 +11,7 @@ public class MsPacMan {
     static void usage() {
         out.println("usage: mspac [<agent-classname>] [<option>...]");
         out.println("options:");
+        out.println("  -id <name> : agent ID for reporting");
         out.println("  -level <num> : starting level");
         out.println("  -resultdir <path> : directory for results in CSV format");
         out.println("  -seed <num> : random seed");
@@ -20,6 +21,7 @@ public class MsPacMan {
     }
     public static void main(String[] args) throws Exception {
         String agentClass = null;
+        String agentId = null;
         int level = 1;
         String resultdir = null;
         int seed = 0;
@@ -30,6 +32,9 @@ public class MsPacMan {
         for (int i = 0 ; i < args.length ; ++i) {
             String s = args[i];
             switch (s) {
+                case "-id":
+                    agentId = args[++i];
+                    break;
                 case "-level":
                     level = Integer.parseInt(args[++i]); 
                     break;
@@ -68,8 +73,9 @@ public class MsPacMan {
                 new EvaluateAgent(seedSpecified ? seed : 0, config, sim,
                                   resultdir == null ? null : new File(resultdir));
 
-            String agentName = agentClass.substring(agentClass.lastIndexOf(".") + 1);
-            evaluate.evaluateAgent(agentName, agentClass, verbose);		
+            if (agentId == null)
+                agentId = agentClass.substring(agentClass.lastIndexOf(".") + 1);
+            evaluate.evaluateAgent(agentId, agentClass, verbose);		
         } else {
             if (agentClass == null)
                 config.pacManController = new HumanPacMan();

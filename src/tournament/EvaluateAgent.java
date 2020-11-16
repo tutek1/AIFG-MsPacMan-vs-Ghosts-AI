@@ -1,6 +1,7 @@
 package tournament;
 
 import java.io.*;
+import java.time.LocalDateTime;
 
 import tournament.run.PacManResults;
 import tournament.run.PacManRunResult;
@@ -78,13 +79,16 @@ public class EvaluateAgent {
 	}
 	
 	private void outputRuns(String agentId, PacManResults results) {
-		File file = new File(resultDir, agentId + ".runs.csv");
-		System.out.println("Writing runs into " + file.getPath());
-		
-		try (PrintWriter writer = new PrintWriter(new FileOutputStream(file))) {
-			writer.println("agentId;" + results.getRunResults().get(0).getCSVHeader());
+		File file = new File(resultDir, "games.csv");
+		System.out.println("Writing games into " + file.getPath());
+        
+        boolean outputHeaders = !file.exists();
+		try (PrintWriter writer = new PrintWriter(new FileOutputStream(file, true))) {
+            if (outputHeaders)
+                writer.println("datetime;agentId;" + results.getRunResults().get(0).getCSVHeader());
+                
 			for (PacManRunResult run : results.getRunResults()) {
-				writer.println(agentId + ";" + run.getCSV());				
+				writer.println(run.dateTime + ";" + agentId + ";" + run.getCSV());				
 			}
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException("Failed to write results into " + file.getPath());
@@ -92,15 +96,15 @@ public class EvaluateAgent {
 	}
 	
 	private void outputAverages(String agentId, PacManResults results) {
-		File file = new File(resultDir, "results.csv");		
+		File file = new File(resultDir, "averages.csv");		
 		System.out.println("Writing averages into " + file.getPath());
 		
         boolean outputHeaders = !file.exists();
 		try (PrintWriter writer = new PrintWriter(new FileOutputStream(file, true))) {
-			if (outputHeaders) {
-				writer.println("agentId;configSeed;" + results.getCSVHeader());
-			}
-			writer.print(agentId + ";");
+			if (outputHeaders)
+                writer.println("datetime;agentId;configSeed;" + results.getCSVHeader());
+                
+			writer.print(LocalDateTime.now() + ";" + agentId + ";");
 			writer.print(seed + ";");
 			writer.println(results.getCSV());
 		} catch (Exception e) {
