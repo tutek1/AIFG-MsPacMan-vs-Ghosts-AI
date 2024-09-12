@@ -33,7 +33,7 @@ public class PacManSimulator {
 		
 		// INITIALIZE THE SIMULATION
 		game = new _G_();
-		game.newGame(config.game);
+		game.newGame(config.game, config.ghostsController);
 		
 		// RESET CONTROLLERS
 		config.pacManController.reset(game);
@@ -52,7 +52,6 @@ public class PacManSimulator {
 			}
 		} 
 		
-		// SETUP REPLAY RECORDING
 		int lastLevel = game.getCurLevel();
 		
 		// START CONTROLLERS (threads auto-start during instantiation)

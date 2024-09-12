@@ -13,6 +13,7 @@
  */
 package game.core;
 
+import controllers.ghosts.IGhostsController;
 import game.GameConfig;
 
 public class _G_ extends G
@@ -22,7 +23,7 @@ public class _G_ extends G
 	public _G_(){}
 	
 	//Instantiates everything to start a new game
-	public void newGame(GameConfig config)
+	public void newGame(GameConfig config, IGhostsController ghostsController)
 	{	
 		this.config = config;
 		this.remainingLevels = config.levelsToPlay;
@@ -44,6 +45,8 @@ public class _G_ extends G
 		livesRemaining=config.lives;
 		extraLife=false;
 		gameOver=false;
+		
+		this.ghostsController = ghostsController;
 		
         newBoard();
 		reset(false);

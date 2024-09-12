@@ -81,10 +81,12 @@ public interface Game
 	
     public Game copy();						//returns an exact copy of the game (forward model)
     
-    //advances the game using the actions (directions) supplied;
-    // returns all directions played [PacMan, Ghost1, Ghost2, Ghost3, Ghost4]
-	public int[] advanceGame(PacManAction pacMan, GhostsActions ghosts);	
+    //advances the game using the given actions for Ms. Pac-Man and the ghosts
+	public void advanceGame(PacManAction pacMan, GhostsActions ghosts);	
     
+    // advance the game, requesting ghost actions from the ghost controller
+    public void advanceGame(PacManAction pacMan);
+
     public int getReverse(int direction);		//returns the reverse of the direction supplied
 
     //returns true is Ms Pac-Man has lost all her lives or if MAX_LEVELS has been reached

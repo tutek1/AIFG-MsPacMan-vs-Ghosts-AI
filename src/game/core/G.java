@@ -16,6 +16,7 @@ package game.core;
 import game.GameConfig;
 import controllers.Direction;
 import controllers.ghosts.GhostsActions;
+import controllers.ghosts.IGhostsController;
 import controllers.pacman.PacManAction;
 
 import java.util.*;
@@ -57,6 +58,8 @@ public class G implements Game
     protected int eatingGhost, eatingTime, eatingScore;
     protected int dyingTime;
 	
+	IGhostsController ghostsController;
+
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////  Constructors and Initialisers   //////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
@@ -100,6 +103,7 @@ public class G implements Game
         copy.eatingGhost = eatingGhost; copy.eatingTime = eatingTime;
         copy.eatingScore = eatingScore;
         copy.dyingTime = dyingTime;
+		copy.ghostsController = ghostsController.copy();
         
 		return copy;
 	}
@@ -305,10 +309,10 @@ public class G implements Game
     }
 
 	//Central method that advances the game state
-	public int[] advanceGame(PacManAction pacMan, GhostsActions ghosts)
+	public void advanceGame(PacManAction pacMan, GhostsActions ghosts)
 	{			
         if (actionPaused())
-            return null;
+            return;
 
 		updatePacMan(pacMan);   	      //move pac-man		
 		eatPill();						  //eat a pill
@@ -316,13 +320,6 @@ public class G implements Game
 		if (ghosts != null) {
 			updateGhosts(ghosts, reverse);    //move ghosts
 		}
-		
-		//This is primarily done for the replays as reset (as possibly called by feast()) sets the 
-		//last directions to the initial ones, not the ones taken
-        int[] replayStep={
-            lastPacManDir,
-            lastGhostDirs[0],lastGhostDirs[1],lastGhostDirs[2],lastGhostDirs[3],
-            curPacManLoc, curGhostLocs[0], curGhostLocs[1], curGhostLocs[2], curGhostLocs[3]};
 		
 		feast();							//ghosts eat pac-man or vice versa
 		
@@ -344,59 +341,16 @@ public class G implements Game
 		totalTime++;
 		levelTime++;
 		checkLevelState();	//check if level/game is over
-		
-		return replayStep;
 	}
 	
-	//Central method that advances the game state
-	public int[] advanceGameReplay(PacManAction pacMan, GhostsActions ghosts, int pacManLocation, int[] ghostsLocations)
-	{
-        if (actionPaused())
-            return null;
-		
-		lastPacManDir = pacMan.get().index;
-		curPacManLoc = pacManLocation;
-		
-		eatPill();		  //eat a pill
-		eatPowerPill();	  //eat a power pill
-		
-		if (ghosts != null) {
-			for (int i = 0; i < 4; ++i) {
-				lastGhostDirs[i] = ghosts.ghost(i).get().index;
-				curGhostLocs[i] = ghostsLocations[i];
-			}
-		}
-		
-		//This is primarily done for the replays as reset (as possibly called by feast()) sets the 
-		//last directions to the initial ones, not the ones taken
-        int[] replayStep={ lastPacManDir,
-            lastGhostDirs[0],lastGhostDirs[1],lastGhostDirs[2],lastGhostDirs[3],curPacManLoc,
-            curGhostLocs[0], curGhostLocs[1], curGhostLocs[2], curGhostLocs[3]};
-		
-		feast();		//ghosts eat pac-man or vice versa
-		
-		if (ghosts != null) {
-			for(int i=0;i<lairTimes.length;i++) {
-				if(lairTimes[i]>0)
-					lairTimes[i]--;
-			}
-        }
-        
-        updateFruit();
-				
-		if(!extraLife && score>=EXTRA_LIFE_SCORE)	//award 1 extra life at 10000 points
-		{
-			extraLife=true;
-			livesRemaining++;
-		}
-	
-		totalTime++;
-		levelTime++;
-		checkLevelState();	//check if level/game is over
-		
-		return replayStep;
+	public void advanceGame(PacManAction pacMan) {
+		int level = totLevel;
+		ghostsController.tick(this, 0);
+		advanceGame(pacMan, ghostsController.getActions());
+		if (level != totLevel)
+			ghostsController.nextLevel(this);
 	}
-	
+
 	//Updates the location of Ms Pac-Man
 	protected void updatePacMan(PacManAction pacMan)
 	{
