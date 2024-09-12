@@ -3,17 +3,11 @@ package controllers.ghosts.game;
 import game.core.Game;
 
 public class GhostScatterState implements GameGhostAI {
-	int X = 0;
-	int Y = 1;
-	int[] BlinkyCorner = {0,0};
-	int[] PinkyCorner = {0,0};
-	int[] ClydeCorner = {0,0};
-	int[] InkyCorner = {0,0};
-	int BlinkyCornerNode = 0;
-	int PinkyCornerNode = 76;
-	int ClydeCornerNode = 1195;
-	int InkyCornerNode = 1290;
-	
+	static int X = 0, Y = 1;
+	static int BlinkyCornerNode = 0;
+	static int PinkyCornerNode = 76;
+	static int ClydeCornerNode = 1195;
+	static int InkyCornerNode = 1290;
 	
 	@Override
 	public int[] execute(int ghostType, Game game, long timeDue) {
@@ -26,7 +20,6 @@ public class GhostScatterState implements GameGhostAI {
 			else{
 				target[X]= game.getX(BlinkyCornerNode);
 				target[Y]= game.getY(BlinkyCornerNode);
-				
 			}
 			
 		}
@@ -44,7 +37,5 @@ public class GhostScatterState implements GameGhostAI {
 		}
 		return target;
 	}
-	
-	
 
 }

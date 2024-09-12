@@ -1,6 +1,7 @@
 package controllers.ghosts.examples;
 
 import controllers.ghosts.GhostsControllerBase;
+import controllers.ghosts.IGhostsController;
 import game.core.G;
 import game.core.Game;
 import game.core.Game.DM;
@@ -9,6 +10,10 @@ public class Legacy extends GhostsControllerBase
 {	
 	public Legacy() {
 		super(Game.NUM_GHOSTS);
+	}
+
+	public IGhostsController copy() {
+		return new Legacy();
 	}
 
 	@Override

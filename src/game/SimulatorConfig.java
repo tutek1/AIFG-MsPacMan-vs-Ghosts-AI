@@ -3,8 +3,6 @@ package game;
 import controllers.ghosts.IGhostsController;
 import controllers.pacman.IPacManController;
 
-import java.io.File;
-
 public class SimulatorConfig {
 
 	public GameConfig game = new GameConfig();
@@ -21,7 +19,4 @@ public class SimulatorConfig {
 	 * DEFAULT: 25 FPS
 	 */
 	public int thinkTimeMillis = 40;
-	
-	public boolean replay = false;
-	public File replayFile = null;
 }

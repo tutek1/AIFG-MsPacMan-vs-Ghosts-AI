@@ -30,20 +30,11 @@ public class EvaluateAgent {
         
 		PacManResults results = new PacManResults();
 		
-		File replayDir = null;
-
 		if (resultDir != null) {
             resultDir.mkdirs();
-            if (config.replay) {
-                replayDir = new File(resultDir, "replays");
-                replayDir.mkdirs();
-            }
 		}
 						
 		for (int i = 0; i < runCount; ++i) {
-            if (replayDir != null)
-                config.replayFile = new File(replayDir, agentId + "-Run-" + i + ".replay");
-        
             config.game.seed = seed + i;
 
             // create new agent instance for each run

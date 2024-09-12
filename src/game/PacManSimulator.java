@@ -20,9 +20,6 @@ public class PacManSimulator {
 	
     private long due; 
     
-    private StringBuilder replayData;
-    private boolean replayFirstWrite;
-
 	public synchronized Game run(final SimulatorConfig config) {
 		gv = null;
 		game = null;		
@@ -57,10 +54,6 @@ public class PacManSimulator {
 		
 		// SETUP REPLAY RECORDING
 		int lastLevel = game.getCurLevel();
-		if (config.replay) {
-			replayData = new StringBuilder();
-			replayFirstWrite = true;
-		}
 		
 		// START CONTROLLERS (threads auto-start during instantiation)
 		ThinkingThread pacManThread = 
@@ -132,13 +125,7 @@ public class PacManSimulator {
 		        if (advanceGame) {
 		        	int pacManLives = game.getLivesRemaining();
 		        	
-			        int replayStep[] = game.advanceGame(pacManAction, ghostsActions);
-			        
-			        // SAVE ACTIONS TO REPLAY
-			        if (config.replay && replayStep != null) {
-			        	// STORE ACTIONS
-			        	storeActions(replayStep, game.getCurLevel()==lastLevel);
-			        }
+			        game.advanceGame(pacManAction, ghostsActions);
 			        
 			        // NEW LEVEL?
 			        if (game.getCurLevel() != lastLevel) {
@@ -148,16 +135,6 @@ public class PacManSimulator {
 			        	config.pacManController.nextLevel(game.copy());
                         if (config.ghostsController != null)
                             config.ghostsController.nextLevel(game.copy());
-			    		
-			    		// FLUSH REPLAY DATA TO FILE
-			    		if (config.replay) {
-			    			Replay.saveActions(
-                                config.game,
-                                config.ghostsController == null ? 0 : config.ghostsController.getGhostCount(),
-                                replayData.toString(), config.replayFile, replayFirstWrite);
-			        		replayFirstWrite = false;
-			        		replayData = new StringBuilder();
-			    		}
 			        }
 			        
 			        // PAC MAN KILLED?
@@ -176,14 +153,6 @@ public class PacManSimulator {
 			pacManThread.kill();
 			ghostsThread.kill();
 			
-			// SAVE REPLAY DATA
-			if (config.replay) {
-				Replay.saveActions(
-                    config.game,
-                    config.ghostsController == null ? 0 : config.ghostsController.getGhostCount(),
-                    replayData.toString(), config.replayFile, replayFirstWrite);
-			}
-			
 			// CLEAN UP
 			if (config.visualize) {
 				if (config.pacManController instanceof KeyListener) {				
@@ -201,18 +170,6 @@ public class PacManSimulator {
 		return game;
 	}
 
-	private void storeActions(int[] replayStep, boolean newLine) {
-		replayData.append( (game.getTotalTime()-1) + "\t" );
-	
-	    for (int i=0;i < replayStep.length; i++) {
-	    	replayData.append(replayStep[i]+"\t");
-	    }
-	
-	    if(newLine) {
-	    	replayData.append("\n");
-	    }
-	}
-	
 	/**
 	 * Run simulation according to the configuration.
 	 */

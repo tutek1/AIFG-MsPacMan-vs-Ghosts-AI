@@ -7,6 +7,7 @@ import game.core.Game;
 import game.core.GameView;
 
 import java.awt.Color;
+import java.util.*;
 
 /**
  * This is the class you need to modify for your entry. In particular, you need to
@@ -16,6 +17,7 @@ import java.awt.Color;
 public class GameGhosts implements IGhostsController
 {
 	public final int NUM_SCATTERS_PER_LEVEL = 4;
+
 	public final int SCATTER = 0;
 	public final int CHASE = 1;
 	public final int FRIGHTENED = 2;
@@ -24,23 +26,18 @@ public class GameGhosts implements IGhostsController
 	
 	public GhostsActions actions;
 	
-	public GameGhostAI GhostCurrentAI;
-	public GameGhostAI GhostPrevAI;
-	public long stateChangeCurrentTime;
 	public long stateChangeShiftTime;
 	public int numberOfScatterOccurred;
 	public int numberOfChaseOccurred;
 	
 	public GhostScatterState ScatterHandler;
 	public GameGhostChaseState ChaseHandler;
-	public GameGhostFrightenedState FrightHandler;
 	
 	public int currentGlobalState;
 	
 	public boolean Debugging = false;
 	
-	int X;
-	int Y;
+	static int X = 0, Y = 1;
 	
 	int[] ghostTarget;
 	
@@ -64,6 +61,19 @@ public class GameGhosts implements IGhostsController
 	}
 	
 	@Override
+	public IGhostsController copy() {
+		GameGhosts ghosts = new GameGhosts(ghostCount, Debugging);
+		ghosts.stateChangeShiftTime = stateChangeShiftTime;
+		ghosts.numberOfScatterOccurred = numberOfScatterOccurred;
+		ghosts.numberOfChaseOccurred = numberOfChaseOccurred;
+		ghosts.ScatterHandler = ScatterHandler;
+		ghosts.ChaseHandler = ChaseHandler;
+		ghosts.currentGlobalState = currentGlobalState;
+		ghosts.ghostTarget = Arrays.copyOf(ghostTarget, ghostTarget.length);
+		return ghosts;
+	}
+
+	@Override
 	public int getGhostCount() {
 		return ghostCount;
 	}
@@ -73,22 +83,15 @@ public class GameGhosts implements IGhostsController
 	public void reset(Game game) {
 		actions.reset();
 		
-		GhostCurrentAI = new GhostScatterState();
-		GhostPrevAI = new GhostScatterState();
-		stateChangeCurrentTime= game.getTotalTime();
-		stateChangeShiftTime = stateChangeCurrentTime + (7*25);
+		stateChangeShiftTime = game.getTotalTime() + (7*25);
 		numberOfScatterOccurred = 0;
 		numberOfChaseOccurred = 0;
 		
 		ScatterHandler = new GhostScatterState();
 		ChaseHandler   = new GameGhostChaseState();
-		FrightHandler  = new GameGhostFrightenedState();
 		
 		currentGlobalState = SCATTER;
 
-		X = 0;
-		Y = 1;
-		
 		ghostTarget = new int[]{0,0};
 		
         GhostState = new int[]{SCATTER, SCATTER, SCATTER, SCATTER};

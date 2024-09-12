@@ -11,8 +11,10 @@ import game.core.Game;
  */
 public interface IGhostsController
 {
+	public IGhostsController copy();
+
 	/**
-	 * How many ghosts (0-4) this controller control. 
+	 * How many ghosts (0-4) this controller controls. 
 	 * @return
 	 */
 	public int getGhostCount();

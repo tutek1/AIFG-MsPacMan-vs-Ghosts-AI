@@ -1,6 +1,8 @@
 package controllers.ghosts.examples;
 
-import controllers.ghosts.GhostsControllerBase;
+import java.util.Arrays;
+
+import controllers.ghosts.*;
 import game.core.Game;
 
 public class Legacy2TheReckoning extends GhostsControllerBase
@@ -9,12 +11,18 @@ public class Legacy2TheReckoning extends GhostsControllerBase
 	public static final int PACMAN_DISTANCE=10;
     public static final int PILL_PROXIMITY=15;
 
-    private final int[] dirs;
+    private int[] dirs;
     
     public Legacy2TheReckoning()
     {
     	super(Game.NUM_GHOSTS);
         dirs=new int[Game.NUM_GHOSTS];
+    }
+
+    public IGhostsController copy() {
+        Legacy2TheReckoning l = new Legacy2TheReckoning();
+        l.dirs = Arrays.copyOf(dirs, dirs.length);
+        return l;
     }
 
     @Override

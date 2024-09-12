@@ -1,6 +1,6 @@
 package controllers.ghosts.examples;
 
-import controllers.ghosts.GhostsControllerBase;
+import controllers.ghosts.*;
 import game.core.G;
 import game.core.Game;
 
@@ -15,6 +15,11 @@ public final class AttractRepelGhosts extends GhostsControllerBase
 		this.attract=attract;						//approach or retreat from Ms Pac-Man
 	}
 	
+	@Override
+	public IGhostsController copy() {
+		return new AttractRepelGhosts(attract);
+	}
+
 	@Override
 	public void tick(Game game, long timeDue) {
 		int[] directions=new int[Game.NUM_GHOSTS];

@@ -1,6 +1,6 @@
 package controllers.ghosts.examples;
 
-import controllers.ghosts.GhostsControllerBase;
+import controllers.ghosts.*;
 import game.core.G;
 import game.core.Game;
 
@@ -9,6 +9,10 @@ public final class RandomGhosts extends GhostsControllerBase
 	
 	public RandomGhosts() {
 		super(Game.NUM_GHOSTS);
+	}
+
+	public IGhostsController copy() {
+		return new RandomGhosts();
 	}
 
 	@Override

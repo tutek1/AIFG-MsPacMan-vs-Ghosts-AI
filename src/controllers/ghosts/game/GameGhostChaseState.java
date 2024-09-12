@@ -3,13 +3,12 @@ package controllers.ghosts.game;
 import game.core.Game;
 
 public class GameGhostChaseState implements GameGhostAI {
-	int X = 0;
-	int Y = 1;
-	int pinkDist = 16;
-	int tileDist = 4;
-	int ClydeCornerNode = 1195;
-	int ClydeMaintainDistance = 8;
-	int InkyPacDistance = 2;
+	static int X = 0, Y = 1;
+	static int pinkDist = 16;
+	static int tileDist = 4;
+	static int ClydeCornerNode = 1195;
+	static int ClydeMaintainDistance = 8;
+	static int InkyPacDistance = 2;
 		
 	@Override
 	public int[] execute(int ghostType, Game game, long timeDue) {
