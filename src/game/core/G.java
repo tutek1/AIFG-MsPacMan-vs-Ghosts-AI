@@ -19,6 +19,7 @@ import controllers.ghosts.GhostsActions;
 import controllers.ghosts.IGhostsController;
 import controllers.pacman.PacManAction;
 
+import java.io.*;
 import java.util.*;
 
 /*
@@ -28,7 +29,7 @@ import java.util.*;
  */
 public class G implements Game
 {	
-    public static Random rnd = new Random();
+    Random rnd = new Random();
     
     static int[] DX = { 0, 1, 0, -1 }, DY = { -1, 0, 1, 0 };
 	
@@ -74,11 +75,32 @@ public class G implements Game
 			if(mazes[i]==null)
 				mazes[i]=new Maze(i);		
 	}
+
+	@Override
+	public Random rand() { return rnd; }
 	
+	// from https://stackoverflow.com/questions/18493319/copy-instance-variable-of-type-java-util-random-to-create-object-in-same-state
+	public static Random cloneRandom(Random src) {
+		try {
+		ByteArrayOutputStream bo = new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(bo);
+		oos.writeObject(src);
+		oos.close();
+		ObjectInputStream ois = new ObjectInputStream(
+				new ByteArrayInputStream(bo.toByteArray()));
+		return (Random)(ois.readObject());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	//Creates an exact copy of the game
 	public Game copy()
 	{
 		G copy = new G();
+		copy.rnd = cloneRandom(rnd);
 		copy.pills=(BitSet)pills.clone();
 		copy.powerPills=(BitSet)powerPills.clone();		
 		copy.curMaze=curMaze;
@@ -125,9 +147,6 @@ public class G implements Game
         powerPills=new BitSet(getNumberPowerPills());
         powerPills.set(0,getNumberPowerPills());
 
-        if (!config.powerPillsEnabled) {
-            powerPills.clear();
-        }
         if (config.totalPills < 1) {
             int number = (int)Math.ceil(pills.length() * (1-(config.totalPills > 0 ? config.totalPills : 0)));
             decimatePills(number);
@@ -187,7 +206,7 @@ public class G implements Game
 				}
 			}
 			while (number > 0) {
-				int startNodePillIndex = pillNodeIndices.get(G.rnd.nextInt(pillNodeIndices.size()));
+				int startNodePillIndex = pillNodeIndices.get(rnd.nextInt(pillNodeIndices.size()));
 				List<Integer> nodeIndices = new ArrayList<Integer>();
 				Set<Integer> closedIndices = new HashSet<Integer>();
 				nodeIndices.add(startNodePillIndex);
@@ -482,7 +501,7 @@ public class G implements Game
 			
 			reverse=true;
 		}
-		else if (levelTime>1 && G.rnd.nextDouble() < G.GHOST_REVERSAL) //random ghost reversal
+		else if (levelTime>1 && rnd.nextDouble() < G.GHOST_REVERSAL) //random ghost reversal
 			reverse=true;
 		
 		return reverse;

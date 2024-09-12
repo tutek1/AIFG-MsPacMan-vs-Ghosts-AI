@@ -2,7 +2,6 @@ package controllers.ghosts.game;
 
 import controllers.ghosts.GhostsActions;
 import controllers.ghosts.IGhostsController;
-import game.core.G;
 import game.core.Game;
 import game.core.GameView;
 
@@ -270,7 +269,7 @@ public class GameGhosts implements IGhostsController
 			else if(game.ghostRequiresAction(i) && GhostState[i] == FRIGHTENED){
 				int[] ghostPossibleDirs = game.getPossibleGhostDirs(i);
 				if(ghostPossibleDirs.length >0){
-					int numOfPossibleDirs = Math.abs(G.rnd.nextInt())%ghostPossibleDirs.length;
+					int numOfPossibleDirs = Math.abs(game.rand().nextInt())%ghostPossibleDirs.length;
 					if(numOfPossibleDirs < 0){
 						chosenDirection = ghostPossibleDirs[numOfPossibleDirs];
 					}

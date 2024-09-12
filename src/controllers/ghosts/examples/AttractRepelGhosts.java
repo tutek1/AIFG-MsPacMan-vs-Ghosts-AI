@@ -1,7 +1,6 @@
 package controllers.ghosts.examples;
 
 import controllers.ghosts.*;
-import game.core.G;
 import game.core.Game;
 
 public final class AttractRepelGhosts extends GhostsControllerBase
@@ -27,12 +26,12 @@ public final class AttractRepelGhosts extends GhostsControllerBase
 		for(int i=0;i<directions.length;i++) {		//for each ghost
 			if(game.ghostRequiresAction(i))			//if it requires an action
 			{
-				if(G.rnd.nextFloat()<CONSISTENCY)	//approach/retreat from the current node that Ms Pac-Man is at
+				if(game.rand().nextFloat()<CONSISTENCY)	//approach/retreat from the current node that Ms Pac-Man is at
 					directions[i]=game.getNextGhostDir(i,game.getCurPacManLoc(),attract,Game.DM.PATH);
 				else									//else take a random action
 				{					
 					int[] possibleDirs=game.getPossibleGhostDirs(i);	//takes a random LEGAL action. Could also just return any random number		
-					directions[i]=possibleDirs[G.rnd.nextInt(possibleDirs.length)];
+					directions[i]=possibleDirs[game.rand().nextInt(possibleDirs.length)];
 				}
 			}
 			input.ghost(i).set(directions[i]);

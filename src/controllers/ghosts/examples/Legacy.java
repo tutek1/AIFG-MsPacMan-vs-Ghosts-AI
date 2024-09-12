@@ -2,7 +2,6 @@ package controllers.ghosts.examples;
 
 import controllers.ghosts.GhostsControllerBase;
 import controllers.ghosts.IGhostsController;
-import game.core.G;
 import game.core.Game;
 import game.core.Game.DM;
 
@@ -25,7 +24,7 @@ public class Legacy extends GhostsControllerBase
 			if(game.ghostRequiresAction(i))
 				directions[i]=game.getNextGhostDir(i,game.getCurPacManLoc(),true,dms[i]);	//approach Ms Pac-Man using a different distance measure
 																							//for each ghost; last ghost takes random action
-		directions[3] = G.rnd.nextInt(4);
+		directions[3] = game.rand().nextInt(4);
 		
 		input.set(directions);
 	}

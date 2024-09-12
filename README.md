@@ -38,7 +38,7 @@ Use the arrow keys to move.  You can press 'P' to pause the game, or 'N' to adva
 
 ## Writing an agent
 
-Here is the [documentation](https://ksvi.mff.cuni.cz/~dingle/2020-1/ai_1/ms_pacman/api.html) for the API you can use to build agents to play the game.
+Here is the [documentation](https://ksvi.mff.cuni.cz/~dingle/2024-5/ai_games/mspac_api.html) for the API you can use to build agents to play the game.
 
 The package controllers.pacman.examples contains several sample agents, which you may wish to study as a starting point.
 
@@ -52,7 +52,7 @@ The Game interface has everything you need to find about the game state. Note th
 - Directions are listed at the top of interface Game (UP=0, RIGHT=1, etc.)
 - The game normally runs at 25 ticks per second.
 
-For more details, see the [API documentation](https://ksvi.mff.cuni.cz/~dingle/2020-1/ai_1/ms_pacman/api.html).
+For more details, see the [API documentation](https://ksvi.mff.cuni.cz/~dingle/2024-5/ai_games/mspac_api.html).
 
 To see your agent play the game, run
 

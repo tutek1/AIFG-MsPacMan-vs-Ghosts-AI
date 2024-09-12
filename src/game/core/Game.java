@@ -13,6 +13,8 @@
  */
 package game.core;
 
+import java.util.Random;
+
 import controllers.ghosts.GhostsActions;
 import controllers.pacman.PacManAction;
 
@@ -81,6 +83,8 @@ public interface Game
 	
     public Game copy();						//returns an exact copy of the game (forward model)
     
+    public Random rand();
+
     //advances the game using the given actions for Ms. Pac-Man and the ghosts
 	public void advanceGame(PacManAction pacMan, GhostsActions ghosts);	
     

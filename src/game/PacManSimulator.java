@@ -29,7 +29,6 @@ public class PacManSimulator {
 			config.game.seed = new Random(System.currentTimeMillis()).nextInt();
 			while (config.game.seed < 0) config.game.seed += Integer.MAX_VALUE;
 		}
-		G.rnd = new Random(config.game.seed);
 		
 		// INITIALIZE THE SIMULATION
 		game = new _G_();

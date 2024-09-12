@@ -13,6 +13,8 @@
  */
 package game.core;
 
+import java.util.Random;
+
 import controllers.ghosts.IGhostsController;
 import game.GameConfig;
 
@@ -28,6 +30,8 @@ public class _G_ extends G
 		this.config = config;
 		this.remainingLevels = config.levelsToPlay;
 		
+		rnd = new Random(config.seed);
+
 		init();		//load mazes if not yet loaded
 
         setLevel(config.startingLevel);

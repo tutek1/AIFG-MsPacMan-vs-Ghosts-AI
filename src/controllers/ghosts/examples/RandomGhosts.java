@@ -1,7 +1,6 @@
 package controllers.ghosts.examples;
 
 import controllers.ghosts.*;
-import game.core.G;
 import game.core.Game;
 
 public final class RandomGhosts extends GhostsControllerBase
@@ -25,7 +24,7 @@ public final class RandomGhosts extends GhostsControllerBase
 			if(game.ghostRequiresAction(i))
 			{			
 				int[] possibleDirs=game.getPossibleGhostDirs(i);			
-				directions[i]=possibleDirs[G.rnd.nextInt(possibleDirs.length)];
+				directions[i]=possibleDirs[game.rand().nextInt(possibleDirs.length)];
 			}
 		
 		input.set(directions);
