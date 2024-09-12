@@ -22,7 +22,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@SuppressWarnings("serial")
 public final class GameView extends JComponent 
 {
 	private static String[] mazes={"maze-a.png","maze-b.png","maze-c.png","maze-d.png"};

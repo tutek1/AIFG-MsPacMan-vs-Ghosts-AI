@@ -14,7 +14,7 @@ In recent years, the [University of Essex](https://www.essex.ac.uk/) ran a serie
 
 ## Building the game
 
-This version of Ms. Pac-Man vs. Ghosts works with Java 11 or newer, and possibly older Java versions as well.
+This version of Ms. Pac-Man vs. Ghosts works with Java 21 or newer, and possibly older Java versions as well.
 
 This project includes Maven build files.  You should easily be able to load it into Eclipse, Intelli/J, or Visual Studio Code, all of which understand Maven builds.
 
