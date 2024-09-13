@@ -16,7 +16,6 @@ package game.core;
 import java.util.Random;
 
 import controllers.ghosts.GhostsActions;
-import controllers.pacman.PacManAction;
 
 /*
  * This interface defines the contract between the game engine and the controllers. It provides all
@@ -86,10 +85,10 @@ public interface Game
     public Random rand();
 
     //advances the game using the given actions for Ms. Pac-Man and the ghosts
-	public void advanceGame(PacManAction pacMan, GhostsActions ghosts);	
+	public void advanceGame(int pac_dir, GhostsActions ghosts);	
     
     // advance the game, requesting ghost actions from the ghost controller
-    public void advanceGame(PacManAction pacMan);
+    public void advanceGame(int pac_dir);
 
     public int getReverse(int direction);		//returns the reverse of the direction supplied
 

@@ -17,7 +17,6 @@ import game.GameConfig;
 import controllers.Direction;
 import controllers.ghosts.GhostsActions;
 import controllers.ghosts.IGhostsController;
-import controllers.pacman.PacManAction;
 
 import java.io.*;
 import java.util.*;
@@ -328,12 +327,12 @@ public class G implements Game
     }
 
 	//Central method that advances the game state
-	public void advanceGame(PacManAction pacMan, GhostsActions ghosts)
+	public void advanceGame(int pac_dir, GhostsActions ghosts)
 	{			
         if (actionPaused())
             return;
 
-		updatePacMan(pacMan);   	      //move pac-man		
+		updatePacMan(pac_dir);   	      //move pac-man		
 		eatPill();						  //eat a pill
 		boolean reverse=eatPowerPill();	  //eat a power pill
 		if (ghosts != null) {
@@ -362,18 +361,18 @@ public class G implements Game
 		checkLevelState();	//check if level/game is over
 	}
 	
-	public void advanceGame(PacManAction pacMan) {
+	public void advanceGame(int pac_dir) {
 		int level = totLevel;
 		ghostsController.tick(this, 0);
-		advanceGame(pacMan, ghostsController.getActions());
+		advanceGame(pac_dir, ghostsController.getActions());
 		if (level != totLevel)
 			ghostsController.nextLevel(this);
 	}
 
 	//Updates the location of Ms Pac-Man
-	protected void updatePacMan(PacManAction pacMan)
+	protected void updatePacMan(int dir)
 	{
-		int direction = checkPacManDir(pacMan.get().index);
+		int direction = checkPacManDir(dir);
 		lastPacManDir = direction;		
 		curPacManLoc = getNeighbour(curPacManLoc,direction);
 	}

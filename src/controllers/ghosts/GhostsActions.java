@@ -8,9 +8,6 @@ public final class GhostsActions {
 	
 	public final int ghostCount;	
 	
-	public boolean pauseSimulation;
-	public boolean nextFrame;
-	
 	public GhostsActions(int ghostCount) {
 		this.ghostCount = ghostCount;
 		for (int i = 0; i < actions.length; ++i) {
@@ -29,40 +26,10 @@ public final class GhostsActions {
 		}
 	}
 	
-	public GhostAction blinky() {
-		return actions[GhostType.BLINKY.index];
-	}
-	
-	public GhostAction pinky() {
-		return actions[GhostType.PINKY.index];
-	}
-	
-	public GhostAction clyde() {
-		return actions[GhostType.CLYDE.index];
-	}
-	
-	public GhostAction inky() {
-		return actions[GhostType.INKY.index];
-	}
-	
-	public void pause() {
-		pauseSimulation = true;
-	}
-	
-	public void resume() {
-		pauseSimulation = false;
-	}
-	
-	public void togglePause() {
-		pauseSimulation = !pauseSimulation;
-	}
-	
 	public void reset() {
 		for (int i = 0; i < actions.length; ++i) {
 			actions[i].reset();
 		}
-		pauseSimulation = false;
-		nextFrame = false;
 	}		
 	
 	public GhostsActions clone() {
@@ -71,12 +38,7 @@ public final class GhostsActions {
 		for (int i = 0; i < actions.length; ++i) {
 			result.actions[i] = actions[i].clone();
 		}
-		result.pauseSimulation = pauseSimulation;
-		result.nextFrame = nextFrame;
 		
 		return result;
 	}
-
-	
-
 }

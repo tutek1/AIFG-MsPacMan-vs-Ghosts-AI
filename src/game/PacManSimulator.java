@@ -110,20 +110,18 @@ public class PacManSimulator {
 				
 		        // SIMULATION PAUSED?
 		        boolean advanceGame = true;
-                if (pacManAction.pauseSimulation || (ghostsActions != null && ghostsActions.pauseSimulation)) {
-                    if (!pacManAction.nextFrame && (ghostsActions == null || !ghostsActions.nextFrame)) {
+                if (pacManAction.pauseSimulation) {
+                    if (!pacManAction.nextFrame) {
                         advanceGame = false;
                     }
                     config.pacManController.getAction().nextFrame = false;
-                    if (config.ghostsController != null)
-                        config.ghostsController.getActions().nextFrame = false;
                 }
 		        
 		        // ADVANCE GAME
 		        if (advanceGame) {
 		        	int pacManLives = game.getLivesRemaining();
 		        	
-			        game.advanceGame(pacManAction, ghostsActions);
+			        game.advanceGame(pacManAction.get().index, ghostsActions);
 			        
 			        // NEW LEVEL?
 			        if (game.getCurLevel() != lastLevel) {
