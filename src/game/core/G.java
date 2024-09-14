@@ -574,11 +574,14 @@ public class G implements Game
 		//if all pills have been eaten or the time is up...
 		if((pills.isEmpty() && powerPills.isEmpty()) || levelTime>=LEVEL_LIMIT)
 		{
-			//award any remaining pills to Ms Pac-Man
-			score+=G.PILL*pills.cardinality()+G.POWER_PILL*powerPills.cardinality();			 
-			
+			if (levelTime < LEVEL_LIMIT)
+				//award any remaining pills to Ms Pac-Man
+				score+=G.PILL*pills.cardinality()+G.POWER_PILL*powerPills.cardinality();			 
+			else
+				livesRemaining--;
+				
 			//put a cap on the total number of levels played
-			if(totLevel==G.MAX_LEVELS)
+			if(livesRemaining == 0 || totLevel==G.MAX_LEVELS)
 			{
 				gameOver=true;
 				return;
