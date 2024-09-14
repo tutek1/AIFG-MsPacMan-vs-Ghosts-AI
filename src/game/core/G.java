@@ -67,6 +67,10 @@ public class G implements Game
 	//Constructor
 	protected G(){}
 
+	protected boolean isSimulation() {
+		return true;
+	}
+
 	//loads the mazes and store them
 	protected void init()
 	{		
@@ -100,6 +104,8 @@ public class G implements Game
 	{
 		G copy = new G();
 		copy.rnd = cloneRandom(rnd);
+		copy.config = config;
+		copy.remainingLevels = remainingLevels;
 		copy.pills=(BitSet)pills.clone();
 		copy.powerPills=(BitSet)powerPills.clone();		
 		copy.curMaze=curMaze;
@@ -120,7 +126,9 @@ public class G implements Game
 		copy.lairX=Arrays.copyOf(lairX,lairX.length);
 		copy.lairY=Arrays.copyOf(lairY,lairY.length);
         copy.fruitLoc = fruitLoc; copy.fruitType = fruitType;
-        copy.fruitDir = fruitDir;
+        copy.fruitDir = fruitDir; copy.fruitsLeft = fruitsLeft;
+		copy.ateFruitTime = ateFruitTime; copy.ateFruitLoc = ateFruitLoc;
+		copy.ateFruitType = ateFruitType;
         copy.eatingGhost = eatingGhost; copy.eatingTime = eatingTime;
         copy.eatingScore = eatingScore;
         copy.dyingTime = dyingTime;
@@ -146,6 +154,9 @@ public class G implements Game
         powerPills=new BitSet(getNumberPowerPills());
         powerPills.set(0,getNumberPowerPills());
 
+        if (!config.powerPillsEnabled) {
+            powerPills.clear();
+        }
         if (config.totalPills < 1) {
             int number = (int)Math.ceil(pills.length() * (1-(config.totalPills > 0 ? config.totalPills : 0)));
             decimatePills(number);
@@ -256,24 +267,34 @@ public class G implements Game
         lastGhostDirs[index] = offset == 1 ? UP : DOWN;
     }
 
+	void eat() {
+		edibleTimes[eatingGhost]=0;					
+		lairTimes[eatingGhost]=(int)(G.COMMON_LAIR_TIME*(Math.pow(G.LAIR_REDUCTION,totLevel - 1)));	
+		placeInLair(eatingGhost);				
+	}
+
+	void die() {
+		livesRemaining--;
+		if(livesRemaining<=0)
+			gameOver=true;
+		else
+			reset(false);
+	}
+
+	public boolean isSuspended() {
+		return eatingTime > 0 || dyingTime > 0;
+	}
+
     boolean actionPaused() {
         if (eatingTime > 0) {
-            if (--eatingTime == 0) {
-                edibleTimes[eatingGhost]=0;					
-                lairTimes[eatingGhost]=(int)(G.COMMON_LAIR_TIME*(Math.pow(G.LAIR_REDUCTION,totLevel - 1)));	
-                placeInLair(eatingGhost);				
-            }
+            if (--eatingTime == 0)
+				eat();
             return true;
         }
 
         if (dyingTime > 0) {
-            if (--dyingTime == 0) {
-                livesRemaining--;
-                if(livesRemaining<=0)
-                    gameOver=true;
-                else
-                    reset(false);
-            }
+            if (--dyingTime == 0)
+				die();
             return true;
         }
 
@@ -359,6 +380,17 @@ public class G implements Game
 		totalTime++;
 		levelTime++;
 		checkLevelState();	//check if level/game is over
+
+		if (isSimulation()) {
+			if (eatingTime > 0) {
+				eatingTime = 0;
+				eat();
+			}
+			if (dyingTime > 0) {
+				dyingTime = 0;
+				die();
+			}
+		}
 	}
 	
 	public void advanceGame(int pac_dir) {
@@ -519,12 +551,14 @@ public class G implements Game
 				{
                     eatingScore = G.GHOST_EAT_SCORE*ghostEatMultiplier;
                     eatingGhost = i;
-                    eatingTime = 12;
 					score += eatingScore;
                     ghostEatMultiplier*=2;
+                    eatingTime = 12;
                     break;  // can eat only one ghost at once
 				}
-				else						//ghost eats pac-man
+				else					
+				    // ghost eats pac-man
+				    // "In my time of dying, want nobody to mourn..."
                     dyingTime = 20;
 			}
 		}
@@ -1100,6 +1134,38 @@ public class G implements Game
 		
 		return neighbours;
     }
+
+	public int getDistanceToNearestPill() {
+		int num = getNumberOfNodes();
+		int[] dist = new int[num];
+		for (int i = 0 ; i < num ; ++i)
+			dist[i] = -1;
+		dist[curPacManLoc] = 0;
+
+		ArrayDeque<Integer> queue = new ArrayDeque<Integer>();
+		queue.add(curPacManLoc);
+
+		while (!queue.isEmpty()) {
+			int node = queue.remove();
+
+			int p = getPillIndex(node);
+			if (p != -1 && checkPill(p))
+				return dist[node];
+			p = getPowerPillIndex(node);
+			if (p != -1 && checkPowerPill(p))
+				return dist[node];
+
+			for (Direction dir : Direction.arrows()) {
+				int n = getNeighbour(node, dir.index);
+				if (n != -1 && dist[n] == -1) {
+					dist[n] = dist[node] + 1;
+					queue.add(n);
+				}
+			}
+		}
+
+		throw new RuntimeException("no pill found");
+	}
     
     public int getFruitLoc() { return fruitLoc; }
 

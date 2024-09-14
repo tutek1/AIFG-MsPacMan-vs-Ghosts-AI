@@ -68,7 +68,9 @@ public class GameGhosts implements IGhostsController
 		ghosts.ScatterHandler = ScatterHandler;
 		ghosts.ChaseHandler = ChaseHandler;
 		ghosts.currentGlobalState = currentGlobalState;
-		ghosts.ghostTarget = Arrays.copyOf(ghostTarget, ghostTarget.length);
+		ghosts.ghostTarget = ghostTarget == null ? null :
+			Arrays.copyOf(ghostTarget, ghostTarget.length);
+		ghosts.GhostState = Arrays.copyOf(GhostState, GhostState.length);
 		return ghosts;
 	}
 

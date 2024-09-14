@@ -35,8 +35,8 @@ public class PacManSimulator {
 		game.newGame(config.game, config.ghostsController);
 		
 		// RESET CONTROLLERS
-		config.pacManController.reset(game);
 		if (config.ghostsController != null) config.ghostsController.reset(game);
+		config.pacManController.reset(game);
 
 		// INITIALIZE THE VIEW
 		if (config.visualize) {
@@ -81,15 +81,17 @@ public class PacManSimulator {
 			while(!game.gameOver())
 			{
 				due = System.currentTimeMillis() + config.thinkTimeMillis;
-				
-				pacManThread.startThinking();
-				ghostsThread.startThinking();
-                
-                if (!pacManThread.waitForResult(due))
-                    System.out.println("[SIMULATOR] PacMan is still thinking!");
 
-                if (!ghostsThread.waitForResult(due))
-                    System.out.println("[SIMULATOR] Ghosts are still thinking!");
+				if (!game.isSuspended()) {
+					pacManThread.startThinking();
+					ghostsThread.startThinking();
+					
+					if (!pacManThread.waitForResult(due))
+						System.out.println("[SIMULATOR] PacMan is still thinking!");
+
+					if (!ghostsThread.waitForResult(due))
+						System.out.println("[SIMULATOR] Ghosts are still thinking!");
+				}
 
                 if (config.visualize) {
                     long sleepTime = due - System.currentTimeMillis();

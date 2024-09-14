@@ -232,7 +232,10 @@ public interface Game
             
     //returns the distance of a path for the ghost specified (accounts for the fact
     //that ghosts may not reverse)
-    public int getGhostPathDistance(int whichGhost,int to);	
+    public int getGhostPathDistance(int whichGhost,int to);
+
+    // Return the distance from Ms. Pac-Man to the nearest pill or power pill.
+    public int getDistanceToNearestPill();
     
     // Return the location at which a fruit currently exists, or -1 if none.
     public int getFruitLoc();

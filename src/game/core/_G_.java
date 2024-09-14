@@ -23,6 +23,11 @@ public class _G_ extends G
 	public static final int EDIBLE_ALERT=30;	//for display only (ghosts turning blue)
 	
 	public _G_(){}
+
+	@Override
+	protected boolean isSimulation() {
+		return false;
+	}
 	
 	//Instantiates everything to start a new game
 	public void newGame(GameConfig config, IGhostsController ghostsController)

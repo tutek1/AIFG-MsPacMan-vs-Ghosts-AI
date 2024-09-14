@@ -7,6 +7,11 @@ public class GameConfig {
 	public int seed = -1;
 	
 	/**
+	 * Whether POWER PILLS should be present within the environment.
+	 */
+	public boolean powerPillsEnabled = true;
+	
+	/**
 	 * Total percentage of PILLS present within the level. If < 1, some (random) pills will be taken away.
 	 */
 	public double totalPills = 1;
