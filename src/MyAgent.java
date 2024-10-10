@@ -31,7 +31,7 @@ public final class MyAgent extends PacManControllerBase
 
 	@Override
 	public void tick(Game game, long timeDue) {
-		int[] directions = game.getPossiblePacManDirs(true); // TODO try
+		int[] directions = game.getPossiblePacManDirs(true); // TODO make backwards with penalty
 		if (directions.length == 1)
 		{
 			pacman.set(directions[0]);
