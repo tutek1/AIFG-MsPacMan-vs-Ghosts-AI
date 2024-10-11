@@ -4,18 +4,28 @@ import game.core.Game;
 import java.util.LinkedList;
 import java.util.Queue;
 
+// Score with timeDue - 5
+// 200 020, rdebuff 0.35, best score = max from tree, score with depth^2 lowering, reverse
+// 213 386, rdebuff 0.45, best score = max from tree, score with depth^2 lowering, reverse
+// 221 640, rdebuff 0.55, best score = max from tree, score with depth^2 lowering, reverse
+// 212 120, rdebuff 0.55, best score = max from tree, score with no depth, reverse
+// 197 920, rdebuff 0.55, best score = max from tree, score with depth^2 lowering, no reverse
+// 218 600, rdebuff 0.55, best score = max from tree, score with depth^3 lowering, reverse
+// ., rdebuff 0.5, best score = max from tree, score with depth^2 lowering, reverse
+//
+// Score with timeDue - 15
+// 223 620, rdebuff 0.5, best score = max from tree, score with depth^2 lowering
+// 215 820, rdebuff 0.65, best score = max from tree, score with depth^2 lowering
 
-// 223 620 record
 public final class MyAgent extends PacManControllerBase
 {
 	private int maxReachedDepth = 100;
 	
-	private float reverseDebuff = 0.5f;
-	private float rLvlComplete = 100000;
-	private float rDeath = -100000;
-	private float rTwoPowerPills = -10000;
-	private float rLowerPillCount = 10;
-	
+	private final float reverseDebuff = 0.5f;
+	private final float rLvlComplete = 10000;
+	private final float rDeath = -10000;
+	private final float rTwoPowerPills = -1000;
+
 	class State {
 		public Game game;
 		public int parentDir;
@@ -57,28 +67,29 @@ public final class MyAgent extends PacManControllerBase
 		// While we have time, explore the decision tree
 		int numStatesVisited = 0;
 		float bestScore = -100000000;
-		while (System.currentTimeMillis() < timeDue - 15) { // TODO try lower
+		while (System.currentTimeMillis() < timeDue - 5) {
 			// Get current state
 			State currState = statesToVisit.poll();
 			if (currState == null) break;
 
 			// Evaluate current state using a heuristic function
 			float stateScore = evaluateState(currState);
-			dirScores[currState.parentDir] = Math.max(dirScores[currState.parentDir], stateScore);
 
 			// if going backwards make the score lower to not overuse it
 			if (Math.abs(currState.parentDir - game.getCurPacManDir()) == 2)
 			{
 				stateScore *= reverseDebuff;
 			}
+
+			dirNumExplored[currState.parentDir] += 1;
+			dirScores[currState.parentDir] = stateScore;//Math.max(dirScores[currState.parentDir], stateScore);
+
+//			if (stateScore > bestScore)
+//			{
+//				bestScore = stateScore;
+//				pacman.set(currState.parentDir);
+//			}
 			
-			if (stateScore > bestScore)
-			{
-				bestScore = stateScore;
-				pacman.set(currState.parentDir);
-			}
-			
-			//dirNumExplored[currState.parentDir] += 1;
 
 			if (stateScore < 0) continue;
 
@@ -109,7 +120,18 @@ public final class MyAgent extends PacManControllerBase
 			numStatesVisited += 1;
 			maxReachedDepth = Math.max(maxReachedDepth, currState.depth);
 		}
-		System.out.println("max depth " + maxReachedDepth);
+
+//		float bestScored = -100000000;
+//		for (int i = 0; i < 4; i++)
+//		{
+//			float score = dirScores[i] / dirNumExplored[i];
+//			if (score > bestScored)
+//			{
+//				bestScored = score;
+//				pacman.set(i);
+//			}
+//		}
+		//System.out.println("max depth " + maxReachedDepth);
 		//System.out.println(numStatesVisited + " visited"); // avg 5800
 
 		
@@ -121,7 +143,7 @@ public final class MyAgent extends PacManControllerBase
 		if (game.getCurLevel() < state.game.getCurLevel()) return rLvlComplete;
 		if (game.getLivesRemaining() > state.game.getLivesRemaining()) return rDeath;
 		float score = 0;
-		score = state.scoreDelta;
+		score = state.scoreDelta / 10f;	// lower the order so that smallest score change is 1 (single pill)
 
 		//		if (state.scoreDelta == 10)
 //		{
@@ -148,17 +170,13 @@ public final class MyAgent extends PacManControllerBase
 				score += rTwoPowerPills;
 			}
 		}
-		else
-		{
-			//score += rLowerPillCount * (1 - (state.game.getNumActivePills() / ((float)state.game.getNumberPills())));
-		}
-
 
 		float depthMult = state.depth/(float)maxReachedDepth;
 		depthMult *= depthMult;
 		depthMult = 1 - depthMult;
 		score *= depthMult;
 
+		//System.out.println(score);
 		return score;
 
 	}
