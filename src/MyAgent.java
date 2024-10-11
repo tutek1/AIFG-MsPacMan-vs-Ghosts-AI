@@ -1,37 +1,41 @@
 import controllers.pacman.PacManControllerBase;
 import game.core.Game;
-import game.core.GameView;
-import tournament.EvaluateAgent;
 
-import java.awt.*;
-import java.util.ArrayDeque;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.concurrent.LinkedTransferQueue;
 
+
+// 223 620 record
 public final class MyAgent extends PacManControllerBase
 {
-	private int maxDepth = 200;
-
+	private int maxReachedDepth = 100;
+	
+	private float reverseDebuff = 0.5f;
+	private float rLvlComplete = 100000;
+	private float rDeath = -100000;
+	private float rTwoPowerPills = -10000;
+	private float rLowerPillCount = 10;
+	
 	class State {
 		public Game game;
 		public int parentDir;
 		public int depth;
 		public int scoreDelta;
+		public int powerPillsActiveBefore;
 
-		public State(Game game, int parentDir, int depth, int scoreDelta)
+		public State(Game game, int parentDir, int depth, int scoreDelta, int powerPillsActiveBefore)
 		{
 			this.game = game;
 			this.parentDir = parentDir;
 			this.depth = depth;
 			this.scoreDelta = scoreDelta;
+			this.powerPillsActiveBefore = powerPillsActiveBefore;
 		}
 	}
 
 	@Override
 	public void tick(Game game, long timeDue) {
-		int[] directions = game.getPossiblePacManDirs(true); // TODO make backwards with penalty
+		int[] directions = game.getPossiblePacManDirs(true);
 		if (directions.length == 1)
 		{
 			pacman.set(directions[0]);
@@ -47,11 +51,12 @@ public final class MyAgent extends PacManControllerBase
 		{
 			Game gameCopy = game.copy();
 			gameCopy.advanceGame(dir);
-			statesToVisit.add(new State(gameCopy, dir, 1, gameCopy.getScore() - game.getScore()));
+			statesToVisit.add(new State(gameCopy, dir, 1, gameCopy.getScore() - game.getScore(), gameCopy.getNumActivePowerPills()));
 		}
 
 		// While we have time, explore the decision tree
 		int numStatesVisited = 0;
+		float bestScore = -100000000;
 		while (System.currentTimeMillis() < timeDue - 15) { // TODO try lower
 			// Get current state
 			State currState = statesToVisit.poll();
@@ -60,6 +65,19 @@ public final class MyAgent extends PacManControllerBase
 			// Evaluate current state using a heuristic function
 			float stateScore = evaluateState(currState);
 			dirScores[currState.parentDir] = Math.max(dirScores[currState.parentDir], stateScore);
+
+			// if going backwards make the score lower to not overuse it
+			if (Math.abs(currState.parentDir - game.getCurPacManDir()) == 2)
+			{
+				stateScore *= reverseDebuff;
+			}
+			
+			if (stateScore > bestScore)
+			{
+				bestScore = stateScore;
+				pacman.set(currState.parentDir);
+			}
+			
 			//dirNumExplored[currState.parentDir] += 1;
 
 			if (stateScore < 0) continue;
@@ -68,8 +86,13 @@ public final class MyAgent extends PacManControllerBase
 			while (currState.game.getPossiblePacManDirs(false).length == 1)
 			{
 				int lastScore = currState.game.getScore();
+				int lastNumPowerPillsActive = currState.game.getNumActivePowerPills();
 				currState.game.advanceGame(currState.game.getPossiblePacManDirs(false)[0]);
-				currState = new State(currState.game, currState.parentDir, currState.depth+1, currState.game.getScore() - lastScore);
+				currState = new State(currState.game,
+									  currState.parentDir,
+								currState.depth+1,
+							currState.scoreDelta + currState.game.getScore() - lastScore,
+									  lastNumPowerPillsActive);
 			}
 
 			// Add all possible next states
@@ -77,40 +100,30 @@ public final class MyAgent extends PacManControllerBase
 			{
 				Game gameCopy = currState.game.copy();
 				gameCopy.advanceGame(dir);
-				statesToVisit.add(new State(gameCopy, currState.parentDir, currState.depth + 1, gameCopy.getScore() - currState.game.getScore()));
+				statesToVisit.add(new State(gameCopy,
+											currState.parentDir,
+										currState.depth + 1,
+									currState.scoreDelta + gameCopy.getScore() - currState.game.getScore(),
+											currState.game.getNumActivePowerPills()));
 			}
 			numStatesVisited += 1;
-			maxDepth = Math.max(maxDepth, currState.depth);
+			maxReachedDepth = Math.max(maxReachedDepth, currState.depth);
 		}
-		//System.out.println("max depth " + maxDepth);
+		System.out.println("max depth " + maxReachedDepth);
 		//System.out.println(numStatesVisited + " visited"); // avg 5800
 
-		float bestScore = -10000000;
-		int bestDir = directions[0];
-		for (int currDir : directions)
-		{
-
-			float currScore = dirScores[currDir];// / dirNumExplored[currDir]; // TODO try
-			if (currScore >= bestScore)
-			{
-				bestScore = currScore;
-				bestDir = currDir;
-			}
-		}
-
-		//System.out.println(bestScore + " best score");
-		pacman.set(bestDir);
+		
+		//float currScore = dirScores[currDir];// / dirNumExplored[currDir]; // TODO try
 	}
 
 	private float evaluateState(State state)
 	{
-		if (game.getLivesRemaining() > state.game.getLivesRemaining()) return -100000;
-		if (game.getCurLevel() != state.game.getCurLevel()) return 100000;
-
+		if (game.getCurLevel() < state.game.getCurLevel()) return rLvlComplete;
+		if (game.getLivesRemaining() > state.game.getLivesRemaining()) return rDeath;
 		float score = 0;
-		score = state.scoreDelta * 10;
+		score = state.scoreDelta;
 
-//		if (state.scoreDelta == 10)
+		//		if (state.scoreDelta == 10)
 //		{
 //			score += 10;
 //		}
@@ -130,19 +143,21 @@ public final class MyAgent extends PacManControllerBase
 			state.game.getEdibleTime(2) > 0 &&
 			state.game.getEdibleTime(3) > 0)
 		{
-			if (state.game.getNumActivePowerPills() + 1 < game.getNumActivePowerPills())
+			if (state.game.getNumActivePowerPills() < state.powerPillsActiveBefore)
 			{
-				score -= 10000;
+				score += rTwoPowerPills;
 			}
 		}
 		else
 		{
-			score += (state.game.getNumberPills() - state.game.getNumActivePills()) * 2;
+			//score += rLowerPillCount * (1 - (state.game.getNumActivePills() / ((float)state.game.getNumberPills())));
 		}
 
 
-		//System.out.println("score " + score);
-		score *= Math.max(1,(float) state.depth/maxDepth);
+		float depthMult = state.depth/(float)maxReachedDepth;
+		depthMult *= depthMult;
+		depthMult = 1 - depthMult;
+		score *= depthMult;
 
 		return score;
 
