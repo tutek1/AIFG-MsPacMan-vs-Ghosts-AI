@@ -21,10 +21,13 @@ public final class MyAgent extends PacManControllerBase
 {
 	private int maxReachedDepth = 100;
 	
-	private final float reverseDebuff = 0.5f;
+	// Reward variables for different properties of states
+	private final float rReverseDir = 0.75f;
 	private final float rLvlComplete = 10000;
-	private final float rDeath = -10000;
+	private final float rDeath = Float.NEGATIVE_INFINITY;
 	private final float rTwoPowerPills = -1000;
+	private final float rAllGhostsEatenMult = 5.f;
+	
 
 	class State {
 		public Game game;
@@ -43,8 +46,19 @@ public final class MyAgent extends PacManControllerBase
 		}
 	}
 
+	// Debug
+	long ticks = 0;
+	
 	@Override
 	public void tick(Game game, long timeDue) {
+		
+		// Debug
+		ticks += 1;
+		if (ticks % 250 == 0)
+		{
+			System.out.println("Score: " + game.getScore() + ", lvl: " + game.getCurLevel() + ", lives: " + game.getLivesRemaining());
+		}
+		
 		int[] directions = game.getPossiblePacManDirs(true);
 		if (directions.length == 1)
 		{
@@ -74,25 +88,24 @@ public final class MyAgent extends PacManControllerBase
 
 			// Evaluate current state using a heuristic function
 			float stateScore = evaluateState(currState);
-
+			if (stateScore == rDeath) continue;
+			
+			
 			// if going backwards make the score lower to not overuse it
-			if (Math.abs(currState.parentDir - game.getCurPacManDir()) == 2)
+			if (game.getCurPacManDir() == currState.game.getReverse(currState.parentDir))
 			{
-				stateScore *= reverseDebuff;
+				stateScore *= rReverseDir;
 			}
 
-			dirNumExplored[currState.parentDir] += 1;
-			dirScores[currState.parentDir] = stateScore;//Math.max(dirScores[currState.parentDir], stateScore);
+			//dirNumExplored[currState.parentDir] += 1;
+			//dirScores[currState.parentDir] = stateScore;//Math.max(dirScores[currState.parentDir], stateScore);
 
-//			if (stateScore > bestScore)
-//			{
-//				bestScore = stateScore;
-//				pacman.set(currState.parentDir);
-//			}
+			if (stateScore > bestScore)
+			{
+				bestScore = stateScore;
+				pacman.set(currState.parentDir);
+			}
 			
-
-			if (stateScore < 0) continue;
-
 			// Skip states where we are going in a straight line
 			while (currState.game.getPossiblePacManDirs(false).length == 1)
 			{
@@ -144,7 +157,8 @@ public final class MyAgent extends PacManControllerBase
 		if (game.getLivesRemaining() > state.game.getLivesRemaining()) return rDeath;
 		float score = 0;
 		score = state.scoreDelta / 10f;	// lower the order so that smallest score change is 1 (single pill)
-
+		//todo remove delta use state - game
+		
 		//		if (state.scoreDelta == 10)
 //		{
 //			score += 10;
@@ -159,22 +173,34 @@ public final class MyAgent extends PacManControllerBase
 //			score += fruitScore;
 //		}
 
-		// Don't pickup more powerpills
-		if (state.game.getEdibleTime(0) > 0 &&
-			state.game.getEdibleTime(1) > 0 &&
-			state.game.getEdibleTime(2) > 0 &&
-			state.game.getEdibleTime(3) > 0)
+		// Power pill is active
+		boolean isPowerPillActive = (state.game.getEdibleTime(0) > 0 ||
+									 state.game.getEdibleTime(1) > 0 ||
+									 state.game.getEdibleTime(2) > 0 ||
+									 state.game.getEdibleTime(3) > 0); 
+		boolean pickedUpPowerPill = state.game.getNumActivePowerPills() < state.powerPillsActiveBefore;
+		
+		// Count how many ghosts are eaten
+		int ghostsInLair = (state.game.getLairTime(0) > 0? 1 : 0)
+				+ (state.game.getLairTime(1) > 0? 1 : 0)
+				+ (state.game.getLairTime(2) > 0? 1 : 0)
+				+ (state.game.getLairTime(3) > 0? 1 : 0);
+		
+		// Picked up power pill while ghosts are eaten // todo maybd time to eat again 
+		if (isPowerPillActive && pickedUpPowerPill)
 		{
-			if (state.game.getNumActivePowerPills() < state.powerPillsActiveBefore)
-			{
-				score += rTwoPowerPills;
-			}
+			score += rTwoPowerPills;
 		}
 
-		float depthMult = state.depth/(float)maxReachedDepth;
-		depthMult *= depthMult;
-		depthMult = 1 - depthMult;
-		score *= depthMult;
+		if (ghostsInLair == 4) score *= rAllGhostsEatenMult;
+
+		//System.out.println(ghostsInLair + " ghosts in lair");
+		
+
+		//float depthMult = state.depth/(float)maxReachedDepth;
+		//depthMult *= depthMult;
+		//depthMult = 1 - depthMult;
+		//score *= depthMult;
 
 		//System.out.println(score);
 		return score;
