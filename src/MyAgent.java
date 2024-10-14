@@ -183,7 +183,7 @@ public final class MyAgent extends PacManControllerBase
 
 		if (pickedUpPowerPill)
 		{
-			score += -(20 + 40 + 80 + 160);
+			score += -(20 + 40 + 80 + 160);	// TODO fix
 		}
 
 //		int ghostsInLair =  (state.game.getLairTime(0) > 0 ? 1 : 0) +
