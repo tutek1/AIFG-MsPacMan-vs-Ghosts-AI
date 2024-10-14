@@ -1,6 +1,8 @@
+import com.sun.source.tree.IfTree;
 import controllers.pacman.PacManControllerBase;
 import game.core.Game;
 
+import javax.swing.event.TreeWillExpandListener;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -19,14 +21,18 @@ import java.util.Queue;
 
 public final class MyAgent extends PacManControllerBase
 {
-	private int maxReachedDepth = 100;
+	private int maxReachedDepth = 1;
 	
 	// Reward variables for different properties of states
-	private final float rReverseDir = 0.75f;
-	private final float rLvlComplete = 10000;
-	private final float rDeath = -10000;
-	private final float rTwoPowerPills = -1000;
-	private final float rAllGhostsEatenMult = 2.f;
+	private final float rLvlComplete = 10f;
+	private final float rReverseDir = 0.9999f;
+	private final float rDeath = -10000000;
+	private final float rPowerAndFruit = -10000;
+	private final float rNotAllEaten = -100000;
+	private final float rFruitMult = 1.5f;
+
+	private final int waitTime = 10;
+	
 	
 
 	class State {
@@ -52,9 +58,9 @@ public final class MyAgent extends PacManControllerBase
 		
 		// Debug
 		ticks += 1;
-		if (ticks % 25 == 0)
+		if (ticks % 125 == 0)
 		{
-			System.out.println("Score: " + game.getScore() + ", lvl: " + game.getCurLevel() + ", lives: " + game.getLivesRemaining() + ", max depth reached: " + maxReachedDepth + ", next edible score: " + game.getNextEdibleGhostScore());
+			System.out.println("Score: " + game.getScore() + ", lvl: " + game.getCurLevel() + ", lives: " + game.getLivesRemaining() + ", max depth reached: " + maxReachedDepth + ", next edible score: " + game.getNextEdibleGhostScore() + ", fruit pos: " + game.getFruitLoc());
 		}
 		
 		int[] directions = game.getPossiblePacManDirs(true);
@@ -79,7 +85,7 @@ public final class MyAgent extends PacManControllerBase
 		// While we have time, explore the decision tree
 		int numStatesVisited = 0;
 		float bestScore = -100000000;
-		while (System.currentTimeMillis() < timeDue - 5) {
+		while (System.currentTimeMillis() < timeDue - waitTime) {
 			// Get current state
 			State currState = statesToVisit.poll();
 			if (currState == null) break;
@@ -87,15 +93,25 @@ public final class MyAgent extends PacManControllerBase
 			// Evaluate current state using a heuristic function
 			float stateScore = evaluateState(game, currState);
 			if (stateScore == rDeath) continue;
-
+			
+			if (System.currentTimeMillis() >= timeDue - waitTime) break;
+			
 			// if going backwards make the score lower to not overuse it
 			if (game.getCurPacManDir() == currState.game.getReverse(currState.parentDir))
 			{
-				stateScore *= rReverseDir;
+				
+				if (stateScore < 0)
+				{
+					stateScore -= Math.abs(stateScore) - Math.abs(stateScore) * rReverseDir;
+				}
+				else 
+				{
+					stateScore *= rReverseDir;
+				}
 			}
 
-			dirNumExplored[currState.parentDir] += 1;
-			dirScores[currState.parentDir] += stateScore;//Math.max(dirScores[currState.parentDir], stateScore);
+			//dirNumExplored[currState.parentDir] += 1;
+			//dirScores[currState.parentDir] += stateScore;//Math.max(dirScores[currState.parentDir], stateScore);
 
 			if (stateScore > bestScore)
 			{
@@ -114,6 +130,8 @@ public final class MyAgent extends PacManControllerBase
 									  lastNumPowerPillsActive);
 			}
 
+			if (System.currentTimeMillis() >= timeDue - waitTime) break;
+			
 			// Add all possible next states
 			for (int dir : currState.game.getPossiblePacManDirs(false))
 			{
@@ -147,26 +165,29 @@ public final class MyAgent extends PacManControllerBase
 
 	private float evaluateState(Game game, State state)
 	{
-		if (game.getCurLevel() < state.game.getCurLevel()) return rLvlComplete;
 		if (game.getLivesRemaining() > state.game.getLivesRemaining()) return rDeath;
 		float score = 0;
-		score = (state.game.getScore() - game.getScore()) / 10f;	// lower the order so that smallest score change is 1 (single pill)
-		//todo remove delta use state - game
+		score = state.game.getScore() - game.getScore();	// lower the order so that smallest score change is 1 (single pill)
+		
 		
 		// if fruit exists, target it
-//		if (state.game.getFruitLoc() != -1) {
-//			int fruitScore = state.game.getFruitValue()*2 - state.game.getPathDistance(state.game.getCurPacManLoc(), state.game.getFruitLoc());
+		if (state.game.getFruitLoc() != -1) 
+		{
+			boolean willPickupFruit = (state.game.getManhattanDistance(state.game.getCurPacManLoc(), state.game.getFruitLoc())) < 10;
+			
+			if (willPickupFruit) System.out.println("Fruity");
+			//			int fruitScore = state.game.getFruitValue()*2 - state.game.getPathDistance(state.game.getCurPacManLoc(), state.game.getFruitLoc());
 //			fruitScore = Math.max(fruitScore, 0);
 //			fruitScore *= 10;
 //			System.out.println(fruitScore + " fruit");
 //			GameView.addPoints(game, );
 //			score += fruitScore;
-//		}
+		}
 
-		boolean isGhost1Edible = state.game.getEdibleTime(0) > 0;
-		boolean isGhost2Edible = state.game.getEdibleTime(1) > 0;
-		boolean isGhost3Edible = state.game.getEdibleTime(2) > 0;
-		boolean isGhost4Edible = state.game.getEdibleTime(3) > 0;
+		boolean isGhost1Edible = state.game.isEdible(0);
+		boolean isGhost2Edible = state.game.isEdible(1);
+		boolean isGhost3Edible = state.game.isEdible(2);
+		boolean isGhost4Edible = state.game.isEdible(3);
 
 		// Power pill is active
 		boolean isPowerPillActive = (isGhost1Edible ||
@@ -174,50 +195,23 @@ public final class MyAgent extends PacManControllerBase
 									 isGhost3Edible ||
 									 isGhost4Edible);
 		boolean pickedUpPowerPill = state.game.getNumActivePowerPills() < state.powerPillsActiveBefore;
-//
-		// Picked up power pill while ghosts are eaten // todo maybd time to eat again
-//		if (isPowerPillActive && pickedUpPowerPill)
-//		{
-//			score += rTwoPowerPills;
-//		}
 
-		if (pickedUpPowerPill)
-		{
-			score += -(20 + 40 + 80 + 160);	// TODO fix
-		}
+		int ghostsInLair =  (state.game.getLairTime(0) > 0 ? 1 : 0) +
+				(state.game.getLairTime(1) > 0 ? 1 : 0) +
+				(state.game.getLairTime(2) > 0 ? 1 : 0) +
+				(state.game.getLairTime(3) > 0 ? 1 : 0);
 
-//		int ghostsInLair =  (state.game.getLairTime(0) > 0 ? 1 : 0) +
-//				(state.game.getLairTime(1) > 0 ? 1 : 0) +
-//				(state.game.getLairTime(2) > 0 ? 1 : 0) +
-//				(state.game.getLairTime(3) > 0 ? 1 : 0);
-
-//		if (pickedUpPowerPill)
-//		{
-//			int pacLoc = state.game.getCurPacManLoc();
-//			score += ((state.game.getManhattanDistance(pacLoc, state.game.getCurGhostLoc(0))) +
-//					 (state.game.getManhattanDistance(pacLoc, state.game.getCurGhostLoc(1))) +
-//					 (state.game.getManhattanDistance(pacLoc, state.game.getCurGhostLoc(2))) +
-//					 (state.game.getManhattanDistance(pacLoc, state.game.getCurGhostLoc(3)))) * -1000;
-//		}
-
-//		float ghostScore = state.game.getNextEdibleGhostScore();
-//		if (isPowerPillActive)
-//		{
-//			score += ghostScore * rAllGhostsEatenMult;
-//
-//		}
-//		else
-//		{
-//
-//		}
-
-		//System.out.println(ghostsInLair + " ghosts in lair");
+		if (game.getCurLevel() < state.game.getCurLevel()) return rLvlComplete;
 		
+		//if (isPowerPillActive) score += (state.game.getNextEdibleGhostScore() - 400) * 10;
+		if (state.game.getNextEdibleGhostScore() != 3200) score += rNotAllEaten;
+		//if (isPowerPillActive && state.game.getFruitLoc() != -1) score += rPowerAndFruit;
 
-//		float depthMult = state.depth/(float)maxReachedDepth;
-//		depthMult *= depthMult;
-//		depthMult = 1 - depthMult;
-//		score *= depthMult;
+		float depthMult = state.depth/(float)maxReachedDepth;
+		depthMult *= depthMult;
+		depthMult = 1 - depthMult;
+		if (score < 0) score += Math.abs(score) * depthMult;
+		else score *= depthMult;
 
 		//System.out.println(score);
 		return score;
