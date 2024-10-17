@@ -8,31 +8,35 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-// Score with timeDue - 5
-// 200 020, rdebuff 0.35, best score = max from tree, score with depth^2 lowering, reverse
-// 213 386, rdebuff 0.45, best score = max from tree, score with depth^2 lowering, reverse
-// 221 640, rdebuff 0.55, best score = max from tree, score with depth^2 lowering, reverse
-// 212 120, rdebuff 0.55, best score = max from tree, score with no depth, reverse
-// 197 920, rdebuff 0.55, best score = max from tree, score with depth^2 lowering, no reverse
-// 218 600, rdebuff 0.55, best score = max from tree, score with depth^3 lowering, reverse
-// ., rdebuff 0.5, best score = max from tree, score with depth^2 lowering, reverse
-//
-// Score with timeDue - 15
-// 223 620, rdebuff 0.5, best score = max from tree, score with depth^2 lowering
-// 215 820, rdebuff 0.65, best score = max from tree, score with depth^2 lowering
+
+// 275 810, lvlc 100, reverse -20, dth -1000000, powerPillScore 700, total score change, quadratic depth mult
+// 269 110, lvlc 1000, reverse -20, dth -1000000, powerPillScore 700, total score change, quadratic depth mult, near death
+// 269 110, lvlc 5000, reverse -20, dth -1000000, powerPillScore 700, total score change, quadratic depth mult
+// 227 620, lvlc 1000, reverse -20, dth -1000000, powerPillScore 0, total score change, quadratic depth mult, easy no death
+
+// 220 110, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
+//		heuristic - depth only
 
 public final class MyAgent extends PacManControllerBase
 {
 	private int maxReachedDepth = 1;
-	
-	// Reward variables for different properties of states
-	private final float rLvlComplete = 10000f;
-	private final float rReverseDir = -15f;
-	private final float rDeath = -1000000;
-	private final float rPerPowerPill = 3000;
+	private int maxReachedDepthPrint = 1;
+
+	// Value Reward variables for evaluating a states
+	private final float rLvlComplete = 1000f;
+	private final float rReverseDir = -20f;
+	private final float rDeath = Float.NEGATIVE_INFINITY;
+	private final float rPerPowerPill = 0;
 	//private final float rPowerAndFruit = -1000;
 	//private final float rNotAllEaten = -10000;
 	//private final float rFruitMult = 1.5f;
+
+	// Heuristic Cost variables for evaluating a state
+	private final float cPerPowerPill = 20;
+	private final float cPerPill = 0;
+	private final float cPerLevel = 100;
+	// TODO min distance of all ghosts to a power pill
+	// TODO after all power pills, cPerPill
 
 	private final int waitTime = 10;
 	
@@ -45,6 +49,7 @@ public final class MyAgent extends PacManControllerBase
 		public int powerPillsActiveBefore;
 		public int lastScore;
 		public float value;
+		public float heuristicValue;
 
 		public State(Game game, int parentDir, int depth, int powerPillsActiveBefore, int lastScore)
 		{
@@ -54,17 +59,17 @@ public final class MyAgent extends PacManControllerBase
 			this.powerPillsActiveBefore = powerPillsActiveBefore;
 			this.lastScore = lastScore;
 			this.value = evaluate();
+			this.heuristicValue = evaluateHeuristic();
 		}
 		
 		private float evaluate()
 		{
-			float score = 0;
-			score = gameCopy.getScore();
+			if (game.getLivesRemaining() > gameCopy.getLivesRemaining()) return rDeath;
+			if (game.getCurLevel() < gameCopy.getCurLevel()) return rLvlComplete;
 
-			if (game.getLivesRemaining() > gameCopy.getLivesRemaining()) score += rDeath;
-			if (game.getCurLevel() < gameCopy.getCurLevel()) score += rLvlComplete;
-			
-			//score += gameCopy.getNumActivePowerPills() * rPerPowerPill;
+			float score = 0;
+			score = gameCopy.getScore() - game.getScore();
+			score += gameCopy.getNumActivePowerPills() * rPerPowerPill;
 			// if fruit exists, target it
 			//if (gameCopy.getFruitLoc() != -1)
 			//{
@@ -109,7 +114,7 @@ public final class MyAgent extends PacManControllerBase
 			}
 			
 			float depthMult = depth / (float) maxReachedDepth;
-			depthMult = (float) Math.pow(depthMult, 4);
+			depthMult = (float) Math.pow(depthMult, 2);
 			depthMult = 1 - depthMult;
 			if (score < 0) score -= Math.abs(score) - Math.abs(score) * depthMult;
 			else score *= depthMult;
@@ -120,7 +125,17 @@ public final class MyAgent extends PacManControllerBase
 			//System.out.println(score);
 			return score;
 		}
-		
+
+		private float evaluateHeuristic()
+		{
+			float heuristic = depth;
+
+			//heuristic += gameCopy.getNumActivePowerPills() * cPerPowerPill;
+			//heuristic += gameCopy.getNumActivePills() * cPerPill;
+			//heuristic += (16 - gameCopy.getCurLevel()) * cPerLevel;
+
+			return heuristic;
+		}
 	}
 
 	// Debug
@@ -128,7 +143,7 @@ public final class MyAgent extends PacManControllerBase
 	
 	@Override
 	public void tick(Game game, long timeDue) {
-		
+
 		// Debug
 		ticks += 1;
 		if (ticks % 125 == 0)
@@ -136,12 +151,14 @@ public final class MyAgent extends PacManControllerBase
 			System.out.println("Score: " + game.getScore() +
 							   ", lvl: " + game.getCurLevel() +
 							   ", lives: " + game.getLivesRemaining() +
-							   ", max depth reached: " + maxReachedDepth +
+							   ", max depth reached (since last print): " + maxReachedDepthPrint +
 							   ", next edible score: " + game.getNextEdibleGhostScore() +
 							   ", fruit pos: " + game.getFruitLoc() +
 							   ", lvl Time: " + game.getLevelTime());
+			maxReachedDepthPrint = 1;
 		}
-		
+
+
 		int[] directions = game.getPossiblePacManDirs(true);
 		if (directions.length == 1)
 		{
@@ -153,12 +170,13 @@ public final class MyAgent extends PacManControllerBase
 		float[] dirNumExplored = new float[4];
 
 		// Create a queue and put the initial states in
-		Queue<State> statesToVisit = new LinkedList<>();/*PriorityQueue<>(new Comparator<State>() {
+		Queue<State> statesToVisit = //new LinkedList<>();
+		new PriorityQueue<>(new Comparator<State>() {
 			@Override
 			public int compare(State o1, State o2) {
-				return Float.compare(o2.value, o1.value);
+				return Float.compare(o1.heuristicValue, o2.heuristicValue);
 			}
-		});*/
+		});
 		for (int dir : directions)
 		{
 			Game gameCopy = game.copy();
@@ -222,6 +240,7 @@ public final class MyAgent extends PacManControllerBase
 			}
 			numStatesVisited += 1;
 			maxReachedDepth = Math.max(maxReachedDepth, currState.depth);
+			maxReachedDepthPrint = Math.max(maxReachedDepthPrint, currState.depth);
 		}
 
 //		float bestScored = -100000000;
