@@ -1,10 +1,7 @@
-import com.sun.source.tree.IfTree;
 import controllers.pacman.PacManControllerBase;
 import game.core.Game;
 
-import javax.swing.event.TreeWillExpandListener;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -16,6 +13,29 @@ import java.util.Queue;
 
 // 220 110, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
 //		heuristic - depth only
+
+// 244 620, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
+//		heuristic - depth + score/10
+
+// 251 720, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
+//		heuristic - depth, score/50, 20 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 1
+
+// 259 520, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
+//		heuristic - depth, score/50, 20 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 3
+
+// 259 ???, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, lost 2 lives
+//		heuristic - depth, score/50, 30 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 3, time in lair 0.5
+
+// 272 020, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
+//		heuristic - depth, score/50, 30 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 3, time in lair 1.5
+
+// 269 220, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
+//		heuristic - depth, score/20, 40 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 1, time in lair 3
+
+// .., lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
+//		heuristic - depth, score/10, 40 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 1, time in lair 2
+
+
 
 public final class MyAgent extends PacManControllerBase
 {
@@ -32,12 +52,17 @@ public final class MyAgent extends PacManControllerBase
 	//private final float rFruitMult = 1.5f;
 
 	// Heuristic Cost variables for evaluating a state
-	private final float cPerPowerPill = 20;
+	private final float cPerPowerPill = 700;
 	private final float cPerPill = 0;
-	private final float cPerLevel = 100;
-	// TODO min distance of all ghosts to a power pill
-	// TODO after all power pills, cPerPill
-
+	private final float cScore = 0.5f;
+	private final float cNextLevel = -1f;//Float.NEGATIVE_INFINITY;
+	private final float cGhostDistFromPowerPill = 400;
+	private final float cGhostDistCutoff = 0.25f;
+	private final float cGhostMaxDist = 60f;
+	private final float cFruitActive = 70f;
+	private final float cNotAllGhostsEatenState = 0.4f;
+	// 10ms - old laptop mode
+	// 5ms - i5-8600 mode
 	private final int waitTime = 10;
 	
 	
@@ -118,7 +143,7 @@ public final class MyAgent extends PacManControllerBase
 			depthMult = 1 - depthMult;
 			if (score < 0) score -= Math.abs(score) - Math.abs(score) * depthMult;
 			else score *= depthMult;
-			
+
 			//score /= gameCopy.getLevelTime();
 			//System.out.println("depth: " + depth + ", max depth: " + maxReachedDepth + ", depth mult: " + depthMult);
 
@@ -128,11 +153,82 @@ public final class MyAgent extends PacManControllerBase
 
 		private float evaluateHeuristic()
 		{
+			if (gameCopy.getCurLevel() != game.getCurLevel()) return cNextLevel;
 			float heuristic = depth;
+			heuristic += -(gameCopy.getScore() - game.getScore()) * cScore;
 
-			//heuristic += gameCopy.getNumActivePowerPills() * cPerPowerPill;
-			//heuristic += gameCopy.getNumActivePills() * cPerPill;
-			//heuristic += (16 - gameCopy.getCurLevel()) * cPerLevel;
+			boolean isGhost1Edible = gameCopy.isEdible(0);
+			boolean isGhost2Edible = gameCopy.isEdible(1);
+			boolean isGhost3Edible = gameCopy.isEdible(2);
+			boolean isGhost4Edible = gameCopy.isEdible(3);
+
+			// Power pill is active
+			boolean isPowerPillActive =
+					(isGhost1Edible ||
+					isGhost2Edible ||
+					isGhost3Edible ||
+					isGhost4Edible);
+
+			// Power pill and ghost eating handleing
+			if (gameCopy.getNumActivePowerPills() > 0 || isPowerPillActive)
+			{
+				int pacManLoc = gameCopy.getCurPacManLoc();
+
+				int ghost1InLairTime = gameCopy.getLairTime(0);
+				int ghost2InLairTime = gameCopy.getLairTime(1);
+				int ghost3InLairTime = gameCopy.getLairTime(2);
+				int ghost4InLairTime = gameCopy.getLairTime(3);
+				int numGhostsInLair = (ghost1InLairTime > 0 ? 1 : 0) +
+									  (ghost2InLairTime > 0 ? 1 : 0) +
+									  (ghost3InLairTime > 0 ? 1 : 0) +
+									  (ghost4InLairTime > 0 ? 1 : 0);
+
+				double ghost1Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(0), pacManLoc);
+				//ghost1Dist -= gameCopy.getEdibleTime(0) * 0.5f;
+				//if (gameCopy.getLevelTime() > 200 && ghost1InLairTime > 0) ghost1Dist = 0;
+				double ghost2Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(1), pacManLoc);
+				//ghost2Dist -= gameCopy.getEdibleTime(1) * 0.5f;
+				//if (gameCopy.getLevelTime() > 200 && ghost2InLairTime > 0) ghost2Dist = 0;
+				double ghost3Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(2), pacManLoc);
+				//ghost3Dist -= gameCopy.getEdibleTime(2) * 0.5f;
+				//if (gameCopy.getLevelTime() > 200 && ghost3InLairTime > 0) ghost3Dist = 0;
+				double ghost4Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(3), pacManLoc);
+				//ghost4Dist -= gameCopy.getEdibleTime(3) * 0.5f;
+				//if (gameCopy.getLevelTime() > 200 && ghost4InLairTime > 0) ghost4Dist = 0;
+
+				double avgDist = (ghost1Dist + ghost2Dist + ghost3Dist + ghost4Dist) / 4d;
+
+				float interpolator = (float) Math.clamp(avgDist/cGhostMaxDist, cGhostDistCutoff, 1f);
+				interpolator = 1f- (1f-interpolator)*(1f-interpolator);
+				heuristic += interpolator * cGhostDistFromPowerPill;
+				//System.out.println((float) (maxDist*cGhostDistFromPowerPillMult));
+
+//				float closestPowerPillDist = Float.POSITIVE_INFINITY;
+//				for (int powerPillIdx : gameCopy.getPowerPillIndices())
+//				{
+//					float dist = gameCopy.getPathDistance(pacManLoc, powerPillIdx);
+//					if (dist < closestPowerPillDist)
+//					{
+//						closestPowerPillDist = dist;
+//					}
+//				}
+//
+//				heuristic += closestPowerPillDist * cPowerPillDist;
+				heuristic += (3200 - gameCopy.getNextEdibleGhostScore()) * cNotAllGhostsEatenState;
+
+				//heuristic += -(ghost1InLairTime + ghost2InLairTime + ghost3InLairTime + ghost4InLairTime) * cGhostTimeInLairMult;
+			}
+
+			// Else go for pills
+			else if (game.getNumActivePowerPills() == 0 && !isPowerPillActive)
+			{
+				heuristic += gameCopy.getNumActivePills() * cPerPill;
+			}
+
+			if (gameCopy.getFruitLoc() != -1)
+			{
+				heuristic += cFruitActive;
+			}
 
 			return heuristic;
 		}
@@ -146,15 +242,23 @@ public final class MyAgent extends PacManControllerBase
 
 		// Debug
 		ticks += 1;
-		if (ticks % 125 == 0)
+		if (ticks % 10 == 0)
 		{
+			double ghost1Dist = game.getPathDistance(game.getCurGhostLoc(0), game.getCurPacManLoc());
+			double ghost2Dist = game.getPathDistance(game.getCurGhostLoc(1), game.getCurPacManLoc());
+			double ghost3Dist = game.getPathDistance(game.getCurGhostLoc(2), game.getCurPacManLoc());
+			double ghost4Dist = game.getPathDistance(game.getCurGhostLoc(3), game.getCurPacManLoc());
+
+			double maxDist = Math.max(Math.max(Math.max(ghost1Dist, ghost2Dist), ghost3Dist), ghost4Dist);
+
 			System.out.println("Score: " + game.getScore() +
 							   ", lvl: " + game.getCurLevel() +
 							   ", lives: " + game.getLivesRemaining() +
 							   ", max depth reached (since last print): " + maxReachedDepthPrint +
 							   ", next edible score: " + game.getNextEdibleGhostScore() +
 							   ", fruit pos: " + game.getFruitLoc() +
-							   ", lvl Time: " + game.getLevelTime());
+							   ", lvl Time: " + game.getLevelTime() +
+							   ", max dist from ghost: " + maxDist);
 			maxReachedDepthPrint = 1;
 		}
 
@@ -194,6 +298,8 @@ public final class MyAgent extends PacManControllerBase
 			State currState = statesToVisit.poll();
 			if (currState == null) break;
 
+			numStatesVisited += 1;
+
 			// Evaluate current state using a heuristic function
 			
 			//dirNumExplored[currState.parentDir] += 1;
@@ -223,7 +329,12 @@ public final class MyAgent extends PacManControllerBase
 			if (skipDirection) continue;
 
 			if (System.currentTimeMillis() >= timeDue - waitTime) break;
-			
+
+			if (currState.heuristicValue == cNextLevel) continue;
+
+			maxReachedDepth = Math.max(maxReachedDepth, currState.depth);
+			maxReachedDepthPrint = Math.max(maxReachedDepthPrint, currState.depth);
+
 			// Add all possible next states
 			for (int dir : currState.gameCopy.getPossiblePacManDirs(false))
 			{
@@ -238,9 +349,6 @@ public final class MyAgent extends PacManControllerBase
 
 				statesToVisit.add(newState);
 			}
-			numStatesVisited += 1;
-			maxReachedDepth = Math.max(maxReachedDepth, currState.depth);
-			maxReachedDepthPrint = Math.max(maxReachedDepthPrint, currState.depth);
 		}
 
 //		float bestScored = -100000000;
