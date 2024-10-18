@@ -56,11 +56,11 @@ public final class MyAgent extends PacManControllerBase
 	private final float cPerPill = 0;
 	private final float cScore = 0.5f;
 	private final float cNextLevel = -1f;//Float.NEGATIVE_INFINITY;
-	private final float cGhostDistFromPowerPill = 400;
-	private final float cGhostDistCutoff = 0.25f;
-	private final float cGhostMaxDist = 60f;
+	private final float cGhostDistFromPowerPill = 500;
+	private final float cGhostDistCutoff = 0.35f;
+	private final float cGhostMaxDist = 70f;
 	private final float cFruitActive = 70f;
-	private final float cNotAllGhostsEatenState = 0.4f;
+	private final float cNotAllGhostsEatenState = 0.6f;
 	// 10ms - old laptop mode
 	// 5ms - i5-8600 mode
 	private final int waitTime = 10;
