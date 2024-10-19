@@ -64,6 +64,7 @@ public final class MyAgent extends PacManControllerBase
 	// TODO - moderately working, fruit is schizo in corner when with pill, many times pill without eating other times perfect
 	// TODO - if powerpill not active 3200 - nextscore * mult, maybe heuristic
 	// TODO no powerpill to end the level
+	// TODO pill shortest distance when no power pills
 
 	class State {
 		public Game gameCopy;
