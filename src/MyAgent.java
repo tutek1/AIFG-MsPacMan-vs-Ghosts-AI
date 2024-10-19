@@ -61,7 +61,7 @@ public final class MyAgent extends PacManControllerBase
 	// 5ms - i5-8600 mode
 	private final int waitTime = 10;
 	
-	// TODO - moderately working, fruit is schizo in corner when with pill, many times pill without eating
+	// TODO - moderately working, fruit is schizo in corner when with pill, many times pill without eating other times perfect
 	// TODO - if powerpill not active 3200 - nextscore * mult, maybe heuristic
 	// TODO no powerpill to end the level
 
