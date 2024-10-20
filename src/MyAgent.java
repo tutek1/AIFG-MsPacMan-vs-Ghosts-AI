@@ -1,4 +1,3 @@
-import com.sun.security.jgss.GSSUtil;
 import controllers.pacman.PacManControllerBase;
 import game.core.Game;
 
@@ -40,22 +39,25 @@ import java.util.Queue;
 
 public final class MyAgent extends PacManControllerBase
 {
-	private int maxReachedDepth = 300;
 	private int maxReachedDepthPrint = 300;
 
 	// Value Reward variables for evaluating a states
-	private final float vLvlComplete = Float.POSITIVE_INFINITY;
-	private final float vReverseDir = -40f;
+	private final float vLvlComplete = 6.f;//Float.POSITIVE_INFINITY;
+	private final float vReverseDir = -30f;
 	private final float vDeath = Float.NEGATIVE_INFINITY;
-    private final float vPowerPillScore = 2.5f;
+    private final float vPowerPillActivePenalty = 0f;
 	private final float vPerPowerPill = 0f;
-    private final float vNextEdibleMult = 0.3f;
+    private final float vNextEdibleMult = 0.f;
+	private final float vDepthMult = 0.01f;
 
-	// Heuristic Cost variables for evaluating a state
-    private final float hScoreMult = 0.2f;
-    private final float hGhostDistMax = 100f;
-    private final float hGhostDistReward = 200;
-    private final float hGhostPillDistMult = 2f;
+	// Heuristic Reward variables for evaluating a state
+    private final float hScoreMult = 20.05f;
+    private final float hGhostDistMinPercent = 0.3f;
+	private final float hGhostDistMax = 120f;
+    private final float hGhostDistReward = 100;
+    private final float hDepthMult = 1f;
+	private final float hPerPills = -2f;
+	private final float hPowerPillActive = 20f;
 
     // 10ms - old laptop mode
 	// 5ms - i5-8600 mode
@@ -124,6 +126,8 @@ public final class MyAgent extends PacManControllerBase
             // Add active power pills to make them costly
             value += gameCopy.getNumActivePowerPills() * vPerPowerPill;
 
+			//if(!isPowerPillActive) value += (gameCopy.getNextEdibleGhostScore()) * vNextEdibleMult;
+			if (isPowerPillActive) value += vPowerPillActivePenalty;
             //if (isPowerPillActive) value += gameCopy.getNextEdibleGhostScore() * vNextEdibleMult;
 
 			// if going backwards make the score lower to not overuse it
@@ -132,10 +136,7 @@ public final class MyAgent extends PacManControllerBase
                 value += vReverseDir;
 			}
 
-            float depthMult = depth / (float) maxReachedDepth;
-            depthMult = (float) Math.pow(depthMult, 8);
-            depthMult = 1 - depthMult;
-            value *= depthMult;
+            value += -(depth * vDepthMult);
 		}
 
 		private void evaluateHeuristic()
@@ -144,8 +145,8 @@ public final class MyAgent extends PacManControllerBase
 //            depthMult = (float) Math.pow(depthMult, 2);
 //            depthMult = 1 - depthMult;
 
-            heuristicValue = -depth;
-            heuristicValue += (gameCopy.getScore() - game.getScore()) * hScoreMult;
+            heuristicValue = -depth * hDepthMult;
+			//heuristicValue += gameCopy.getNumActivePowerPills() * hPowerPill;
             //System.out.println("depth " + -depth);
 
             //System.out.println("score " + (gameCopy.getScore() - game.getScore()) * hScoreMult);
@@ -171,25 +172,36 @@ public final class MyAgent extends PacManControllerBase
                     ghost3Edible),
                     ghost4Edible) > 0;
 
-            if (game.getNumActivePowerPills() != 0 && !isPowerPillActive)
+            if (gameCopy.getNumActivePowerPills() > 0 && !isPowerPillActive)
             {
-                double dist = (ghost1Dist + ghost2Dist + ghost3Dist + ghost4Dist) / 4d;
+				double closestPill = Float.POSITIVE_INFINITY;
+				for (int powerPillIdx : gameCopy.getPowerPillIndices())
+				{
+					double pillDist = gameCopy.getPathDistance(pacManLoc, powerPillIdx);
+					if (pillDist < closestPill)
+					{
+						closestPill = pillDist;
+					}
+				}
+				
+                double dist = (ghost1Dist + ghost2Dist + ghost3Dist + ghost4Dist + closestPill*2) / 6d;
 
-                float interpolator = (float) Math.clamp(dist / hGhostDistMax, 0f, 1f);
+                float interpolator = (float) Math.clamp((dist) / hGhostDistMax, hGhostDistMinPercent, 1f);
                 interpolator = 1 - (interpolator * interpolator);// * (1f - interpolator) * (1f - interpolator);
-
-                double closestPill = Float.POSITIVE_INFINITY;
-                for (int powerPillIdx : gameCopy.getPowerPillIndices())
-                {
-                    double pillDist = gameCopy.getPathDistance(pacManLoc, powerPillIdx);
-                    if (pillDist < closestPill)
-                    {
-                        closestPill = pillDist;
-                    }
-                }
 
                 heuristicValue += (float) ((interpolator * hGhostDistReward));
             }
+			else if (isPowerPillActive)
+			{
+				//if (gameCopy.getScore() - lastScore > 50) heuristicValue += (gameCopy.getScore() - game.getScore()) * hScoreMult;
+				//heuristicValue += hPowerPillActive;
+				//heuristicValue += 0.25f * hGhostDistReward;
+			}
+			else
+			{
+				heuristicValue += gameCopy.getDistanceToNearestPill() * hPerPills;
+			}
+			
 		}
 	}
 
@@ -201,7 +213,7 @@ public final class MyAgent extends PacManControllerBase
 
 		// Debug
 		ticks += 1;
-		if (ticks % 25 == 0)
+		if (ticks % 12 == 0)
 		{
 			double ghost1Dist = game.getPathDistance(game.getCurGhostLoc(0), game.getCurPacManLoc());
 			double ghost2Dist = game.getPathDistance(game.getCurGhostLoc(1), game.getCurPacManLoc());
@@ -210,6 +222,36 @@ public final class MyAgent extends PacManControllerBase
 
 			double maxDist = Math.max(Math.max(Math.max(ghost1Dist, ghost2Dist), ghost3Dist), ghost4Dist);
 
+			int ghost1EdibleTime = game.getEdibleTime(0);
+			int ghost2EdibleTime = game.getEdibleTime(1);
+			int ghost3EdibleTime = game.getEdibleTime(2);
+			int ghost4EdibleTime = game.getEdibleTime(3);
+			
+			int ghost1Edible = ghost1EdibleTime > 0? 1 : 0;
+			int ghost2Edible = ghost2EdibleTime > 0? 1 : 0;
+			int ghost3Edible = ghost3EdibleTime > 0? 1 : 0;
+			int ghost4Edible = ghost4EdibleTime > 0? 1 : 0;
+
+			boolean isPowerPillActive = Math.max(Math.max(Math.max(
+									ghost1Edible,
+									ghost2Edible),
+							ghost3Edible),
+					ghost4Edible) > 0;
+			
+			String state = "None";
+			if (game.getNumActivePowerPills() > 0 && !isPowerPillActive)
+			{
+				state = "Power pills exist, not eaten";
+			}
+			else if (isPowerPillActive)
+			{
+				state = "Power pill eaten";
+			}
+			else
+			{
+				state = "No power pills only pills";
+			}
+			
 			System.out.println("Score: " + game.getScore() +
 							   ", lvl: " + game.getCurLevel() +
 							   ", lives: " + game.getLivesRemaining() +
@@ -217,7 +259,8 @@ public final class MyAgent extends PacManControllerBase
 							   ", next edible score: " + game.getNextEdibleGhostScore() +
 							   ", fruit pos: " + game.getFruitLoc() +
 							   ", lvl Time: " + game.getLevelTime() +
-							   ", max dist from ghost: " + maxDist);
+							   ", max dist from ghost: " + maxDist +
+							   ", state= " + state);
 			maxReachedDepthPrint = 1;
 		}
 
@@ -274,7 +317,7 @@ public final class MyAgent extends PacManControllerBase
 				currState.gameCopy.advanceGame(currState.gameCopy.getPossiblePacManDirs(false)[0]);
 				currState.depth += 1;
 				currState.powerPillsActiveBefore = lastNumPowerPillsActive;
-				if (lastLives > currState.gameCopy.getLivesRemaining())
+				if (lastLives > currState.gameCopy.getLivesRemaining() || currState.gameCopy.getCurLevel() > game.getCurLevel())
 				{
 					skipDirection = true;
 					break;
@@ -283,8 +326,7 @@ public final class MyAgent extends PacManControllerBase
 			if (skipDirection) continue;
 
 			if (System.currentTimeMillis() >= timeDue - waitTime) break;
-
-			maxReachedDepth = Math.max(maxReachedDepth, currState.depth);
+			
 			maxReachedDepthPrint = Math.max(maxReachedDepthPrint, currState.depth);
 
 			// Add all possible next states
@@ -298,6 +340,7 @@ public final class MyAgent extends PacManControllerBase
 						currState.gameCopy.getNumActivePowerPills(),
 						lastScore);
 				if (currState.value <= vDeath) continue;
+				if (currState.gameCopy.getCurLevel() > game.getCurLevel()) continue;
 
 				statesToVisit.add(newState);
 			}
