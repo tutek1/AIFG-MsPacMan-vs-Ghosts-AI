@@ -46,17 +46,18 @@ public final class MyAgent extends PacManControllerBase
 	private final float vReverseDir = -15f;
 	private final float vDeath = Float.NEGATIVE_INFINITY;
     private final float vPowerPillPenalty = 0;
-    private final float vGhostScoreAdd = 100.f;
-	private final float vDepthMult = 0.005f;
+    private final float vGhostScoreAdd = 200.f;
+	private final float vDepthMult = 0.003f;
 
 	// Heuristic Reward variables for evaluating a state
-    private final float hNextEdibleMult = 30.0f;
+    private final float hNextEdibleMult = 0.5f;
     private final float hGhostDistMinPercent = 0.f;
 	private final float hGhostDistMax = 130f;
-    private final float hGhostDistReward = 400;
+    private final float hGhostDistReward = 100;
     private final float hDepthMult = 1f;
 	private final float hPerPills = 0f;
-	private final float hScoreMult = 0.7f;
+	private final float hScoreMult = 0.2f;
+	private final float hGhostEatenBonus = 20;
 
     // 10ms - old laptop mode
 	// 5ms - i5-8600 mode
@@ -112,7 +113,7 @@ public final class MyAgent extends PacManControllerBase
 
 			//if(!isPowerPillActive) value += (gameCopy.getNextEdibleGhostScore()) * vNextEdibleMult;
 			//if (isPowerPillActive) value += vPowerPillActivePenalty;
-            if (wasPowerPillActive && gameCopy.getScore() - lastScore > 190) value += vGhostScoreAdd;
+            //if (wasPowerPillActive && gameCopy.getScore() - lastScore > 190) value += vGhostScoreAdd;
 
 			//value += (gameCopy.getNumberPills() - gameCopy.getNumActivePills()) * vPerPill;
 			if (wasPowerPillActive) value += vPowerPillPenalty;
@@ -134,6 +135,7 @@ public final class MyAgent extends PacManControllerBase
 //            depthMult = 1 - depthMult;
 
             heuristicValue = -depth * hDepthMult;
+			heuristicValue += (gameCopy.getScore() - lastScore) * hScoreMult;
 			//heuristicValue += gameCopy.getNumActivePowerPills() * hPowerPill;
             //System.out.println("depth " + -depth);
 
@@ -186,9 +188,14 @@ public final class MyAgent extends PacManControllerBase
             }
 			else if (wasPowerPillActive)
 			{
-				heuristicValue += (gameCopy.getNextEdibleGhostScore() - 200) * hNextEdibleMult;
-				if (gameCopy.getScore() - lastScore > 190) heuristicValue += (gameCopy.getScore() - game.getScore()) * hScoreMult;
-				
+				heuristicValue += hGhostEatenBonus;
+
+//				int gainedScore = gameCopy.getScore() - lastScore;
+//				if (gainedScore == 200 || gainedScore == 210 ||
+//						gainedScore == 400 || gainedScore == 410 ||
+//						gainedScore == 800 || gainedScore == 810 ||
+//						gainedScore == 1600 || gainedScore == 1610 )
+
 			}
 			else
 			{
@@ -309,6 +316,7 @@ public final class MyAgent extends PacManControllerBase
 			{
 				int lastNumPowerPillsActive = currState.gameCopy.getNumActivePowerPills();
 				int lastLives = currState.gameCopy.getLivesRemaining();
+				currState.lastScore = currState.gameCopy.getScore();
 				currState.gameCopy.advanceGame(currState.gameCopy.getPossiblePacManDirs(false)[0]);
 				currState.depth += 1;
 				currState.powerPillsActiveBefore = lastNumPowerPillsActive;
@@ -325,7 +333,7 @@ public final class MyAgent extends PacManControllerBase
 			maxReachedDepthPrint = Math.max(maxReachedDepthPrint, currState.depth);
 
 			// Add all possible next states
-			for (int dir : currState.gameCopy.getPossiblePacManDirs(false))
+			for (int dir : currState.gameCopy.getPossiblePacManDirs(true))
 			{
 				Game gameCopy = currState.gameCopy.copy();
 
