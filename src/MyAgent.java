@@ -62,10 +62,9 @@ public final class MyAgent extends PacManControllerBase
 	// 5ms - i5-8600 mode
 	private final int waitTime = 10;
 	
-	// TODO always goes for the pill at start of the level (possible too small distance hGhostDistMax)
-	// TODO Power pill taken but scared of ghosts????
-	// TODO distance not always good, maybe go back to max?
 	// TODO distance with level num
+	// TODO two ghosts with same score -> schizo no ghost
+	// TODO 16 level timeout
 
 	class State {
 		public Game gameCopy;
