@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-// Made by Bc. Ondřej Kyzr               
+// Made by Bc. Ondřej Kyzr
 
 
 // 	A score maximizing A* PacMan AI. Due to the game rewarding the player for advancing (pills) it
@@ -27,7 +27,7 @@ import java.util.Queue;
 // - In other rare cases life can be lost from touching ghosts (very rare should not lead to game over)
 
 
-public final class MyAgent extends PacManControllerBase
+public final class OndrejKyzr extends PacManControllerBase
 {
 
 	// Value Reward variables for evaluating a states
@@ -41,7 +41,7 @@ public final class MyAgent extends PacManControllerBase
     private final float hGhostDistReward = 200;			  // The maximum reward given if ghosts are as close as possible
     private final float hDepthMult = 1f;				  // Currently unused, but can make the search deeper/shallower
 	private final float hFinalPillScore = 10f;			  // Makes PacMac go for the final few pills faster
-	private final float hScoreThreshold = 400f;		  // A threshold so that we only prioritize states with very high score gain
+	private final float hScoreThreshold = 400f;		      // A threshold so that we only prioritize states with very high score gain
 	private final float hScoreMult = 0.15f;				  // Makes A* search states with higher score with more priority
 
 	// Number of ms to be subtracted from timeDue, to make the "PacMan still thinking..." go away
