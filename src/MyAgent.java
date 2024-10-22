@@ -5,150 +5,111 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+// Made by Bc. Ondřej Kyzr               
 
-// 269 110, lvlc 1000, reverse -20, dth -1000000, powerPillScore 700, total score change, quadratic depth mult, near death
 
-// 272 020, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
-//		heuristic - depth, score/50, 30 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 3, time in lair 1.5
+// 	A score maximizing A* PacMan AI. Due to the game rewarding the player for advancing (pills) it
+// also accomplishes the goal of beating all 16 levels. It can sometimes get confused in some situations
+// and rapidly twitch in place.
 
+// 	My AI values states with more score. The heuristic function prefers states with ghosts closer to a power pill
+// and states with more score gain. This makes it hunt the ghosts and during the hunt it takes into account normal
+// pills and fruits (+ pretzel). It takes into account moving in reverse, but skips straight paths to make search
+// much more effective.
+// (depth no heuristic =~25 -> +straight path skip =~170 -> +heuristic =~500).
+
+// 	Even after all the efforts this version of the AI can do score around 220 000, which is not bad, but during
+// testing I was somehow able to make an AI that had avg score around 260 000, which I lost due to poor use of git.
+
+// --------Bugs--------
+// - In later levels it wastes some power pills. Either randomly or because a fruit appeared.
+// - In rare cases it can timeout on a level if ghost don't align close to a pill in time.
+// - In other rare cases life can be lost from touching ghosts (very rare should not lead to game over)
 
 
 public final class MyAgent extends PacManControllerBase
 {
-	private int maxReachedDepthPrint = 300;
 
 	// Value Reward variables for evaluating a states
-	private final float vLvlComplete = 1f;
-	private final float vReverseDir = -15f;
-	private final float vDeath = Float.NEGATIVE_INFINITY;
-    private final float vPowerPillPenalty = -400;
-    private final float vGhostScoreAdd = 0.f;
-	private final float vDepthMult = 0.1f;
+	private final float vReverseDir = -15f;				  // Constant penalty for reverse initial direction
+	private final float vDeath = Float.NEGATIVE_INFINITY; // A set value to know if death happened
+    private final float vPowerPillPenalty = -1700;		  // Penalty for an active power pill (incentives better powerpill usage)
+	private final float vDepthMult = 0.001f;			  // A small depth penalty to make pacman more 'focused'
 
 	// Heuristic Reward variables for evaluating a state
-    private final float hNextEdibleMult = 0.5f;
-    private final float hGhostDistMinPercent = 0.f;
-	private final float hGhostDistMax = 130f;
-    private final float hGhostDistReward = 200;
-    private final float hDepthMult = 1f;
-	private final float hFinalPillScore = 1f;
-	private final float hScoreGhostMult = 0.05f;
-	private final float hScoreMult = 1f;
-	private final float hPowerPillActive = 20;
+	private final float hGhostDistMax = 150f;			  // Max distance a ghost can be away
+    private final float hGhostDistReward = 200;			  // The maximum reward given if ghosts are as close as possible
+    private final float hDepthMult = 1f;				  // Currently unused, but can make the search deeper/shallower
+	private final float hFinalPillScore = 10f;			  // Makes PacMac go for the final few pills faster
+	private final float hScoreThreshold = 400f;		  // A threshold so that we only prioritize states with very high score gain
+	private final float hScoreMult = 0.15f;				  // Makes A* search states with higher score with more priority
 
-    // 10ms - old laptop mode
-	// 5ms - i5-8600 mode
-	private final int waitTime = 10;
-	
-	// TODO distance with level num
-	// TODO two ghosts with same score -> schizo no ghost
-	// TODO 16 level timeout
+	// Number of ms to be subtracted from timeDue, to make the "PacMan still thinking..." go away
+	private final int timeDueSubtract = 1;
 
+
+	// A class for unifying and evaluating a gameCopy
 	class State {
 		public Game gameCopy;
-		public int parentDir;
-		public int depth;
-		public int powerPillsActiveBefore;
-		public int lastScore;
-		public float value;
-		public float heuristicValue;
-		public boolean wasPowerPillActive;
+		public int parentDir;				// Direction in which the first node headed
+		public int depth;					// The current depth of the search
+		public float value;					// The value of the state i.e. how much PacMan wants to be here (higher == better)
+		public float heuristicValue;		// The heuristic value of the state i.e. how it is prioritized in search (higher == better)
+		public boolean wasPowerPillActive;	// Indicates if in the last state the power pill was active (useful for eating the last ghost)
 
-		public State(Game game, int parentDir, int depth, int powerPillsActiveBefore, int lastScore, boolean wasPowerPillActive)
+		// Constructor
+		public State(Game game, int parentDir, int depth, boolean wasPowerPillActive)
 		{
 			this.gameCopy = game;
 			this.parentDir = parentDir;
 			this.depth = depth;
-			this.powerPillsActiveBefore = powerPillsActiveBefore;
-			this.lastScore = lastScore;
 			this.wasPowerPillActive = wasPowerPillActive;
 			evaluate();
 			evaluateHeuristic();
 		}
-		
+
+		// Calculates the value of the state (higher == better)
 		private void evaluate()
 		{
-            // Dies
+            // Death
 			if (game.getLivesRemaining() > gameCopy.getLivesRemaining())
             {
                 value = vDeath;
                 return;
             }
-			if (game.getCurLevel() < gameCopy.getCurLevel() && wasPowerPillActive)
-			{
-				value = vDeath;
-				return;
-			}
-			
-            // Completes level
-			if (game.getCurLevel() < gameCopy.getCurLevel() && !wasPowerPillActive)
-            {
-                value = vLvlComplete;
-                return;
-            };
 
-            // Else calculate the value of the state (higher value is better)
+            // Add score change from the start of the simulated state
 			value = gameCopy.getScore() - game.getScore();
 
-            //if (isPowerPillActive && (gameCopy.getScore() - lastScore >= 200)) value += gameCopy.getScore() - lastScore * vPowerPillScore;
-
-            // Add active power pills to make them costly
-
-			//if(!isPowerPillActive) value += (gameCopy.getNextEdibleGhostScore()) * vNextEdibleMult;
-			//if (isPowerPillActive) value += vPowerPillActivePenalty;
-			int gainedScore = gameCopy.getScore() - lastScore;
-            if (gainedScore > 190 && gainedScore < 1900) value += vGhostScoreAdd;
-
-			//value += (gameCopy.getNumberPills() - gameCopy.getNumActivePills()) * vPerPill;
+            // Add power pills penalty to make them costly and used effectively
 			if (wasPowerPillActive) value += vPowerPillPenalty;
 
+			// Add the depth to make pacman complete levels faster
 			value += (depth * vDepthMult);
 
-			// if going backwards make the score lower to not overuse it
+			// if going backwards make the score lower to not overuse it and spin
 			if (game.getCurPacManDir() == gameCopy.getReverse(parentDir))
 			{
                 value += vReverseDir;
 			}
-
 		}
 
+		// Calculates the heuristic value of the state (higher == better)
 		private void evaluateHeuristic()
 		{
-//            float depthMult = depth / (float) maxReachedDepth;
-//            depthMult = (float) Math.pow(depthMult, 2);
-//            depthMult = 1 - depthMult;
 
+			// Add the depth as a base
             heuristicValue = -depth * hDepthMult;
-			int gainedScore = gameCopy.getScore() - lastScore;
-			if (gainedScore < 100)heuristicValue += (gainedScore) * hScoreMult;
-			if (gainedScore > 199 && gainedScore < 1999) heuristicValue += (gainedScore) * hScoreGhostMult;
 
-			//heuristicValue += gameCopy.getNumActivePowerPills() * hPowerPill;
-            //System.out.println("depth " + -depth);
+			// Add the gained score if it is over a threshold
+			int gainedScore = gameCopy.getScore() - game.getScore();
+			if (gainedScore > hScoreThreshold) heuristicValue += gainedScore * hScoreMult;
 
-            //System.out.println("score " + (gameCopy.getScore() - game.getScore()) * hScoreMult);
-            int ghost1EdibleTime = game.getEdibleTime(0);
-            int ghost2EdibleTime = game.getEdibleTime(1);
-            int ghost3EdibleTime = game.getEdibleTime(2);
-            int ghost4EdibleTime = game.getEdibleTime(3);
-
-            int ghost1Edible = ghost1EdibleTime > 0? 1 : 0;
-            int ghost2Edible = ghost2EdibleTime > 0? 1 : 0;
-            int ghost3Edible = ghost3EdibleTime > 0? 1 : 0;
-            int ghost4Edible = ghost4EdibleTime > 0? 1 : 0;
-
-            boolean isPowerPillActive = Math.max(Math.max(Math.max(
-                    ghost1Edible,
-                    ghost2Edible),
-                    ghost3Edible),
-                    ghost4Edible) > 0;
-
+			// A power pill is not active, and we are hunting the ghosts
             if (gameCopy.getNumActivePowerPills() > 0 && !wasPowerPillActive)
             {
-				int pacManLoc = gameCopy.getCurPacManLoc();
-
+				// Find the closest distance from power pills to ghosts
 				double closestPill = Float.POSITIVE_INFINITY;
-				int pillIdx = -1;
 				for (int powerPillIdx : gameCopy.getPowerPillIndicesActive())
 				{
 					double ghost1Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(0), powerPillIdx);
@@ -160,54 +121,36 @@ public final class MyAgent extends PacManControllerBase
 					if (pillDist < closestPill)
 					{
 						closestPill = pillDist;
-						pillIdx = powerPillIdx;
 					}
 				}
 
-				//double ghost1Dist = gameCopy.getManhattanDistance(gameCopy.getCurGhostLoc(0), pillIdx);
-				//double ghost2Dist = gameCopy.getManhattanDistance(gameCopy.getCurGhostLoc(1), pillIdx);
-				//double ghost3Dist = gameCopy.getManhattanDistance(gameCopy.getCurGhostLoc(2), pillIdx);
-				//double ghost4Dist = gameCopy.getManhattanDistance(gameCopy.getCurGhostLoc(3), pillIdx);
+				// Use quadratic easing to make the distance from pill non-linear
+                float interpolator = (float) Math.clamp((closestPill) / hGhostDistMax, 0f, 1f);
+                interpolator = 1 - (interpolator * interpolator);
 
-				//double dist = (ghost1Dist + ghost2Dist + ghost3Dist + ghost4Dist) / 4d;
-
-				//double dist = Math.max(ghost1Dist , Math.max(ghost2Dist , Math.max(ghost3Dist , ghost4Dist)));
-
-                float interpolator = (float) Math.clamp((closestPill) / hGhostDistMax, hGhostDistMinPercent, 1f);
-                interpolator = 1 - (interpolator * interpolator);// * (1f - interpolator) * (1f - interpolator);
-
-                heuristicValue += (float) ((interpolator * hGhostDistReward));
+				// Add the distance to the nearest pill
+                heuristicValue += (interpolator * hGhostDistReward);
             }
-			else if (wasPowerPillActive)
+
+			// No power pills exist -> look for final pill
+			else if (!wasPowerPillActive)
 			{
-				heuristicValue += hPowerPillActive;
-
-//				int gainedScore = gameCopy.getScore() - lastScore;
-//				if (gainedScore == 200 || gainedScore == 210 ||
-//						gainedScore == 400 || gainedScore == 410 ||
-//						gainedScore == 800 || gainedScore == 810 ||
-//						gainedScore == 1600 || gainedScore == 1610 )
-
+				heuristicValue += gainedScore * hFinalPillScore;
 			}
-			else
-			{
-				if (gainedScore < 100) heuristicValue += (gainedScore) * hFinalPillScore;
-				
-			}
-			
-
 		}
 	}
 
 	// Debug
-	long ticks = 0;
-	
+	private long ticks = 0;
+	private int maxReachedDepthPrint = 1;
+	private final int printInfoEveryXTicks = 50;
+
 	@Override
 	public void tick(Game game, long timeDue) {
 
-		// Debug
+		// Debug prints so that I can easily evaluate the -sim command
 		ticks += 1;
-		if (ticks % 12 == 0)
+		if (ticks % printInfoEveryXTicks == 0)
 		{
 			double ghost1Dist = game.getPathDistance(game.getCurGhostLoc(0), game.getCurPacManLoc());
 			double ghost2Dist = game.getPathDistance(game.getCurGhostLoc(1), game.getCurPacManLoc());
@@ -216,60 +159,45 @@ public final class MyAgent extends PacManControllerBase
 
 			double maxDist = Math.max(Math.max(Math.max(ghost1Dist, ghost2Dist), ghost3Dist), ghost4Dist);
 
-			int ghost1EdibleTime = game.getEdibleTime(0);
-			int ghost2EdibleTime = game.getEdibleTime(1);
-			int ghost3EdibleTime = game.getEdibleTime(2);
-			int ghost4EdibleTime = game.getEdibleTime(3);
-			
-			int ghost1Edible = ghost1EdibleTime > 0? 1 : 0;
-			int ghost2Edible = ghost2EdibleTime > 0? 1 : 0;
-			int ghost3Edible = ghost3EdibleTime > 0? 1 : 0;
-			int ghost4Edible = ghost4EdibleTime > 0? 1 : 0;
+			int ghost1Edible = game.getEdibleTime(0) > 0? 1 : 0;
+			int ghost2Edible = game.getEdibleTime(1) > 0? 1 : 0;
+			int ghost3Edible = game.getEdibleTime(2) > 0? 1 : 0;
+			int ghost4Edible = game.getEdibleTime(3) > 0? 1 : 0;
 
 			boolean isPowerPillActive = Math.max(Math.max(Math.max(
 									ghost1Edible,
 									ghost2Edible),
-							ghost3Edible),
-					ghost4Edible) > 0;
+									ghost3Edible),
+									ghost4Edible) > 0;
 			
 			String state = "None";
 			if (game.getNumActivePowerPills() > 0 && !isPowerPillActive)
 			{
-				state = "Power pills exist, not eaten";
+				state = "Hunting ghosts!";
 			}
 			else if (isPowerPillActive)
 			{
-				state = "Power pill eaten";
+				state = "Eating ghosts!";
 			}
 			else
 			{
-				state = "No power pills only pills";
+				state = "Looking for pills!";
 			}
 			
 			System.out.println("Score: " + game.getScore() +
 							   ", lvl: " + game.getCurLevel() +
 							   ", lives: " + game.getLivesRemaining() +
 							   ", max depth reached (since last print): " + maxReachedDepthPrint +
-							   ", next edible score: " + game.getNextEdibleGhostScore() +
-							   ", fruit pos: " + game.getFruitLoc() +
+							   ", next ghost score: " + game.getNextEdibleGhostScore() +
+							   ", fruit exists: " + (game.getFruitLoc() != -1) +
 							   ", max dist from ghost: " + maxDist +
-							   ", state: " + state
+							   ", state: " + state +
+							   ", lvl time: " + game.getLevelTime()
 							   );
 			maxReachedDepthPrint = 1;
 		}
 
-
-		int[] directions = game.getPossiblePacManDirs(true);
-		if (directions.length == 1)
-		{
-			pacman.set(directions[0]);
-			// TODO try precalculation of the next junction
-			return;
-		}
-		float[] dirScores = new float[4];
-		float[] dirNumExplored = new float[4];
-
-		// Create a queue and put the initial states in
+		// Create a priority queue and a comparator based on heuristic
 		Queue<State> statesToVisit = //new LinkedList<>();
 		new PriorityQueue<>(new Comparator<State>() {
 			@Override
@@ -277,41 +205,40 @@ public final class MyAgent extends PacManControllerBase
 				return Float.compare(o2.heuristicValue, o1.heuristicValue);
 			}
 		});
-		for (int dir : directions)
+
+		// Put the initial directions in the queue
+		for (int dir : game.getPossiblePacManDirs(true))
 		{
 			Game gameCopy = game.copy();
 			gameCopy.advanceGame(dir);
-			State newState = new State(gameCopy, dir, 1, gameCopy.getNumActivePowerPills(), 0, false);
-			if (newState.value <= vDeath) continue;
+			State newState = new State(gameCopy, dir, 1, false);
+			if (newState.value == vDeath) continue;
 			statesToVisit.add(newState);
 		}
 
 		// While we have time, explore the decision tree
-		int numStatesVisited = 0;
 		float bestScore = -100000000;
-		while (System.currentTimeMillis() < timeDue - waitTime) {
+		while (System.currentTimeMillis() < timeDue - timeDueSubtract) {
 			// Get current state
 			State currState = statesToVisit.poll();
 			if (currState == null) break;
 
-			numStatesVisited += 1;
-
+			// Check the value if it is the best found
 			if (currState.value > bestScore)
 			{
 				bestScore = currState.value;
 				pacman.set(currState.parentDir);
 			}
-			
-			// Skip states where we are going in a straight line
+
+			// Skip states where we are going in a straight line to deepen the search
 			boolean skipDirection = false;
 			while (currState.gameCopy.getPossiblePacManDirs(false).length == 1)
 			{
-				int lastNumPowerPillsActive = currState.gameCopy.getNumActivePowerPills();
 				int lastLives = currState.gameCopy.getLivesRemaining();
-				currState.lastScore = currState.gameCopy.getScore();
 				currState.gameCopy.advanceGame(currState.gameCopy.getPossiblePacManDirs(false)[0]);
 				currState.depth += 1;
-				currState.powerPillsActiveBefore = lastNumPowerPillsActive;
+
+				// Skip death states
 				if (lastLives > currState.gameCopy.getLivesRemaining())
 				{
 					skipDirection = true;
@@ -320,33 +247,36 @@ public final class MyAgent extends PacManControllerBase
 			}
 			if (skipDirection) continue;
 
-			if (System.currentTimeMillis() >= timeDue - waitTime) break;
-			
-			maxReachedDepthPrint = Math.max(maxReachedDepthPrint, currState.depth);
-
-			// Add all possible next states
+			// Add all possible next states and copy over some info (if power pill was active, depth, etc.)
 			for (int dir : currState.gameCopy.getPossiblePacManDirs(true))
 			{
 				Game gameCopy = currState.gameCopy.copy();
 
-				int lastScore = gameCopy.getScore();
-
+				// Check if power pill was active
 				boolean wasPowerPillActive = gameCopy.isEdible(0) ||
 											 gameCopy.isEdible(1) ||
 											 gameCopy.isEdible(2) ||
 											 gameCopy.isEdible(3);
 
+				// Advance the game and skip death states
+				int lastLives = currState.gameCopy.getLivesRemaining();
 				gameCopy.advanceGame(dir);
+				if (lastLives > currState.gameCopy.getLivesRemaining()) continue;
 
+				// Create a new state and evaluate it
 				State newState = new State(gameCopy,currState.parentDir,
 						currState.depth + 1,
-						currState.gameCopy.getNumActivePowerPills(),
-						lastScore,
 						wasPowerPillActive);
-				if (currState.value <= vDeath) continue;
 
+				// Add it to queue
 				statesToVisit.add(newState);
+
+				// Timeout check to not print "PacMan is still thinking..."
+				if (System.currentTimeMillis() >= timeDue - timeDueSubtract) break;
 			}
+
+			// Debug to know the max depth
+			maxReachedDepthPrint = Math.max(maxReachedDepthPrint, currState.depth);
 		}
 	}
 }
