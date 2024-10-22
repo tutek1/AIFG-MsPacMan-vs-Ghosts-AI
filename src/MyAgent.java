@@ -6,34 +6,10 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 
-// 275 810, lvlc 100, reverse -20, dth -1000000, powerPillScore 700, total score change, quadratic depth mult
 // 269 110, lvlc 1000, reverse -20, dth -1000000, powerPillScore 700, total score change, quadratic depth mult, near death
-// 269 110, lvlc 5000, reverse -20, dth -1000000, powerPillScore 700, total score change, quadratic depth mult
-// 227 620, lvlc 1000, reverse -20, dth -1000000, powerPillScore 0, total score change, quadratic depth mult, easy no death
-
-// 220 110, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
-//		heuristic - depth only
-
-// 244 620, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
-//		heuristic - depth + score/10
-
-// 251 720, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
-//		heuristic - depth, score/50, 20 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 1
-
-// 259 520, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
-//		heuristic - depth, score/50, 20 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 3
-
-// 259 ???, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, lost 2 lives
-//		heuristic - depth, score/50, 30 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 3, time in lair 0.5
 
 // 272 020, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
 //		heuristic - depth, score/50, 30 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 3, time in lair 1.5
-
-// 269 220, lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
-//		heuristic - depth, score/20, 40 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 1, time in lair 3
-
-// .., lvlc 1000, reverse -20, dth -inf, powerPillScore 0, total score change, quadratic depth mult, easy no death
-//		heuristic - depth, score/10, 40 fruit active, nextLvl -inf, max manhattan dist ghosts from pacman * 1, time in lair 2
 
 
 
@@ -42,22 +18,23 @@ public final class MyAgent extends PacManControllerBase
 	private int maxReachedDepthPrint = 300;
 
 	// Value Reward variables for evaluating a states
-	private final float vLvlComplete = 100f;
+	private final float vLvlComplete = 1f;
 	private final float vReverseDir = -15f;
 	private final float vDeath = Float.NEGATIVE_INFINITY;
-    private final float vPowerPillPenalty = 0;
-    private final float vGhostScoreAdd = 200.f;
-	private final float vDepthMult = 0.003f;
+    private final float vPowerPillPenalty = -400;
+    private final float vGhostScoreAdd = 0.f;
+	private final float vDepthMult = 0.1f;
 
 	// Heuristic Reward variables for evaluating a state
     private final float hNextEdibleMult = 0.5f;
     private final float hGhostDistMinPercent = 0.f;
 	private final float hGhostDistMax = 130f;
-    private final float hGhostDistReward = 100;
+    private final float hGhostDistReward = 200;
     private final float hDepthMult = 1f;
-	private final float hPerPills = 0f;
-	private final float hScoreMult = 0.2f;
-	private final float hGhostEatenBonus = 20;
+	private final float hFinalPillScore = 1f;
+	private final float hScoreGhostMult = 0.05f;
+	private final float hScoreMult = 1f;
+	private final float hPowerPillActive = 20;
 
     // 10ms - old laptop mode
 	// 5ms - i5-8600 mode
@@ -97,8 +74,14 @@ public final class MyAgent extends PacManControllerBase
                 value = vDeath;
                 return;
             }
+			if (game.getCurLevel() < gameCopy.getCurLevel() && wasPowerPillActive)
+			{
+				value = vDeath;
+				return;
+			}
+			
             // Completes level
-			if (game.getCurLevel() < gameCopy.getCurLevel())
+			if (game.getCurLevel() < gameCopy.getCurLevel() && !wasPowerPillActive)
             {
                 value = vLvlComplete;
                 return;
@@ -113,7 +96,8 @@ public final class MyAgent extends PacManControllerBase
 
 			//if(!isPowerPillActive) value += (gameCopy.getNextEdibleGhostScore()) * vNextEdibleMult;
 			//if (isPowerPillActive) value += vPowerPillActivePenalty;
-            //if (wasPowerPillActive && gameCopy.getScore() - lastScore > 190) value += vGhostScoreAdd;
+			int gainedScore = gameCopy.getScore() - lastScore;
+            if (gainedScore > 190 && gainedScore < 1900) value += vGhostScoreAdd;
 
 			//value += (gameCopy.getNumberPills() - gameCopy.getNumActivePills()) * vPerPill;
 			if (wasPowerPillActive) value += vPowerPillPenalty;
@@ -135,15 +119,18 @@ public final class MyAgent extends PacManControllerBase
 //            depthMult = 1 - depthMult;
 
             heuristicValue = -depth * hDepthMult;
-			heuristicValue += (gameCopy.getScore() - lastScore) * hScoreMult;
+			int gainedScore = gameCopy.getScore() - lastScore;
+			if (gainedScore < 100)heuristicValue += (gainedScore) * hScoreMult;
+			if (gainedScore > 199 && gainedScore < 1999) heuristicValue += (gainedScore) * hScoreGhostMult;
+
 			//heuristicValue += gameCopy.getNumActivePowerPills() * hPowerPill;
             //System.out.println("depth " + -depth);
 
             //System.out.println("score " + (gameCopy.getScore() - game.getScore()) * hScoreMult);
-            int ghost1EdibleTime = gameCopy.getEdibleTime(0);
-            int ghost2EdibleTime = gameCopy.getEdibleTime(1);
-            int ghost3EdibleTime = gameCopy.getEdibleTime(2);
-            int ghost4EdibleTime = gameCopy.getEdibleTime(3);
+            int ghost1EdibleTime = game.getEdibleTime(0);
+            int ghost2EdibleTime = game.getEdibleTime(1);
+            int ghost3EdibleTime = game.getEdibleTime(2);
+            int ghost4EdibleTime = game.getEdibleTime(3);
 
             int ghost1Edible = ghost1EdibleTime > 0? 1 : 0;
             int ghost2Edible = ghost2EdibleTime > 0? 1 : 0;
@@ -162,9 +149,14 @@ public final class MyAgent extends PacManControllerBase
 
 				double closestPill = Float.POSITIVE_INFINITY;
 				int pillIdx = -1;
-				for (int powerPillIdx : gameCopy.getPowerPillIndices())
+				for (int powerPillIdx : gameCopy.getPowerPillIndicesActive())
 				{
-					double pillDist = gameCopy.getPathDistance(pacManLoc, powerPillIdx);
+					double ghost1Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(0), powerPillIdx);
+					double ghost2Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(1), powerPillIdx);
+					double ghost3Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(2), powerPillIdx);
+					double ghost4Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(3), powerPillIdx);
+					
+					double pillDist = Math.max(ghost1Dist , Math.max(ghost2Dist, Math.max(ghost3Dist, ghost4Dist)));
 					if (pillDist < closestPill)
 					{
 						closestPill = pillDist;
@@ -172,23 +164,23 @@ public final class MyAgent extends PacManControllerBase
 					}
 				}
 
-				double ghost1Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(0), pacManLoc);
-				double ghost2Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(1), pacManLoc);
-				double ghost3Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(2), pacManLoc);
-				double ghost4Dist = gameCopy.getPathDistance(gameCopy.getCurGhostLoc(3), pacManLoc);
+				//double ghost1Dist = gameCopy.getManhattanDistance(gameCopy.getCurGhostLoc(0), pillIdx);
+				//double ghost2Dist = gameCopy.getManhattanDistance(gameCopy.getCurGhostLoc(1), pillIdx);
+				//double ghost3Dist = gameCopy.getManhattanDistance(gameCopy.getCurGhostLoc(2), pillIdx);
+				//double ghost4Dist = gameCopy.getManhattanDistance(gameCopy.getCurGhostLoc(3), pillIdx);
 
-				//double dist = (ghost1Dist + ghost2Dist + ghost3Dist + ghost4Dist + closestPill) / 5d;
+				//double dist = (ghost1Dist + ghost2Dist + ghost3Dist + ghost4Dist) / 4d;
 
-				double dist = Math.max(ghost1Dist , Math.max(ghost2Dist , Math.max(ghost3Dist , Math.max(ghost4Dist , closestPill))));
+				//double dist = Math.max(ghost1Dist , Math.max(ghost2Dist , Math.max(ghost3Dist , ghost4Dist)));
 
-                float interpolator = (float) Math.clamp((dist) / hGhostDistMax, hGhostDistMinPercent, 1f);
+                float interpolator = (float) Math.clamp((closestPill) / hGhostDistMax, hGhostDistMinPercent, 1f);
                 interpolator = 1 - (interpolator * interpolator);// * (1f - interpolator) * (1f - interpolator);
 
                 heuristicValue += (float) ((interpolator * hGhostDistReward));
             }
 			else if (wasPowerPillActive)
 			{
-				heuristicValue += hGhostEatenBonus;
+				heuristicValue += hPowerPillActive;
 
 //				int gainedScore = gameCopy.getScore() - lastScore;
 //				if (gainedScore == 200 || gainedScore == 210 ||
@@ -199,8 +191,8 @@ public final class MyAgent extends PacManControllerBase
 			}
 			else
 			{
-				heuristicValue += (gameCopy.getNumActivePills()) * hPerPills;
-				//heuristicValue += (gameCopy.getScore() - game.getScore()) * hScoreMult;
+				if (gainedScore < 100) heuristicValue += (gainedScore) * hFinalPillScore;
+				
 			}
 			
 
